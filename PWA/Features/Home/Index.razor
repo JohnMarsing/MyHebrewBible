@@ -1,9 +1,32 @@
 ﻿@page "/"
+@using PWA.Data
+@inject SqliteDataService SqliteDataService
 
-@* <PageHeader PageEnum="Nav.Home" /> *@
+<PageHeader PageEnum="Nav.Home" />
 
 <h1 class="text-center my-2">Bible Search is the new Home Page</h1>
 
-@code {
+@if (!string.IsNullOrWhiteSpace(_status))
+{
+	<p>@_status</p>
+}
 
+@code {
+	private string? _status;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_status = "Loading SQLite count...";
+
+			var count = await SqliteDataService.GetScriptureCountAsync();
+
+			_status = $"Scripture row count: {count}";
+		}
+		catch (Exception ex)
+		{
+			_status = $"Error: {ex.Message}";
+		}
+	}
 }
