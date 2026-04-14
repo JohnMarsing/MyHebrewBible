@@ -1,0 +1,12 @@
+﻿@page "/Sitemap"
+
+@inject NavigationManager NavigationManager
+
+<PageHeader PageEnum="Nav.Sitemap" />
+
+@code {
+	private void ButtonClicked(Nav nav)
+	{
+		NavigationManager!.NavigateTo(nav.Index);
+	}
+}

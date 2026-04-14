@@ -1,0 +1,23 @@
+.title-logo {
+	width: 100%;
+	max-width: 420px;
+	height: auto;
+}
+
+@media (max-width: 575.98px) {
+	.title-logo {
+		max-width: 180px;
+	}
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+	.title-logo {
+		max-width: 260px;
+	}
+}
+
+@media (min-width: 768px) {
+	.title-logo {
+		max-width: 420px;
+	}
+}

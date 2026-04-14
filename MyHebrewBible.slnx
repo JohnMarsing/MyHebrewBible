@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PWA/PWA.csproj" />
+  <Project Path="RCL/RCL.csproj" />
+</Solution>
