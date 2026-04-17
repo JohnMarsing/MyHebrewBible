@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using PWA;
+using Blazored.LocalStorage;
+using Blazored.Toast;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
+using PWA;
 using PWA.Data;
+using PWA.Features.Home.Data;
+using PWA.State;
 
 using Serilog;
 using Serilog.Core;
@@ -21,8 +25,13 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 // HttpClient is already registered by default in Blazor WASM
 
-builder.Services.AddSingleton<SqliteDataService>();
+builder.Services.AddHomeData(); 
+builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how
+
 builder.Services.AddPWAUpdater(); // This is Toolbelt.Blazor
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<AppState>();
+builder.Services.AddBlazoredToast();  // Need this here and in the Server
 
 Log.Information("PWA WebAssembly App Starting...");
 

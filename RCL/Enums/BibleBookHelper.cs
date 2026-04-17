@@ -19,12 +19,19 @@ public static class BibleBookHelper
     return $"{(useTitle ? bibleBook.Name : bibleBook.Abrv)} {chapter}:{verse}";
   }
 
+	/*
+  ToDo: Not Used. in old ver it was used by 
+  - Haggadah\DetailContent\VerseIndex.razor
+  - HealthChecks\FavoriteVerses\Index.razor
+  
   public static string GetUrl(BibleBook bibleBook, int chapter, int verse)
   {
     return $"/bookchapter/{bibleBook.Abrv}/{chapter}/{verse}/{GetScriptureId(bibleBook, chapter, verse)}";
-  }
 
-  public static string GetCodeGenInternalConst(BibleBook bibleBook, int chapter, int verse)
+  }
+  */
+
+	public static string GetCodeGenInternalConst(BibleBook bibleBook, int chapter, int verse)
   {
     /* internal const int Genesis_01_01 = 1; */
 

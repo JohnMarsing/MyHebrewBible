@@ -1,4 +1,4 @@
-﻿namespace PWA.Database.Endpoints.CommonDtos;
+﻿namespace PWA.Data.Endpoints.CommonDtos;
 
 public record WordPart 
 {

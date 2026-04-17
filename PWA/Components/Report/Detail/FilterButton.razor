@@ -1,0 +1,19 @@
+﻿
+<button @onclick="ButtonClick" class="btn @GetButtonClass()" title="@GetTitle()">
+	<i class='@GetIcon(IsFiltered)'></i>
+</button>
+
+@code {
+	[Parameter, EditorRequired] public bool IsFiltered { get; set; }
+	[Parameter] public EventCallback<bool> OnFilter { get; set; }
+
+	protected string GetButtonClass() => IsFiltered ? "btn-success" : "btn-secondary";
+	protected string GetTitle() => IsFiltered ? "  Filtering" : "  Not filtering";
+	protected string GetIcon(bool isOn) => isOn ? "fas fa-toggle-on" : "fas fa-toggle-off";
+
+	protected void ButtonClick()
+	{
+		IsFiltered = !IsFiltered;
+		OnFilter.InvokeAsync(IsFiltered);
+	}
+}

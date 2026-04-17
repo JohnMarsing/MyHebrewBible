@@ -19,6 +19,27 @@ public class SqliteDataService : IAsyncDisposable
 		_logger = logger;
 	}
 
+	// Called by: DatabaseSmokeTest.razor (Features/Home/)
+	public async Task<long> GetScriptureCountAsync()
+	{
+		await EnsureInitializedAsync();
+
+		const string sql = "SELECT COUNT(*) AS RowCnt FROM Scripture";
+		_logger.LogInformation("Executing scripture count query.");
+
+		try
+		{
+			var count = await _connection!.ExecuteScalarAsync<long>(sql);
+			_logger.LogInformation("Scripture count query completed. Count: {Count}", count);
+			return count;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error executing scripture count query.");
+			throw;
+		}
+	}
+
 	private async Task EnsureInitializedAsync()
 	{
 		if (_initialized)
@@ -103,51 +124,18 @@ public class SqliteDataService : IAsyncDisposable
 			fileInfo.Length,
 			headerText);
 	}
-
-	public async Task<long> GetScriptureCountAsync()
-	{
-		await EnsureInitializedAsync();
-
-		const string sql = "SELECT COUNT(*) AS RowCnt FROM Scripture";
-		_logger.LogInformation("Executing scripture count query.");
-
-		try
-		{
-			var count = await _connection!.ExecuteScalarAsync<long>(sql);
-			_logger.LogInformation("Scripture count query completed. Count: {Count}", count);
-			return count;
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error executing scripture count query.");
-			throw;
-		}
-	}
-
-	public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
-	{
-		await EnsureInitializedAsync();
-
-		_logger.LogInformation("Executing query for type {Type}. SQL: {Sql}", typeof(T).Name, sql);
-
-		try
-		{
-			var result = await _connection!.QueryAsync<T>(sql, param);
-			_logger.LogInformation("Query completed for type {Type}.", typeof(T).Name);
-			return result;
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error executing query for type {Type}. SQL: {Sql}", typeof(T).Name, sql);
-			throw;
-		}
-	}
-
+	
 	private async Task WriteDbToVirtualFsAsync(byte[] bytes, string fileName)
 	{
 		var path = "/" + fileName;
 		await File.WriteAllBytesAsync(path, bytes);
 		_logger.LogInformation("Database file written to virtual FS at: {Path}", path);
+	}
+
+	public async Task<SqliteConnection> GetConnectionAsync()
+	{
+		await EnsureInitializedAsync();
+		return _connection!;
 	}
 
 	public async ValueTask DisposeAsync()

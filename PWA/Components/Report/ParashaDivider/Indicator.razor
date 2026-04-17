@@ -1,0 +1,68 @@
+﻿@using RCL.Enums
+@using ParashaEnums = RCL.Features.Parasha.Enums
+@using System.Text
+@using RCL.Helpers
+
+<div class="d-flex justify-content-between bg-success-subtle text-success-emphasis p-2  my-4">
+	<span class="@textSize">@GetFormat(isPrevious: true)</span>
+
+	<div class="d-flex justify-content-center">
+
+		<span class="@textSize">Parasha &nbsp;</span>
+		<button @onclick="ButtonClick"
+						type="button" class="btn btn-outline-success btn-xs mb-2" title="hide parasha detail">
+			<i class="fas fa-chevron-up"></i>
+		</button>
+	</div>
+
+	<span class="@textSize">@GetFormat(isPrevious: false)</span>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public ParashaEnums.Triennial? Parasha { get; set; }
+	[Parameter, EditorRequired] public bool XsOrSm { get; set; }
+	[Parameter] public EventCallback OnToggle { get; set; }
+
+	string textSize => XsOrSm ? "" : "h5";
+
+	public MarkupString GetFormat(bool isPrevious)
+	{
+		if (Parasha is null) return (MarkupString)"<span class='text-danger'>Triennial is null???</span>";
+
+		StringBuilder sb = new StringBuilder();
+
+		if (isPrevious)
+		{
+			if (Parasha.PreviousVM != null)
+			{
+				sb.Append($"<sup class='text-info'><i class='far fa-hand-point-up'></i></sup>");
+				sb.Append(Parasha!.PreviousVM.Triennial.TorahAbrv);
+				sb.Append($" <sup class='text-secondary'>");
+				sb.AppendIf(!XsOrSm, $"{Parasha!.PreviousVM.Triennial.Date.ToString(RCL.Constants.DateFormat.MMM_d_YYYY)}");
+				sb.Append("</sup>");
+			}
+			else
+			{
+				sb.Append($"<span class='text-black-50'><i class='fas fa-ban'></i></span> None");
+			}
+		}
+		else
+		{
+			sb.Append(Parasha!.TorahAbrv);
+
+			sb.Append($" <sup class='text-secondary'>");
+			sb.AppendIf(!XsOrSm, $"{Parasha.Date.ToString(RCL.Constants.DateFormat.MMM_d_YYYY)}");	
+			sb.Append("</sup>");
+
+			sb.Append(" <sub class='text-danger'><i class='far fa-hand-point-down'></i></sub>");
+		}
+
+		return (MarkupString)(sb.ToString());
+	}
+
+	private void ButtonClick()
+	{
+		OnToggle.InvokeAsync();
+	}
+
+}

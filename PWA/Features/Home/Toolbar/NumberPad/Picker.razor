@@ -1,0 +1,127 @@
+﻿@page "/picker"
+
+@inherits ModalBase
+@inject ILogger<Picker>? Logger
+
+@if (ModalIsNotShownToggle)
+{
+	<button type="button" class="btn btn-info" title="@bcvTitle"
+	@onclick="() => ShowModal()">
+		@Title <i class="fas fa-angle-down"></i>
+	</button>
+}
+else
+{
+	<div class="@modalClass" style="display:@(modalOpen?"block":"none");">
+		<div class="modal-dialog @ModalConstant.Size">
+			<div class="modal-content @ModalConstant.ContentColor">
+				<div class="modal-header @ModalConstant.HeaderColor">
+
+					<p>Select a Book</p>
+
+					<button type="button" class="close" @onclick="CloseModal">
+						<span>&times;</span>
+					</button>
+				</div>
+
+				<div class="modal-body @ModalConstant.BodyColor">
+					<BlazoredTypeahead SearchMethod="SearchBibleBooks"
+					TValue="RCL.Enums.BibleBook"
+					TItem="RCL.Enums.BibleBook"
+					Value="SelectedBook"
+					ValueChanged="SelectedBookChanged"
+					ValueExpression="@(() => SelectedBook)"
+					EnableDropDown="true"
+					MaximumSuggestions="66"
+					MinimumLength="1"
+					DisableClear="true"
+					placeholder="Search bible...">
+						<SelectedTemplate Context="mycontext">
+							<span class="fs-4">@mycontext!.Title</span>
+						</SelectedTemplate>
+						<HelpTemplate>
+							Please enter at least 1 characters to perform a search.
+						</HelpTemplate>
+						<ResultTemplate Context="mycontext">
+							<div class="d-flex justify-content-between">
+								@mycontext!.Title
+							</div>
+						</ResultTemplate>
+					</BlazoredTypeahead>
+				</div>
+
+				<div class="modal-body pt-0 @ModalConstant.BodyColor">
+					<ButtonWrapper BibleBook="SelectedBook" OnBCVSelected="ReturnedBCV" />
+				</div>
+
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+	//[Parameter, EditorRequired] public BookChapterVerse? CurrentBCV { get; set; }
+	[Parameter, EditorRequired] public BookChapterVerseRecord? CurrentBCV { get; set; }
+
+		[Parameter, EditorRequired] public bool IsXs { get; set; }
+	
+	//[Parameter] public EventCallback<BookChapterVerse> OnBCVSelected { get; set; }
+	[Parameter] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+	
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	protected RCL.Enums.BibleBook? SelectedBook { get; set; }
+
+	string Title = "";
+	private string bcvTitle = "";
+
+	protected override void OnParametersSet()
+	{
+		if (CurrentBCV is not null && CurrentBCV.BibleBook is not null)
+		{
+			SelectedBook = CurrentBCV!.BibleBook;
+			if (IsXs)
+			{
+				Title = $"{CurrentBCV!.BibleBook!.Abrv} {CurrentBCV.Chapter}";
+			}
+			else
+			{
+				Title = $"{CurrentBCV!.BibleBook!.Title} {CurrentBCV.Chapter}";
+			}
+		}
+	}
+
+	private async Task<IEnumerable<RCL.Enums.BibleBook>> SearchBibleBooks(string searchText)
+	{
+		return await Task.FromResult(RCL.Enums.BibleBook.List
+			.Where(x => x.Title.ToLower().Contains(searchText.ToLower()))
+			.OrderBy(o => o.Value));
+	}
+
+
+	private void SelectedBookChanged(RCL.Enums.BibleBook? bibleBook)
+	{
+		if (bibleBook is not null)
+		{
+			SelectedBook = bibleBook;
+		}
+	}
+
+	//private async Task ReturnedBCV(BookChapterVerse bcv)
+	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
+	{
+		try
+		{
+			bcvTitle = $"{bcv.BibleBook?.Abrv} {bcv.Chapter}:{bcv.Verse} ";
+			//Logger!.LogInformation("{Method}, BibleBook: {BibleBook}", nameof(ReturnedBCV), bcv);
+			CloseModal();
+			await State!.AppState!.BookChapterState!.AddStoredAcvToBcvList();
+			await OnBCVSelected.InvokeAsync(bcv);
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "Error in {Method}", nameof(ReturnedBCV));
+		}
+	}
+
+}
