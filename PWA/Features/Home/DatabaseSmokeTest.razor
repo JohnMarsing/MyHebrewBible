@@ -1,0 +1,29 @@
+﻿@using PWA.Data
+@inject SqliteDataService SqliteDataService
+@inject ILogger<DatabaseSmokeTest>? Logger
+
+@if (!string.IsNullOrWhiteSpace(_status))
+{
+	<p class="text-center">Inside: <code>@nameof(DatabaseSmokeTest)</code> <br /> Status: @_status </p>
+}
+
+@code {
+	private string? _status;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_status = "Loading SQLite count...";
+			Logger!.LogInformation("{Method}, Status: {Status}", nameof(OnInitializedAsync), $"{_status}");
+			var count = await SqliteDataService.GetScriptureCountAsync();
+			_status = $"Scripture row count: {count}";
+			Logger!.LogInformation("{Method}, Status: {Status}", nameof(OnInitializedAsync), $"{_status}");
+		}
+		catch (Exception ex)
+		{
+			_status = $"Error: {ex.Message}";
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(OnInitializedAsync), $"{_status}");
+		}
+	}
+}

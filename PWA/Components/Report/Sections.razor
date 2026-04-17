@@ -1,0 +1,290 @@
+﻿@using PWA.Components.Report
+@using PWA.Components.Report.Detail
+@using PWA.Components.Report.Summary
+@using PWA.Components.Report.ParashaDivider
+@using PWA.Constants
+@using Home=PWA.Features.Home
+
+@implements IAsyncDisposable
+
+@* @inject ILogger<Sections>? Logger *@
+@* @inject IToastService? Toast *@
+@inject IJSRuntime JSRuntime
+
+@if (Verses! is not null && Verses.Count() != 0)
+{
+	@foreach (var item in Verses!.OrderBy(o => o.ID))
+	{
+		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="@GetBCV(item.BCV!)" />
+		
+		@if(CalledBy != Enums.CalledBy.Parasha)
+		{
+			<ParashaDisplay ScriptureId="@item.ID" 
+											BookId="@item.BookID" 
+											IsUserSettingParashaDividerDetailOn="UserSettings.IsParashaDividerDetailsOn"   /> 
+		}	
+
+		if (DrilldownScriptureId == 0)
+		{
+			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
+				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+									 Verse="item"
+									 ScrollToScriptureId="CurrentScrollToScriptureId"
+									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList!.Count())"
+									 OnVerseSelectedPassThrough="ReturnedVerse" />
+			</div>
+			@if (item.WordPartList!.Count() > 0)
+			{
+				if (UserSettings.IsStandaloneAlephTavDetailsOn)
+				{
+					<SatAndSurroundingWords SurroundingWords="item.WordPartList!.ToList()" />
+				}
+			}
+		}
+		else
+		{
+			if (item.ID == DrilldownScriptureId)
+			{
+				<div class="card border-primary mt-2 mb-4">
+					<div class="card-header">
+						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+												BCV="@item!.BCV"
+												VerseNumber="item!.Verse"
+												IsSplitMode="UserSettings.IsHebrewShownOnTheSide"
+												Filter="Filter"
+												OnFilter="ReturnedFilter"
+												OnClose="ReturnedCloseEvent" />
+					</div>
+
+					@if (UserSettings.IsHebrewShownOnTheSide)
+					{
+						<div class="card-body">
+
+							<div class="@MediaQuery.Xs.DivClass">
+								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																					WordSelected="CurrentWordSelected"
+																					OnWordSelected="ReturnedWord" />
+								<hr />
+								<HebrewParagraph ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected"
+																 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+																 OnWordSelected="ReturnedWord" />
+							</div>
+
+							<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+								<div class="d-flex justify-content-between">
+									<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																						WordSelected="CurrentWordSelected"
+																						OnWordSelected="ReturnedWord" />
+
+									<HebrewParagraph ScriptureId="DrilldownScriptureId"
+																	 WordSelected="CurrentWordSelected"
+																	 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+																	 OnWordSelected="ReturnedWord" />
+
+								</div>
+							</div>
+						</div>
+
+						@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
+						{
+							<div class="@MediaQuery.Xs.DivClass">
+								<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+																		 WordSelected="CurrentWordSelected" IsXs=true />
+							</div>
+							<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+								<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+																		 WordSelected="CurrentWordSelected" IsXs=false />
+							</div>
+						}
+
+					}
+					else
+					{
+						<div class="card-body">
+							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																				WordSelected="CurrentWordSelected"
+																				OnWordSelected="ReturnedWord" />
+						</div>
+
+						<div class="@MediaQuery.Xs.DivClass">
+							<HebrewTable ScriptureId="DrilldownScriptureId"
+													 Filter="Filter"
+													 WordSelected="CurrentWordSelected" IsXs=true />
+
+						</div>
+						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+							<HebrewTable ScriptureId="DrilldownScriptureId"
+													 Filter="Filter"
+													 WordSelected="CurrentWordSelected" IsXs=false />
+
+						</div>
+
+					}
+				</div>
+			}
+			else
+			{
+				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+									 Verse="item"
+									 ScrollToScriptureId="CurrentScrollToScriptureId"
+									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList!.Count())"
+									 OnVerseSelectedPassThrough="ReturnedVerse" />
+			}
+		}
+	}
+}
+else
+{
+	<p class="fs-3 text-danger text-center">Report Verses is null or empty  (◡︵◡)</p>
+}
+
+@code {
+
+	[Parameter, EditorRequired] public List<ReportModel>? Verses { get; set; }
+	[Parameter, EditorRequired] public Enums.CalledBy CalledBy { get; set; }
+	[Parameter] public int ScrollToScriptureId { get; set; }                // Used by Parasha!ReportWrapper (not Home)
+	[Parameter] public Home.AbrvChapterVerse? AbrvChapterVerse { get; set; } // Used by Home!ReportWrapper (not Parasha)
+	[Parameter, EditorRequired] public Home.Enums.UserSettingsDTO UserSettings { get; set; }
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	private IJSObjectReference? _module;
+
+	protected bool ShowStandaloneAlephTavIcon(int count) => count > 0 && !UserSettings.IsStandaloneAlephTavDetailsOn;
+
+	#region OnAfter-and-OnParameters
+	protected Home.AbrvChapterVerse? CurrentAbrvChapterVerse;
+	protected int CurrentScrollToScriptureId;
+	protected bool _firstRendered = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Report/Sections.razor.js");
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+			_firstRendered = true;
+		}
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (CalledBy == Enums.CalledBy.BookChapter)
+		{
+			CurrentAbrvChapterVerse = AbrvChapterVerse;
+			CurrentScrollToScriptureId = CurrentAbrvChapterVerse!.ScriptureId;
+		}
+		else
+		{
+			CurrentScrollToScriptureId = ScrollToScriptureId;
+		}
+
+		if (_firstRendered && _module is not null)
+		{
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+	#endregion
+
+	protected int DrilldownScriptureId;
+
+	protected string GetBCV(string bcv)
+	{
+		return CalledBy == Enums.CalledBy.BookChapter ? bcv : "";
+	}
+
+	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
+	{
+		return new BookAndChapter(RCL.Enums.BibleBook.FromValue(bookId), chapter);
+	}
+
+	private async Task HandleKeyDown(KeyboardEventArgs e)
+	{
+		if (Verses == null || !Verses.Any())
+		{
+			//Toast!.ShowWarning("No Verses (◡︵◡)");
+			return;
+		}
+
+		if (e.Key != "ArrowDown" && e.Key != "ArrowUp") { return; }  // Ignore the keystroke
+
+		// Tuple
+		var (errMsg, verse, _scriptureId) = GetVerseAndScriptureId(
+			e.Key == "ArrowDown" ?
+			ArrowKey.ArrowDown :
+			ArrowKey.ArrowUp, CurrentScrollToScriptureId);
+
+		if (!String.IsNullOrEmpty(errMsg)) { return; } //Toast!.ShowInfo(errMsg);
+
+		CurrentScrollToScriptureId = _scriptureId;
+
+		if (CalledBy == Enums.CalledBy.BookChapter && CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)
+		{
+			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
+				with
+				{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
+			await State!.AppState!.BookChapterState!.UpdateACV(CurrentAbrvChapterVerse!);
+		}
+		
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+	private (string, int, int) GetVerseAndScriptureId(ArrowKey direction, int scriptureId)
+	{
+		int i = Verses!.FindIndex(v => v.ID == CurrentScrollToScriptureId);
+
+		// the `when` clause in a switch expression acts as a guard condition
+		// useful for adding more specific conditions to your cases without complicating the pattern itself
+		return direction switch
+		{
+			ArrowKey.ArrowDown when i < Verses.Count - 1 => ("", Verses[i + 1].Verse, scriptureId + 1),
+			ArrowKey.ArrowDown => ("Bottomed out", 0, 0),
+			ArrowKey.ArrowUp when i > 0 => ("", Verses[i - 1].Verse, scriptureId - 1),
+			_ => ("Topped out", 0, 0)
+		};
+	}
+
+	private void ReturnedVerse(int scriptureId)
+	{
+		DrilldownScriptureId = scriptureId;
+	}
+
+	protected bool Filter = false;
+	private void ReturnedFilter(bool filter)
+	{
+		Filter = filter;
+	}
+
+	WordSelected? CurrentWordSelected = new WordSelected(0, 0);
+	private void ReturnedWord(WordSelected wordSelected)
+	{
+		CurrentWordSelected = wordSelected;
+	}
+
+	private async Task ReturnedCloseEvent()
+	{
+		DrilldownScriptureId = 0;
+		await Task.Delay(5);
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.DisposeAsync();
+		}
+	}
+
+	private enum ArrowKey
+	{
+		ArrowDown,
+		ArrowUp
+	}
+}

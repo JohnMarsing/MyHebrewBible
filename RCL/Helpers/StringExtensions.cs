@@ -36,7 +36,14 @@ public static class StringExtensions
     return value;
   }
 
-  public static StringBuilder AppendIfElse(
+	public static StringBuilder AppendIf(
+	this StringBuilder builder, bool condition, string value)
+	{
+		if (condition) builder.Append(value);
+		return builder;
+	}
+
+	public static StringBuilder AppendIfElse(
     this StringBuilder builder, bool condition, string ifValue, string elseValue)
   {
     if (condition)

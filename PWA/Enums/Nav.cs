@@ -1,6 +1,9 @@
 ﻿
 using Ardalis.SmartEnum;
 
+using BookChapterConstants = PWA.Features.Home.Constants;
+
+
 namespace PWA.Enums;
 
 [Flags]
@@ -19,72 +22,73 @@ public abstract class Nav : SmartEnum<Nav>
 	private static class Id
 	{
 		internal const int Home = 1;
-		internal const int Calendar = 2;
-		internal const int Donate = 3;
-		internal const int Sitemap = 4;
-		internal const int Feasts = 5;
-		internal const int LunarMonth = 6;
-		internal const int Leadership = 7;
-		internal const int HeavensDeclare = 8;
-		internal const int ThresholdCovenant = 9;
-		internal const int Podcast = 10;
-		internal const int Parasha = 11;  // PageParasha.Archive
-		internal const int Welcome = 12;
-		internal const int Liturgy = 13;
-		internal const int TorahTuesday = 14;
-		internal const int About = 15;
-		internal const int BloodMoons = 16;
-		internal const int Articles = 17;
-		internal const int FurtherStudies = 18;
-		internal const int ImportantLinks = 19;
-		internal const int WeeklyDownload = 20;
-		internal const int CalendarExplanation = 21; 
-		internal const int Location = 22; 
-		internal const int SpecialEvents = 23; 
-		internal const int DonateReplyConfirm = 24;
-		internal const int Haggadah = 25;
-
-		//internal const int Profile = 27;
-		//internal const int PasswordChanged = 28;
-		//internal const int Planner = 29;
-		//internal const int CalendarRawData = 30;
-		//internal const int IndepthStudy = 31;
+		internal const int Sitemap = 12;
+		/*
+		internal const int BookChapter = 2;
+		internal const int Parasha = 3;
+		internal const int Donate = 4;
+		internal const int Article = 5;
+		internal const int FavoriteVerses = 6;
+		internal const int Hebrew = 7;
+		internal const int AlephTavs = 8;
+		internal const int BibleList = 9;
+		internal const int Haggadah = 10;
+		internal const int Teaching = 11;
+		internal const int About = 13;
+		internal const int HomeMhbVer6 = 14;
+		internal const int VerseList = 15;
+		internal const int Contact = 16;
+		internal const int DonateReplyConfirm = 17;
+		internal const int Profile = 18;
+		internal const int BibleSearch = 19;
+		internal const int HealthCheckBibleBook = 20;
+		internal const int HealthCheckFavoriteVerses = 21;
+		internal const int HealthCheckThrowError = 22;
+		internal const int HealthCheckVerseList = 23;
+		internal const int ParashaList = 24;
+		internal const int HealthCheckBitwise = 25;
+		internal const int HebrewRevelation = 26;
+		internal const int HealthCheckParasha = 27;
+		internal const int HealthCheckTableRowCount = 28;
+		internal const int HealthCheckQuickGrid = 29;
+		internal const int HealthCheckTypeahead = 30;
+		*/
 	}
 	#endregion
 
 	#region Declared Public Instances
 	public static readonly Nav Home = new HomeSE();
-	public static readonly Nav Calendar = new CalendarSE();
-	public static readonly Nav Donate = new DonateSE();
 	public static readonly Nav Sitemap = new SitemapSE();
-	public static readonly Nav Feasts = new FeastsSE();
-	public static readonly Nav LunarMonth = new LunarMonthSE();
-	public static readonly Nav Leadership = new LeadershipSE();
-	public static readonly Nav HeavensDeclare = new HeavensDeclareSE();
-	public static readonly Nav ThresholdCovenant = new ThresholdCovenantSE();
-	public static readonly Nav Podcast = new PodcastSE();
+/*
+	public static readonly Nav BookChapter = new BookChapterSE();
 	public static readonly Nav Parasha = new ParashaSE();
-	public static readonly Nav Welcome = new WelcomeSE();
-	public static readonly Nav Liturgy = new LiturgySE();
-	public static readonly Nav TorahTuesday = new TorahTuesdaySE();
-	public static readonly Nav About = new AboutSE();
-	public static readonly Nav BloodMoons = new BloodMoonsSE();
-	public static readonly Nav Articles = new ArticlesSE();
-	public static readonly Nav FurtherStudies = new FurtherStudiesSE();
-	public static readonly Nav ImportantLinks = new ImportantLinksSE();
-	public static readonly Nav WeeklyDownload = new WeeklyDownloadSE();
-	public static readonly Nav CalendarExplanation = new CalendarExplanationSE();
-	public static readonly Nav Location = new LocationSE(); 
-	public static readonly Nav SpecialEvents = new SpecialEventsSE(); 
-	public static readonly Nav DonateReplyConfirm = new DonateReplyConfirmSE();
+	public static readonly Nav Donate = new DonateSE();
+	public static readonly Nav Article = new ArticleSE();
+	public static readonly Nav FavoriteVerses = new FavoriteVersesSE();
+	public static readonly Nav Hebrew = new HebrewSE();
+	public static readonly Nav AlephTavs = new AlephTavsSE();
+	public static readonly Nav BibleList = new BibleListSE();
 	public static readonly Nav Haggadah = new HaggadahSE();
-
-	//public static readonly Nav Profile = new ProfileSE();
-	//public static readonly Nav PasswordChanged = new PasswordChangedSE();
-	//public static readonly Nav Planner = new PlannerSE();
-	//public static readonly Nav CalendarRawData = new CalendarRawDataSE();
-	//public static readonly Nav IndepthStudy = new IndepthStudySE();
-
+	public static readonly Nav Teaching = new TeachingSE();
+	public static readonly Nav Sitemap = new SitemapSE();
+	public static readonly Nav HomeMhbVer6 = new HomeMhbVer6SE();
+	public static readonly Nav VerseList = new VerseListSE();
+	public static readonly Nav Contact = new ContactSE();
+	public static readonly Nav DonateReplyConfirm = new DonateReplyConfirmSE();
+	public static readonly Nav Profile = new ProfileSE();
+	public static readonly Nav BibleSearch = new BibleSearchSE();
+	public static readonly Nav HealthCheckBibleBook = new HealthCheckBibleBookSE();
+	public static readonly Nav HealthCheckFavoriteVerses = new HealthCheckFavoriteVersesSE();
+	public static readonly Nav HealthCheckThrowError = new HealthCheckThrowErrorSE();
+	public static readonly Nav HealthCheckVerseList = new HealthCheckVerseListSE();
+	public static readonly Nav ParashaList = new ParashaListSE();
+	public static readonly Nav HealthCheckBitwise = new HealthCheckBitwiseSE();
+	public static readonly Nav HebrewRevelation = new HebrewRevelationSE();
+	public static readonly Nav HealthCheckParasha = new HealthCheckParashaSE();
+	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
+	public static readonly Nav HealthCheckQuickGrid = new HealthCheckQuickGridSE();
+	public static readonly Nav HealthCheckTypeahead = new HealthCheckTypeaheadSE();
+*/
 	#endregion
 
 
@@ -137,16 +141,45 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool Disabled => false;
 	}
 
-	private sealed class CalendarSE : Nav
+	private sealed class SitemapSE : Nav
 	{
-		public CalendarSE() : base($"{nameof(Id.Calendar)}", Id.Calendar) { }
-		public override string Index => "/Calendar";
-		public override string Title => "Calendar";
-		public override string Icon => "far fa-calendar-alt";
-		public override int Sort => Id.Calendar;
-		public override string HomeTitleSuffix => " chôdeshim H2320";
-		public override string HomeFloatRightHebrew => "חֳדָשִׁים";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
+		public SitemapSE() : base($"{nameof(Id.Sitemap)}", Id.Sitemap) { }
+		public override string Index => "/Sitemap";
+		public override string Title => "Sitemap";
+		public override string Icon => "fas fa-sitemap";
+		public override int Sort => Id.Sitemap;
+		public override string HomeTitleSuffix => " nahal H5095";
+		public override string HomeFloatRightHebrew => "נָהַל";
+		public override PageListType PageListType => PageListType.TierOne;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+	/*
+	private sealed class BookChapterSE : Nav
+	{
+		public BookChapterSE() : base($"{nameof(Id.BookChapter)}", Id.BookChapter) { }
+		public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
+		public override string Title => "Book Chapter";
+		public override string Icon => "fa fa-book";
+		public override int Sort => Id.BookChapter;
+		public override string HomeTitleSuffix => " mispar h4557";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
+		public override PageListType PageListType => PageListType.SitemapPage ;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class ParashaSE : Nav
+	{
+		public ParashaSE() : base($"{nameof(Id.Parasha)}", Id.Parasha) { }
+		public override string Index => ParashaEnums.Constants.GetUrl()! ?? this.Name;
+		//public override string Index => ParashaEnums.Constants.GetUrl() ?? $"/{ParashaEnums.Constants.BaseUrl}";
+		public override string Title => "Parasha";
+		public override string Icon => "far fa-bookmark";
+		public override int Sort => Id.Parasha;
+		public override string HomeTitleSuffix => " Parashat H6567";
+		public override string HomeFloatRightHebrew => "פָּרָשַׁת";
+		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
@@ -160,147 +193,90 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Donate;
 		public override string HomeTitleSuffix => " Tsadik H6662";
 		public override string HomeFloatRightHebrew => "צַדִּיק";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class SitemapSE : Nav
-	{
-		public SitemapSE() : base($"{nameof(Id.Sitemap)}", Id.Sitemap) { }
-		public override string Index => "/Sitemap";
-		public override string Title => "Sitemap";
-		public override string Icon => "fas fa-sitemap";
-		public override int Sort => Id.Sitemap;
-		public override string HomeTitleSuffix => " nahal H5095";
-		public override string HomeFloatRightHebrew => "נָהַל";
-		public override PageListType PageListType =>  PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class FeastsSE : Nav
-	{
-		public FeastsSE() : base($"{nameof(Id.Feasts)}", Id.Feasts) { }
-		public override string Index => "/Feasts";
-		public override string Title => "Feasts";   //public override string Description: "Feasts of YHWH";	
-		public override string Icon => "fas fa-pizza-slice";
-		public override int Sort => Id.Feasts;
-		public override string HomeTitleSuffix => " moed H4150";
-		public override string HomeFloatRightHebrew => "מוֹעֵד";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class LunarMonthSE : Nav
+	private sealed class ArticleSE : Nav
 	{
-		public LunarMonthSE() : base($"{nameof(Id.LunarMonth)}", Id.LunarMonth) { }
-		public override string Index => "/LunarMonth";  // /LunarMonthV2
-		public override string Title => "Lunar Month";
-		public override string Icon => "fas fa-cloud-moon";
-		public override int Sort => Id.LunarMonth;
-		public override string HomeTitleSuffix => " yerach H3394"; // "Month yerach H3391";
-		public override string HomeFloatRightHebrew => "יָרֵחַ";
+		public ArticleSE() : base($"{nameof(Id.Article)}", Id.Article) { }
+		public override string Index => "/Articles";
+		public override string Title => "Articles";
+		public override string Icon => "fas fa-pencil-alt";
+		public override int Sort => Id.Article;
+		public override string HomeTitleSuffix => " Mispar H4557 ";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class LeadershipSE : Nav
+	private sealed class FavoriteVersesSE : Nav
 	{
-		public LeadershipSE() : base($"{nameof(Id.Leadership)}", Id.Leadership) { }
-		public override string Index => "/Leadership";
-		public override string Title => "Leadership";
-		public override string Icon => "fas fa-user-tie";
-		public override int Sort => Id.Leadership;
-		public override string HomeTitleSuffix => " zaken H2205";  //nasi H5387
-		public override string HomeFloatRightHebrew => "זָקֵן";
+		public FavoriteVersesSE() : base($"{nameof(Id.FavoriteVerses)}", Id.FavoriteVerses) { }
+		public override string Index => "/FavoriteVerses";
+		public override string Title => "Favorite Verses";
+		public override string Icon => "text-danger fas fa-star";
+		public override int Sort => Id.FavoriteVerses;
+		public override string HomeTitleSuffix => " Avah H183";
+		public override string HomeFloatRightHebrew => "אָוָה";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class HeavensDeclareSE : Nav
+	private sealed class HebrewSE : Nav
 	{
-		public HeavensDeclareSE() : base($"{nameof(Id.HeavensDeclare)}", Id.HeavensDeclare) { }
-		public override string Index => "/HeavensDeclare";
-		public override string Title => "Heavens Declare";
-		public override string Icon => "fas fa-cloud-moon"; //fas fa-star
-		public override int Sort => Id.HeavensDeclare;
-		public override string HomeTitleSuffix => " shamayim H8064";
-		public override string HomeFloatRightHebrew => "שָׁמַיִם";
+		public HebrewSE() : base($"{nameof(Id.Hebrew)}", Id.Hebrew) { }
+		public override string Index => "/Hebrew";
+		public override string Title => "Hebrew";
+		public override string Icon => "fa fa-letter-aleph";  //   fa-letter-aleph-bet
+		public override int Sort => Id.Hebrew;
+		public override string HomeTitleSuffix => " Ivri H5680";
+		public override string HomeFloatRightHebrew => "עִבְרִי";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class ThresholdCovenantSE : Nav
+	private sealed class AlephTavsSE : Nav
 	{
-		public ThresholdCovenantSE() : base($"{nameof(Id.ThresholdCovenant)}", Id.ThresholdCovenant) { }
-		public override string Index => "/ThresholdCovenant";
-		public override string Title => "Threshold Covenant";
-		public override string Icon => "fas fa-broom";
-		public override int Sort => Id.ThresholdCovenant;
-		public override string HomeTitleSuffix => " saph H5592";
-		public override string HomeFloatRightHebrew => "סַף";
+		public AlephTavsSE() : base($"{nameof(Id.AlephTavs)}", Id.AlephTavs) { }
+		public override string Index => "/alephTav";
+		public override string Title => "Aleph Tavs";
+		public override string Icon => "fa fa-letter-aleph-tav text-danger";
+		public override int Sort => Id.AlephTavs;
+		public override string HomeTitleSuffix => " Aleph Tav H853";
+		public override string HomeFloatRightHebrew => "אֵת";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class PodcastSE : Nav
+	private sealed class BibleListSE : Nav
 	{
-		public PodcastSE() : base($"{nameof(Id.Podcast)}", Id.Podcast) { }
-		public override string Index => "/Podcast";
-		public override string Title => "Podcast";
-		public override string Icon => "fas fa-podcast";
-		public override int Sort => Id.Podcast;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class ParashaSE : Nav
-	{
-		public ParashaSE() : base($"{nameof(Id.Parasha)}", Id.Parasha) { }
-		//public override string Index => ParashaEnums.Constants.GetUrl()! ?? this.Name;
-		public override string Index => "/Parasha";
-		public override string Title => "Parasha";
-		public override string Icon => "far fa-bookmark";
-		public override int Sort => Id.Parasha;
-		public override string HomeTitleSuffix => " Parashat H6567";
-		public override string HomeFloatRightHebrew => "פָּרָשַׁת";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class WelcomeSE : Nav
-	{
-		public WelcomeSE() : base($"{nameof(Id.Welcome)}", Id.Welcome) { }
-		public override string Index => "/IntroductionAndWelcome";
-		public override string Title => "Welcome";
-		public override string Icon => "far fa-handshake";
-		public override int Sort => Id.Welcome;
-		public override string HomeTitleSuffix => " Shalom  H7695";
-		public override string HomeFloatRightHebrew => "שָׁלוֹם";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class TorahTuesdaySE : Nav
-	{
-		public TorahTuesdaySE() : base($"{nameof(Id.TorahTuesday)}", Id.TorahTuesday) { }
-		public override string Index => "/TorahTuesday";
-		public override string Title => "Bible Study";  //Tuesday Night 
+		public BibleListSE() : base($"{nameof(Id.BibleList)}", Id.BibleList) { }
+		public override string Index => "/BibleList";
+		public override string Title => "Bible List";
 		public override string Icon => "fas fa-torah";
-		public override int Sort => Id.TorahTuesday;
-		public override string HomeTitleSuffix => " Torah H8451";
-		public override string HomeFloatRightHebrew => "תּוֹרָה";
+		public override int Sort => Id.BibleList;
+		public override string HomeTitleSuffix => " Mispar H4557 ";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class TeachingSE : Nav
+	{
+		public TeachingSE() : base($"{nameof(Id.Teaching)}", Id.Teaching) { }
+		public override string Index => "/Teaching";
+		public override string Title => "Teaching";
+		public override string Icon => "fas fa-graduation-cap";
+		public override int Sort => Id.Teaching;
+		public override string HomeTitleSuffix => " Tamid H8548"; // Yara H3384; h2094 Zahar
+		public override string HomeFloatRightHebrew => "לְלַמֵד";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
@@ -314,141 +290,57 @@ public abstract class Nav : SmartEnum<Nav>
 		public override string Icon => "fas fa-info";
 		public override int Sort => Id.About;
 		public override string HomeTitleSuffix => " Odot H182";
-		public override string HomeFloatRightHebrew => "אודות";
+		public override string HomeFloatRightHebrew => "אוֹדוֹת";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => true;
+	}
+
+	private sealed class HomeMhbVer6SE : Nav
+	{
+		public HomeMhbVer6SE() : base($"{nameof(Id.HomeMhbVer6)}", Id.HomeMhbVer6) { }
+		public override string Index => "/HomeMhbVer6";
+		public override string Title => "Old Home Page";
+		public override string Icon => "fas fa-history";
+		public override int Sort => Id.HomeMhbVer6;
+		public override string HomeTitleSuffix => " zaken H2204";  // bawlah H1086
+		public override string HomeFloatRightHebrew => "זָקֵן";  // בָּלָה
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class BloodMoonsSE : Nav
+	private sealed class VerseListSE : Nav
 	{
-		public BloodMoonsSE() : base($"{nameof(Id.BloodMoons)}", Id.BloodMoons) { }
-		public override string Index => "/BloodMoons";
-		public override string Title => "Blood Moons";
-		public override string Icon => "far fa-moon";
-		public override int Sort => Id.BloodMoons;
-		public override string HomeTitleSuffix => " yareach H3394";
-		public override string HomeFloatRightHebrew => "יָרֵחַ";
+		public VerseListSE() : base($"{nameof(Id.VerseList)}", Id.VerseList) { }
+		public override string Index => "/VerseList/0/0/0/0";
+		public override string Title => "Verse List";
+		public override string Icon => "fas fa-list";
+		public override int Sort => Id.VerseList;
+		public override string HomeTitleSuffix => " mispar H4557";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class ArticlesSE : Nav
+	private sealed class ContactSE : Nav
 	{
-		public ArticlesSE() : base($"{nameof(Id.Articles)}", Id.Articles) { }
-		public override string Index => "/Articles";
-		public override string Title => "Articles";
-		public override string Icon => "fas fa-pencil-alt";
-		public override int Sort => Id.Articles;
-		public override string HomeTitleSuffix => " Ketuvim H3789";
-		public override string HomeFloatRightHebrew => "כְּתֻבִים";
+		public ContactSE() : base($"{nameof(Id.Contact)}", Id.Contact) { }
+		public override string Index => "/Contact";
+		public override string Title => "Contact";
+		public override string Icon => "far fa-comment-dots";  // "fas fa-user-friends
+		public override int Sort => Id.Contact;
+		public override string HomeTitleSuffix => "Shalom  H7695";
+		public override string HomeFloatRightHebrew => "שָׁלוֹם";
+
+		//LMM Leadership
+		//public override string HomeTitleSuffix => "Zaken  H2205";
+		//public override string HomeFloatRightHebrew => "זָקֵן";
+
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class FurtherStudiesSE : Nav
-	{
-		public FurtherStudiesSE() : base($"{nameof(Id.FurtherStudies)}", Id.FurtherStudies) { }
-		public override string Index => "/FurtherStudies";
-		public override string Title => "Further Studies";
-		public override string Icon => "fab fa-leanpub";
-		public override int Sort => Id.FurtherStudies;
-		public override string HomeTitleSuffix => " sepher H5612";
-		public override string HomeFloatRightHebrew => "סֵפֶר";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class ImportantLinksSE : Nav
-	{
-		public ImportantLinksSE() : base($"{nameof(Id.ImportantLinks)}", Id.ImportantLinks) { }
-		public override string Index => "/ImportantLinks";
-		public override string Title => "Important Links";
-		public override string Icon => "fas fa-external-link-square-alt";
-		public override int Sort => Id.ImportantLinks;
-		public override string HomeTitleSuffix => " rakad H7540";
-		public override string HomeFloatRightHebrew => "רָקַד";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class LiturgySE : Nav
-	{
-		public LiturgySE() : base($"{nameof(Id.Liturgy)}", Id.Liturgy) { }
-		public override string Index => "/Liturgy";
-		public override string Title => "Shabbat Liturgy";
-		public override string Icon => "fas fa-book-open";
-		public override int Sort => Id.Liturgy;
-		public override string HomeTitleSuffix => " tefillah H8605";
-		public override string HomeFloatRightHebrew => "תפילה";
-		/*
-			public override string HomeTitleSuffix => " sidur H5468";  // H5468=seder 
-			public override string HomeFloatRightHebrew => "//סידור";
-		*/
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-
-	private sealed class WeeklyDownloadSE : Nav
-	{
-		public WeeklyDownloadSE() : base($"{nameof(Id.WeeklyDownload)}", Id.WeeklyDownload) { }
-		public override string Index => "/WeeklyDownload";
-		public override string Title => "Weekly Download";
-		public override string Icon => "fas fa-file-pdf";
-		public override int Sort => Id.WeeklyDownload;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.None;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class CalendarExplanationSE : Nav
-	{
-		public CalendarExplanationSE() : base($"{nameof(Id.CalendarExplanation)}", Id.CalendarExplanation) { }
-		public override string Index => "/CalendarExplanation";
-		public override string Title => "Calendar Explanation";
-		public override string Icon => "fas fa-calendar";
-		public override int Sort => Id.CalendarExplanation;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class LocationSE : Nav
-	{
-		public LocationSE() : base($"{nameof(Id.Location)}", Id.Location) { }
-		public override string Index => "/Location";
-		public override string Title => "Location";
-		public override string Icon => "fas fa-map-signs";
-		public override int Sort => Id.Location;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class SpecialEventsSE : Nav
-	{
-		public SpecialEventsSE() : base($"{nameof(Id.Location)}", Id.Location) { }
-		public override string Index => "/SpecialEvents";
-		public override string Title => "Special Events";
-		public override string Icon => "far fa-clock";
-		public override int Sort => Id.SpecialEvents;
-		public override string HomeTitleSuffix => "Shofar H7782";
-		public override string HomeFloatRightHebrew => "שׁוֹפָר"; // 
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
+		public override bool Disabled => true;
 	}
 
 	private sealed class DonateReplyConfirmSE : Nav
@@ -461,9 +353,180 @@ public abstract class Nav : SmartEnum<Nav>
 		public override string HomeTitleSuffix => "";
 		public override string HomeFloatRightHebrew => "";
 
+		public override PageListType PageListType => PageListType.Reply;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false; // N/A
+	}
+
+	private sealed class ProfileSE : Nav
+	{
+		public ProfileSE() : base($"{nameof(Id.Profile)}", Id.Profile) { }
+		public override string Index => "/profile";
+		public override string Title => "Profile";
+		public override string Icon => "fas fa-user";  //fab fa-superpowers  fas fa-address-card
+		public override int Sort => Id.Profile;
+		public override string HomeTitleSuffix => "Netser H5342";
+		public override string HomeFloatRightHebrew => "נֵצֶר";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => true;
+	}
+
+	private sealed class BibleSearchSE : Nav
+	{
+		public BibleSearchSE() : base($"{nameof(Id.BibleSearch)}", Id.BibleSearch) { }
+		public override string Index => "BibleSearch";
+		public override string Title => "Bible Search";
+		public override string Icon => "fas fa-search";
+		public override int Sort => Id.Profile;
+		public override string HomeTitleSuffix => " Bawkar H1239";
+		public override string HomeFloatRightHebrew => "בָּקַר";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckBibleBookSE : Nav
+	{
+		public HealthCheckBibleBookSE() : base($"{nameof(Id.HealthCheckBibleBook)}", Id.HealthCheckBibleBook) { }
+		public override string Index => "HealthChecks/BibleBooks";
+		public override string Title => "BibleBook (HC)";
+		public override string Icon => "fas fa-brain";
+		public override int Sort => Id.HealthCheckBibleBook;
+		public override string HomeTitleSuffix => " Yakah H3198";
+		public override string HomeFloatRightHebrew => "יָכַח";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckFavoriteVersesSE : Nav
+	{
+		public HealthCheckFavoriteVersesSE() : base($"{nameof(Id.HealthCheckFavoriteVerses)}", Id.HealthCheckFavoriteVerses) { }
+		public override string Index => "HealthChecks/FavoriteVerses";
+		public override string Title => "Favorite Verses (HC)";
+		public override string Icon => "fas fa-ice-cream";
+		public override int Sort => Id.HealthCheckFavoriteVerses;
+		public override string HomeTitleSuffix => "";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+
+	//ToDo This should only be for Admin users
+	private sealed class HealthCheckThrowErrorSE : Nav
+	{
+		public HealthCheckThrowErrorSE() : base($"{nameof(Id.HealthCheckThrowError)}", Id.HealthCheckThrowError) { }
+		public override string Index => "HealthChecks/ThrowError";
+		public override string Title => "ThrowError (HC)";
+		public override string Icon => "fas fa-bomb";  //fas fa-wrench
+		public override int Sort => Id.HealthCheckThrowError;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckVerseListSE : Nav
+	{
+		public HealthCheckVerseListSE() : base($"{nameof(Id.HealthCheckVerseList)}", Id.HealthCheckVerseList) { }
+		public override string Index => "HealthChecks/VerseList";
+		public override string Title => "Verse List (HC)";
+		public override string Icon => "fas fa-wrench";
+		public override int Sort => Id.HealthCheckVerseList;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class ParashaListSE : Nav
+	{
+		public ParashaListSE() : base($"{nameof(Id.ParashaList)}", Id.ParashaList) { }
+		public override string Index => "/ParashaList";
+		public override string Title => "Parasha List";
+		public override string Icon => "fas fa-table";
+		public override int Sort => Id.ParashaList;
+		public override string HomeTitleSuffix => "";
+		public override string HomeFloatRightHebrew => "";
+
 		public override PageListType PageListType => PageListType.None;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false; // N/A
+	}
+
+	private sealed class HealthCheckBitwiseSE : Nav
+	{
+		public HealthCheckBitwiseSE() : base($"{nameof(Id.HealthCheckBitwise)}", Id.HealthCheckBitwise) { }
+		public override string Index => "HealthChecks/Bitwise";
+		public override string Title => "Bitwise (HC)";
+		public override string Icon => "fas fa-teeth";  // fab fa-perbyte
+		public override int Sort => Id.HealthCheckBitwise;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HebrewRevelationSE : Nav
+	{
+		public HebrewRevelationSE() : base($"{nameof(Id.HebrewRevelation)}", Id.HebrewRevelation) { }
+		public override string Index => "HebrewRevelation";
+		public override string Title => "Hebrew Revelation";
+		public override string Icon => "fas fa-eye";
+		public override int Sort => Id.HebrewRevelation;
+		public override string HomeTitleSuffix => "Hazon H2377";
+		public override string HomeFloatRightHebrew => "חֲזוֹן";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckParashaSE : Nav
+	{
+		public HealthCheckParashaSE() : base($"{nameof(Id.HealthCheckParasha)}", Id.HealthCheckParasha) { }
+		public override string Index => "HealthChecks/Parasha";
+		public override string Title => "Parasha (HC)";
+		public override string Icon => "fas fa-crow";
+		public override int Sort => Id.HealthCheckParasha;
+		public override string HomeTitleSuffix => " Parashat H6567";
+		public override string HomeFloatRightHebrew => "פָּרָשַׁת";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckTableRowCountSE : Nav
+	{
+		public HealthCheckTableRowCountSE() : base($"{nameof(Id.HealthCheckTableRowCount)}", Id.HealthCheckTableRowCount) { }
+		public override string Index => "HealthChecks/TableRowCount";
+		public override string Title => "Table Row Count (HC)";
+		public override string Icon => "fas fa-wave-square";  // fa-stopwatch-20
+		public override int Sort => Id.HealthCheckTableRowCount;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckQuickGridSE : Nav
+	{
+		public HealthCheckQuickGridSE() : base($"{nameof(Id.HealthCheckQuickGrid)}", Id.HealthCheckQuickGrid) { }
+		public override string Index => "HealthChecks/QuickGrid";
+		public override string Title => "QuickGrid Test";
+		public override string Icon => "fas fa-fighter-jet";
+		public override int Sort => Id.HealthCheckQuickGrid;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
 	}
 
 	private sealed class HaggadahSE : Nav
@@ -475,89 +538,25 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Haggadah;
 		public override string HomeTitleSuffix => " Nagad H5046";
 		public override string HomeFloatRightHebrew => "הַגָּדָה";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-
-	/*
-	
-	private sealed class ProfileSE : Nav
-	{
-		public ProfileSE() : base($"{nameof(Id.Profile)}", Id.Profile) { }
-		public override string Index => "/Profile";
-		public override string Title => "Profile";
-		public override string Icon => "fab fa-superpowers";
-		public override int Sort => Id.Profile;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
-	private sealed class PasswordChangedSE : Nav
+	private sealed class HealthCheckTypeaheadSE : Nav
 	{
-		public PasswordChangedSE() : base($"{nameof(Id.PasswordChanged)}", Id.PasswordChanged) { }
-		public override string Index => "/Account/PasswordChanged";
-		public override string Title => "Password Changed Successfully";
-		//public const string PageTitle = " Password Changed";
-		public override string Icon => "fas fa-key";
-		public override int Sort => Id.PasswordChanged;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-	*/
-
-	/*
-	private sealed class PlannerSE : Nav
-	{
-		public PlannerSE() : base($"{nameof(Id.Planner)}", Id.Planner) { }
-		public override string Index => "/Planner";
-		public override string Title => "Planner";
-		public override string Icon => "far fa-map";
-		public override int Sort => Id.Planner;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-
-	}
-
-	private sealed class CalendarRawDataSE : Nav
-	{
-		public CalendarRawDataSE() : base($"{nameof(Id.CalendarRawData)}", Id.CalendarRawData) { }
-		public override string Index => "/CalendarRawData";
-		public override string Title => "Calendar Raw Data";
-		public override string Icon => "fas fa-server";
-		public override int Sort => Id.CalendarRawData;
-		public override string HomeTitleSuffix => "";
+		public HealthCheckTypeaheadSE() : base($"{nameof(Id.HealthCheckTypeahead)}", Id.HealthCheckTypeahead) { }
+		public override string Index => "HealthChecks/Typeahead";
+		public override string Title => "Typeahead bind-value";
+		public override string Icon => "fas fa-fighter-jet";
+		public override int Sort => Id.HealthCheckTypeahead;
+		public override string HomeTitleSuffix => " ";
 		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
-
-	private sealed class IndepthStudySE : Nav
-	{
-		public IndepthStudySE() : base($"{nameof(Id.IndepthStudy)}", Id.IndepthStudy) { }
-		public override string Index => "/IndepthStudy";
-		public override string Title => "In-depth study";
-		public override string Icon => "fas fa-graduation-cap";
-		public override int Sort => Id.IndepthStudy;
-		public override string HomeTitleSuffix => " Torah H8451";
-		public override string HomeFloatRightHebrew => "תּוֹרָה";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.Layout;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => true;
-	}
-	 */
-
+*/  
 	#endregion
 
 }
