@@ -101,7 +101,8 @@
 			DescD = bc.DescD,
 			BookID = BookAndChapter!.BibleBook!.Value,
 			Chapter = BookAndChapter.Chapter,
-			WordPartList = bc.WordPartList?.Select(wp => new Components.Report.WordPart
+			WordPartList = bc.WordPartList?
+			.Select(wp => new Components.Report.WordPart
 			{
 				Id = wp.Id,
 				BCV = wp.BCV,
@@ -119,8 +120,9 @@
 				Strongs = wp.Strongs,
 				Transliteration = wp.Transliteration,
 				FinalEnum = wp.FinalEnum
-			}).ToList()
-		};
-	}
+			})
+			.ToList() ?? new()
+				};
+			}
 }
-}
+

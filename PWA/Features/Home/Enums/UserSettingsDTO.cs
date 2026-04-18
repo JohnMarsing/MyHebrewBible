@@ -1,7 +1,6 @@
 ﻿namespace PWA.Features.Home.Enums;
 
-public record UserSettingsDTO(bool IsHebrewShownOnTheSide, 
-															bool IsStandaloneAlephTavDetailsOn, 
+public record UserSettingsDTO(bool IsStandaloneAlephTavDetailsOn, 
 															bool IsParashaDividerDetailsOn, 
 															bool IsHebrewWordNumbersOn);	
 

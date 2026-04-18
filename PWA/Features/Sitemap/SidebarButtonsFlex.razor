@@ -1,0 +1,47 @@
+﻿@if (MediaQuery == MediaQuery.Xs)
+{
+	<div class="card-body px-0">
+		<div class="list-group">
+			@foreach (var item in Nav.List.ToList()
+					.Where(w => w.IsPartOfList(PageListType.SitemapPage))
+					.OrderBy(o => o.Sort))
+			{
+				<FancyFatNavButton Nav="item" MediaQuery="MediaQuery" />
+			}
+		</div>
+	</div>
+}
+else
+{
+	<div class="card-body px-0">
+		<div class="row">
+			<div class="col-6">
+				<div class="list-group">
+					@foreach (var item in Nav.List.ToList()
+									.Where(w => w.IsPartOfList(PageListType.SitemapPage))
+									.Where(w => w.Value <= ColumnButtonCountSplit)
+									.OrderBy(o => o.Sort))
+					{
+						<FancyFatNavButton Nav="item" MediaQuery="MediaQuery" />
+					}
+				</div>
+			</div>
+			<div class="col-6">
+				<div class="list-group">
+					@foreach (var item in Nav.List.ToList()
+									.Where(w => w.IsPartOfList(PageListType.SitemapPage))
+									.Where(w => w.Value > ColumnButtonCountSplit)
+									.OrderBy(o => o.Sort))
+					{
+						<FancyFatNavButton Nav="item" MediaQuery="MediaQuery" />
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter, EditorRequired] public MediaQuery? MediaQuery { get; set; }
+	private const int ColumnButtonCountSplit = 1;
+}

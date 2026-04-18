@@ -1,0 +1,20 @@
+﻿
+<button type="button" class="btn btn-outline-primary" title="@Title"
+				@onclick="ButtonClick">
+	<i class="@Icon"></i>
+</button>
+
+@code {
+	[Parameter, EditorRequired] public RCL.Features.Parasha.Toolbar.PrevNextVM? PrevNextVM { get; set; }
+	[Parameter, EditorRequired] public EventCallback<RCL.Features.Parasha.Toolbar.PrevNextVM> OnTriennialSelected { get; set; }
+
+	private string Icon => PrevNextVM!.Icon;
+	private string Title => PrevNextVM!.Triennial.TorahAbrv;
+
+	private void ButtonClick()
+	{
+		OnTriennialSelected.InvokeAsync(PrevNextVM);
+	}
+
+}
+

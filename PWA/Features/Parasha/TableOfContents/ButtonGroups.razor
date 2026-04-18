@@ -1,0 +1,101 @@
+﻿ @using ParashaEnums = PWA.Features.Parasha.Enums
+
+<div class="card bg-light mb-3">
+	<div class="card-body p-1 d-flex justify-content-between">
+
+		@* Torah: it's always first and there is always only 1 *@
+		<div class="btn-group-sm" role="group">
+			<button @onclick="@(e => ButtonClick(VM!.GetTorahScriptureId(), ParashaEnums.ShowSection.Torah))"
+							type="button" class="btn @ParashaEnums.ShowSection.Torah.ButtonColorTOC">
+				<span class="@textSize @ParashaEnums.ShowSection.Torah.HeaderColor">@VM!.GetTorahVerseRange()</span>
+			</button>
+		</div>
+
+
+		@foreach (var showSection in ParashaEnums.ShowSection.List.Where(w => w.Value > ParashaEnums.ShowSection.Torah).OrderBy(o => o.Value))
+		{
+			@if (VM!.GetSectionCount(showSection) == 0)
+			{
+				<div class="btn-group-sm" role="group">
+					<button type="button" class="btn @showSection.HeaderColor">
+						<span class="@textSize text-secondary"><strike>@showSection.Name</strike></span>
+					</button>
+				</div>
+			}
+			else
+			{
+				@if (VM!.GetSectionCount(showSection) == 1)
+				{
+					<div class="btn-group-sm" role="group">
+
+						@foreach (var item in VM.TableOfContentList!.Where(w => w.SectionId == showSection.Value))
+						{
+							<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
+											type="button" class="btn @showSection.ButtonColorTOC">
+								<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+							</button>
+						}
+
+					</div>
+				}
+				else
+				{
+					@* build two vertical buttons *@
+					@if (VM!.GetSectionCount(showSection) == 2)
+					{
+						<div class="btn-group-vertical btn-group-sm" role="group" aria-label="Vertical button group">
+							@foreach (var item in VM.TableOfContentList!.Where(w => w.SectionId == showSection.Value))
+							{
+								<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
+												type="button" class="btn @showSection.ButtonColorTOC mb-1">
+									<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+								</button>
+							}
+						</div>
+					}
+					else
+					{
+						@* 3 or more, build dropdown list boxes  *@
+						<div class="btn-group-vertical btn-group-sm" role="group" aria-label="Vertical button group">
+							<button type="button" class="btn @showSection.ButtonColorTOC dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+								<span class="@textSize">@showSection.Name</span>
+							</button>
+							<ul class="dropdown-menu">
+								@foreach (var item in VM.TableOfContentList!.Where(w => w.SectionId == showSection.Value))
+								{
+									<li class="btn-group-sm">
+										<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
+														type="button" class="btn @showSection.LineItemButtonColor ms-1 mb-1">
+											<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+										</button>
+									</li>
+								}
+							</ul>
+
+						</div>
+					}
+
+				}
+
+			}
+		}
+
+	</div> <!-- card-body-->
+</div> <!-- card-->
+
+
+@code {
+	[Parameter, EditorRequired] public TOC_VM? VM { get; set; }
+	[Parameter, EditorRequired] public MediaQuery? MediaQuery { get; set; }
+	[Parameter] public EventCallback<ScriptureSelected> OnScriptureIdSelected { get; set; }
+	
+	// string buttonGroupSize => MediaQuery == MediaQuery.Xs ? "btn-group-sm" : "btn-group";
+	string textSize => MediaQuery == MediaQuery.Xs ? "fs-6" : "fs-5";  // "fs-4"
+
+	private void ButtonClick(int scriptureId, ParashaEnums.ShowSection showSection)
+	{
+		OnScriptureIdSelected.InvokeAsync(new ScriptureSelected(scriptureId, showSection));
+	}
+
+
+}

@@ -11,7 +11,7 @@ public class AppState
 {
 	public Features.Home.State? BookChapterState { get; }
 	//public Features.Haggadah.State? HaggadahState { get; }	
-	//public ParashaState? ParashaState { get; }
+	public ParashaState? ParashaState { get; }
 	//public VerseList.VerseListState? VerseListState { get; }
 
 	#region Constructor and DI
@@ -24,7 +24,7 @@ public class AppState
 		this.localStorage = localStorage;
 		BookChapterState = new Features.Home.State(localStorage, logger);
 		//HaggadahState = new Features.Haggadah.State(localStorage, logger);	
-		//ParashaState = new ParashaState(localStorage, logger);
+		ParashaState = new ParashaState(localStorage, logger);
 		//VerseListState = new VerseList.VerseListState(localStorage, logger);
 		//Logger!.LogInformation("ctor of {Project}!{Class}", nameof(PWA), nameof(AppState));
 	}
@@ -40,7 +40,7 @@ public class AppState
 			try
 			{
 				await BookChapterState!.Initialize();
-				//await ParashaState!.Initialize();
+				await ParashaState!.Initialize();
 				//await HaggadahState!.Initialize();	
 				//await VerseListState!.Initialize();
 				//Logger!.LogWarning("{Method} ParashaState.Get: {ParashaState}", nameof(Initialize), ParashaState.Get());

@@ -11,7 +11,7 @@ public class ReportModel
 	public string? DescD { get; init; }
 	public int BookID { get; init; }
 	public int Chapter { get; init; }
-	public List<WordPart>? WordPartList { get; init; }
+	public List<WordPart> WordPartList { get; init; } = new();
 }
 
 public record WordPart

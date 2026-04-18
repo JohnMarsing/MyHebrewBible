@@ -1,0 +1,53 @@
+﻿@using PWA.Features.Parasha.Enums
+
+@* @inject IToastService? Toast *@
+
+
+<div class="@MediaQuery.Xs.DivClass">
+	<button @onclick="ButtonClicked" type="button" title=""
+					class="btn @ShowSection!.ButtonColorShowHide">
+		@ButtonText	<i class="fas @ChevronIcon"></i>
+	</button>
+</div>
+
+<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+	<button @onclick="ButtonClicked" type="button" title=""
+					class="btn @ShowSection!.ButtonColorShowHide btn-lg">
+		@ButtonText	<i class="fas @ChevronIcon"></i>
+	</button>
+
+</div>
+
+
+@code {
+	[Parameter, EditorRequired] public Enums.ShowSection? ShowSection { get; set; }
+	[Parameter, EditorRequired] public Enums.Permutation CurrentVisibilityState { get; set; }
+	[Parameter] public EventCallback<Enums.Permutation> OnToggleSelected { get; set; }
+	private bool ToggleIsVisible;
+	private string? ChevronIcon;
+	private string? ButtonText; 
+
+	protected override void OnParametersSet() 
+	{ 
+		ToggleIsVisible = CurrentVisibilityState.HasFlag(ShowSection!.VisibilityState) ? true : false;
+		ChevronIcon = ToggleIsVisible ? " fa-chevron-up" : " fa-chevron-down";
+		ButtonText = ToggleIsVisible ? "Hide" : "Show";
+	}
+
+	private void ButtonClicked()
+	{
+		//string msg = $"State before:{CurrentVisibilityState},";
+		if (ToggleIsVisible)
+		{
+			CurrentVisibilityState = CurrentVisibilityState & ~ShowSection!.VisibilityState;
+		}
+		else
+		{
+			CurrentVisibilityState = CurrentVisibilityState | ShowSection!.VisibilityState;
+		}
+		//msg = $"{msg} after:{CurrentVisibilityState}";
+		//Toast!.ShowInfo(msg);
+		ToggleIsVisible = (!ToggleIsVisible);
+		OnToggleSelected.InvokeAsync(CurrentVisibilityState);
+	}
+}

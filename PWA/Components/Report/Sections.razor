@@ -30,10 +30,10 @@
 				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 									 Verse="item"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
-									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList!.Count())"
+									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
 									 OnVerseSelectedPassThrough="ReturnedVerse" />
 			</div>
-			@if (item.WordPartList!.Count() > 0)
+			@if (item.WordPartList?.Count() > 0)
 			{
 				if (UserSettings.IsStandaloneAlephTavDetailsOn)
 				{
@@ -50,77 +50,41 @@
 						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 												BCV="@item!.BCV"
 												VerseNumber="item!.Verse"
-												IsSplitMode="UserSettings.IsHebrewShownOnTheSide"
 												Filter="Filter"
 												OnFilter="ReturnedFilter"
 												OnClose="ReturnedCloseEvent" />
 					</div>
 
-					@if (UserSettings.IsHebrewShownOnTheSide)
-					{
-						<div class="card-body">
 
-							<div class="@MediaQuery.Xs.DivClass">
+					<div class="card-body">
+
+						<div class="@MediaQuery.Xs.DivClass">
+							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																				WordSelected="CurrentWordSelected"
+																				OnWordSelected="ReturnedWord" />
+							<hr />
+							<HebrewParagraph ScriptureId="DrilldownScriptureId"
+															 WordSelected="CurrentWordSelected"
+															 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+															 OnWordSelected="ReturnedWord" />
+						</div>
+
+						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+							<div class="d-flex justify-content-between">
 								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
 																					WordSelected="CurrentWordSelected"
 																					OnWordSelected="ReturnedWord" />
-								<hr />
+
 								<HebrewParagraph ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected"
 																 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
 																 OnWordSelected="ReturnedWord" />
-							</div>
 
-							<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-								<div class="d-flex justify-content-between">
-									<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
-																						WordSelected="CurrentWordSelected"
-																						OnWordSelected="ReturnedWord" />
-
-									<HebrewParagraph ScriptureId="DrilldownScriptureId"
-																	 WordSelected="CurrentWordSelected"
-																	 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
-																	 OnWordSelected="ReturnedWord" />
-
-								</div>
 							</div>
 						</div>
+					</div>
 
-						@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
-						{
-							<div class="@MediaQuery.Xs.DivClass">
-								<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
-																		 WordSelected="CurrentWordSelected" IsXs=true />
-							</div>
-							<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-								<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
-																		 WordSelected="CurrentWordSelected" IsXs=false />
-							</div>
-						}
 
-					}
-					else
-					{
-						<div class="card-body">
-							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
-																				WordSelected="CurrentWordSelected"
-																				OnWordSelected="ReturnedWord" />
-						</div>
-
-						<div class="@MediaQuery.Xs.DivClass">
-							<HebrewTable ScriptureId="DrilldownScriptureId"
-													 Filter="Filter"
-													 WordSelected="CurrentWordSelected" IsXs=true />
-
-						</div>
-						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-							<HebrewTable ScriptureId="DrilldownScriptureId"
-													 Filter="Filter"
-													 WordSelected="CurrentWordSelected" IsXs=false />
-
-						</div>
-
-					}
 				</div>
 			}
 			else
@@ -128,7 +92,7 @@
 				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 									 Verse="item"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
-									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList!.Count())"
+									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
 									 OnVerseSelectedPassThrough="ReturnedVerse" />
 			}
 		}
