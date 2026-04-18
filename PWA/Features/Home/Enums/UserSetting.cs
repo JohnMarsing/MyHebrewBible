@@ -5,32 +5,16 @@ namespace PWA.Features.Home.Enums;
 [Flags]
 public enum Permutation : int
 {
-	HebrewShownOnTheSide = 1,
-	StandaloneAlephTavDetailOn = 2,
-	ParashaDividerDetailOn = 4,
-	HebrewWordNumbersOn = 8,
-
-	/*
-	ReplaceEnglishWithHebrewLevelBasic = 16,	
-	ReplaceEnglishWithHebrewLevelIntermediate = 32,
-	ReplaceEnglishWithHebrewLevelAdvanced = 64,
-
-	Enums\BLB.cs
-
-	*/
+	StandaloneAlephTavDetailOn = 1,
+	ParashaDividerDetailOn = 2,
+	HebrewWordNumbersOn = 4,
 }
-
-/*
-# Business rule
-
-*/
 
 public abstract class UserSetting : SmartEnum<UserSetting>
 {
 	#region Id's
 	private static class Id
 	{
-		internal const int HebrewLocation = 1;
 		internal const int StandaloneAlephTav = 2;
 		internal const int ParashaDivider = 3;
 		internal const int HebrewWordNumbers = 4;	
@@ -39,7 +23,6 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	#endregion
 
 	#region  Declared Public Instances
-	public static readonly UserSetting HebrewLocation = new HebrewLocationSE();
 	public static readonly UserSetting StandaloneAlephTav = new StandaloneAlephTavSE();
 	public static readonly UserSetting ParashaDivider = new ParashaDividerSE();
 	public static readonly UserSetting HebrewWordNumbers = new HebrewWordNumbersSE();	
@@ -59,24 +42,14 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	//Properties
 
 	public static Permutation Default =>
-		Permutation.HebrewShownOnTheSide
-	| Permutation.StandaloneAlephTavDetailOn
+		Permutation.StandaloneAlephTavDetailOn
 	| Permutation.ParashaDividerDetailOn
 	| Permutation.HebrewWordNumbersOn;
-	//| Permutation.ReplaceEnglishWithHebrewLevelBasic
 
 
 	#endregion
 
 	#region Private Instantiation
-	private sealed class HebrewLocationSE : UserSetting
-	{
-		public HebrewLocationSE() : base($"{nameof(Id.HebrewLocation)}", Id.HebrewLocation) { }
-		public override Permutation OnState => Permutation.HebrewShownOnTheSide;
-		public override string Title => "Hebrew Location";
-		public override string DetailWhenOn => "on the right as a paragraph";
-		public override string DetailWhenOff => "at the bottom as a table";
-	}
 
 	private sealed class StandaloneAlephTavSE : UserSetting
 	{

@@ -1,8 +1,6 @@
 ﻿
 using Ardalis.SmartEnum;
-
 using BookChapterConstants = PWA.Features.Home.Constants;
-
 
 namespace PWA.Enums;
 
@@ -22,14 +20,14 @@ public abstract class Nav : SmartEnum<Nav>
 	private static class Id
 	{
 		internal const int Home = 1;
-		internal const int Sitemap = 12;
-		/*
-		internal const int BookChapter = 2;
+		internal const int Sitemap = 2;
 		internal const int Parasha = 3;
+		internal const int ParashaList = 4;
+		internal const int Hebrew = 5;
+		/*
 		internal const int Donate = 4;
 		internal const int Article = 5;
 		internal const int FavoriteVerses = 6;
-		internal const int Hebrew = 7;
 		internal const int AlephTavs = 8;
 		internal const int BibleList = 9;
 		internal const int Haggadah = 10;
@@ -45,7 +43,6 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int HealthCheckFavoriteVerses = 21;
 		internal const int HealthCheckThrowError = 22;
 		internal const int HealthCheckVerseList = 23;
-		internal const int ParashaList = 24;
 		internal const int HealthCheckBitwise = 25;
 		internal const int HebrewRevelation = 26;
 		internal const int HealthCheckParasha = 27;
@@ -59,36 +56,35 @@ public abstract class Nav : SmartEnum<Nav>
 	#region Declared Public Instances
 	public static readonly Nav Home = new HomeSE();
 	public static readonly Nav Sitemap = new SitemapSE();
-/*
-	public static readonly Nav BookChapter = new BookChapterSE();
-	public static readonly Nav Parasha = new ParashaSE();
-	public static readonly Nav Donate = new DonateSE();
-	public static readonly Nav Article = new ArticleSE();
-	public static readonly Nav FavoriteVerses = new FavoriteVersesSE();
-	public static readonly Nav Hebrew = new HebrewSE();
-	public static readonly Nav AlephTavs = new AlephTavsSE();
-	public static readonly Nav BibleList = new BibleListSE();
-	public static readonly Nav Haggadah = new HaggadahSE();
-	public static readonly Nav Teaching = new TeachingSE();
-	public static readonly Nav Sitemap = new SitemapSE();
-	public static readonly Nav HomeMhbVer6 = new HomeMhbVer6SE();
-	public static readonly Nav VerseList = new VerseListSE();
-	public static readonly Nav Contact = new ContactSE();
-	public static readonly Nav DonateReplyConfirm = new DonateReplyConfirmSE();
-	public static readonly Nav Profile = new ProfileSE();
-	public static readonly Nav BibleSearch = new BibleSearchSE();
-	public static readonly Nav HealthCheckBibleBook = new HealthCheckBibleBookSE();
-	public static readonly Nav HealthCheckFavoriteVerses = new HealthCheckFavoriteVersesSE();
-	public static readonly Nav HealthCheckThrowError = new HealthCheckThrowErrorSE();
-	public static readonly Nav HealthCheckVerseList = new HealthCheckVerseListSE();
 	public static readonly Nav ParashaList = new ParashaListSE();
-	public static readonly Nav HealthCheckBitwise = new HealthCheckBitwiseSE();
-	public static readonly Nav HebrewRevelation = new HebrewRevelationSE();
-	public static readonly Nav HealthCheckParasha = new HealthCheckParashaSE();
-	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
-	public static readonly Nav HealthCheckQuickGrid = new HealthCheckQuickGridSE();
-	public static readonly Nav HealthCheckTypeahead = new HealthCheckTypeaheadSE();
-*/
+	public static readonly Nav Parasha = new ParashaSE();
+		public static readonly Nav Hebrew = new HebrewSE();
+	/*
+		public static readonly Nav Donate = new DonateSE();
+		public static readonly Nav Article = new ArticleSE();
+		public static readonly Nav FavoriteVerses = new FavoriteVersesSE();
+		public static readonly Nav AlephTavs = new AlephTavsSE();
+		public static readonly Nav BibleList = new BibleListSE();
+		public static readonly Nav Haggadah = new HaggadahSE();
+		public static readonly Nav Teaching = new TeachingSE();
+		public static readonly Nav Sitemap = new SitemapSE();
+		public static readonly Nav HomeMhbVer6 = new HomeMhbVer6SE();
+		public static readonly Nav VerseList = new VerseListSE();
+		public static readonly Nav Contact = new ContactSE();
+		public static readonly Nav DonateReplyConfirm = new DonateReplyConfirmSE();
+		public static readonly Nav Profile = new ProfileSE();
+		public static readonly Nav BibleSearch = new BibleSearchSE();
+		public static readonly Nav HealthCheckBibleBook = new HealthCheckBibleBookSE();
+		public static readonly Nav HealthCheckFavoriteVerses = new HealthCheckFavoriteVersesSE();
+		public static readonly Nav HealthCheckThrowError = new HealthCheckThrowErrorSE();
+		public static readonly Nav HealthCheckVerseList = new HealthCheckVerseListSE();
+		public static readonly Nav HealthCheckBitwise = new HealthCheckBitwiseSE();
+		public static readonly Nav HebrewRevelation = new HebrewRevelationSE();
+		public static readonly Nav HealthCheckParasha = new HealthCheckParashaSE();
+		public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
+		public static readonly Nav HealthCheckQuickGrid = new HealthCheckQuickGridSE();
+		public static readonly Nav HealthCheckTypeahead = new HealthCheckTypeaheadSE();
+	*/
 	#endregion
 
 
@@ -136,7 +132,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Home;
 		public override string HomeTitleSuffix => " bayit H1004";
 		public override string HomeFloatRightHebrew => "בַּיִת";
-		public override PageListType PageListType => PageListType.TierOne;
+		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
@@ -154,26 +150,11 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
-	/*
-	private sealed class BookChapterSE : Nav
-	{
-		public BookChapterSE() : base($"{nameof(Id.BookChapter)}", Id.BookChapter) { }
-		public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
-		public override string Title => "Book Chapter";
-		public override string Icon => "fa fa-book";
-		public override int Sort => Id.BookChapter;
-		public override string HomeTitleSuffix => " mispar h4557";
-		public override string HomeFloatRightHebrew => "מִסְפָּר";
-		public override PageListType PageListType => PageListType.SitemapPage ;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
 
 	private sealed class ParashaSE : Nav
 	{
 		public ParashaSE() : base($"{nameof(Id.Parasha)}", Id.Parasha) { }
-		public override string Index => ParashaEnums.Constants.GetUrl()! ?? this.Name;
-		//public override string Index => ParashaEnums.Constants.GetUrl() ?? $"/{ParashaEnums.Constants.BaseUrl}";
+		public override string Index => RCL.Features.Parasha.Helpers.GetUrl()! ?? this.Name; // ParashaEnums.Constants.GetUrl()! ?? this.Name;
 		public override string Title => "Parasha";
 		public override string Icon => "far fa-bookmark";
 		public override int Sort => Id.Parasha;
@@ -183,6 +164,38 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
+
+
+	private sealed class ParashaListSE : Nav
+	{
+		public ParashaListSE() : base($"{nameof(Id.ParashaList)}", Id.ParashaList) { }
+		public override string Index => "/ParashaList";
+		public override string Title => "Parasha List";
+		public override string Icon => "fas fa-table";
+		public override int Sort => Id.ParashaList;
+		public override string HomeTitleSuffix => "";
+		public override string HomeFloatRightHebrew => "";
+
+		public override PageListType PageListType => PageListType.None;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false; // N/A
+	}
+
+	private sealed class HebrewSE : Nav
+	{
+		public HebrewSE() : base($"{nameof(Id.Hebrew)}", Id.Hebrew) { }
+		public override string Index => "/Hebrew";
+		public override string Title => "Hebrew";
+		public override string Icon => "fa fa-letter-aleph";  //   fa-letter-aleph-bet
+		public override int Sort => Id.Hebrew;
+		public override string HomeTitleSuffix => " Ivri H5680";
+		public override string HomeFloatRightHebrew => "עִבְרִי";
+		public override PageListType PageListType => PageListType.SitemapPage;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	/*
 
 	private sealed class DonateSE : Nav
 	{
@@ -226,19 +239,6 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool Disabled => false;
 	}
 
-	private sealed class HebrewSE : Nav
-	{
-		public HebrewSE() : base($"{nameof(Id.Hebrew)}", Id.Hebrew) { }
-		public override string Index => "/Hebrew";
-		public override string Title => "Hebrew";
-		public override string Icon => "fa fa-letter-aleph";  //   fa-letter-aleph-bet
-		public override int Sort => Id.Hebrew;
-		public override string HomeTitleSuffix => " Ivri H5680";
-		public override string HomeFloatRightHebrew => "עִבְרִי";
-		public override PageListType PageListType => PageListType.SitemapPage;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
 
 	private sealed class AlephTavsSE : Nav
 	{
@@ -444,21 +444,6 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool Disabled => false;
 	}
 
-	private sealed class ParashaListSE : Nav
-	{
-		public ParashaListSE() : base($"{nameof(Id.ParashaList)}", Id.ParashaList) { }
-		public override string Index => "/ParashaList";
-		public override string Title => "Parasha List";
-		public override string Icon => "fas fa-table";
-		public override int Sort => Id.ParashaList;
-		public override string HomeTitleSuffix => "";
-		public override string HomeFloatRightHebrew => "";
-
-		public override PageListType PageListType => PageListType.None;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false; // N/A
-	}
-
 	private sealed class HealthCheckBitwiseSE : Nav
 	{
 		public HealthCheckBitwiseSE() : base($"{nameof(Id.HealthCheckBitwise)}", Id.HealthCheckBitwise) { }
@@ -556,7 +541,28 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
-*/  
+*/
 	#endregion
+
+	/*
+	internal const int BookChapter = 2;
+	public static readonly Nav BookChapter = new BookChapterSE();
+
+
+	private sealed class BookChapterSE : Nav
+	{
+		public BookChapterSE() : base($"{nameof(Id.BookChapter)}", Id.BookChapter) { }
+		public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
+		public override string Title => "Book Chapter";
+		public override string Icon => "fa fa-book";
+		public override int Sort => Id.BookChapter;
+		public override string HomeTitleSuffix => " mispar h4557";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
+		public override PageListType PageListType => PageListType.SitemapPage ;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+	 
+	 */
 
 }

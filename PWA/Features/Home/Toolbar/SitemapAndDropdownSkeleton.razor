@@ -4,8 +4,8 @@
 
 <div class="btn-group " role="group" aria-label="Vertical button group">
 
-	<button @onclick="ButtonClickHome" class="btn btn-primary" type="button" title="@Page.Home.Title">
-		<i class="@Page.Home.Icon"></i>
+	<button @onclick="ButtonClick" class="btn btn-primary" type="button" title="@Page.Sitemap.Title">
+		<i class="@Page.Sitemap.Icon"></i>
 	</button>
 
 	<button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
@@ -37,13 +37,10 @@
 	[Parameter, EditorRequired] public RenderFragment? Recent { get; set; }
 	[Parameter, EditorRequired] public RenderFragment? Parashot { get; set; }
 
-
-	private void ButtonClickHome()
+	private void ButtonClick()
 	{
-		//ToDo: Should I call await CascadingAppState!.AppState!.BookChapterState!.AddStoredAcvToBcvList();???
-		NavigationManager!.NavigateTo($"{Page.Home.Index}");
+		NavigationManager!.NavigateTo($"{Page.Sitemap.Index}");
 	}
-
 
 }
 

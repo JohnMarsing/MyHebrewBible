@@ -6,6 +6,7 @@ using Toolbelt.Blazor.Extensions.DependencyInjection;
 using PWA;
 using PWA.Data;
 using PWA.Features.Home.Data;
+using PWA.Features.Parasha.Data;
 using PWA.State;
 
 using Serilog;
@@ -26,6 +27,7 @@ builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(build
 // HttpClient is already registered by default in Blazor WASM
 
 builder.Services.AddHomeData(); 
+builder.Services.AddParashaData(); 
 builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how
 
 builder.Services.AddPWAUpdater(); // This is Toolbelt.Blazor

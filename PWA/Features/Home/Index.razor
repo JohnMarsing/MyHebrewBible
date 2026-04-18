@@ -23,14 +23,14 @@
 <NavSkeleton>
 
 	<JustifyStart>
-		<HomeDropdownSkeleton>
+		<SitemapAndDropdownSkeleton>
 			<Recent>
 				<RecentListPicker OnBCVSelected="ReturnedBCV" />
 			</Recent>
 			<Parashot>
 				<ParashotPicker OnBCVSelected="ReturnedBCV" />
 			</Parashot>
-		</HomeDropdownSkeleton>
+		</SitemapAndDropdownSkeleton>
 	</JustifyStart>
 
 	<PrevButtonDiv>
@@ -115,7 +115,6 @@
 		{
 			Enums.Permutation _currentPermutations = (Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
 			UserSettings = new Enums.UserSettingsDTO(
-				IsHebrewShownOnTheSide: _currentPermutations.HasFlag(Enums.Permutation.HebrewShownOnTheSide),
 				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.StandaloneAlephTavDetailOn),
 				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.ParashaDividerDetailOn),
 				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn));

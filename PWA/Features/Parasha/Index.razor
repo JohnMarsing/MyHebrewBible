@@ -1,0 +1,132 @@
+﻿@page "/Parasha/{Id:int}/{Slug}"
+@using RCL.Enums
+@using RCL.Features.Parasha.Enums
+@using PWA.Features.Parasha.Toolbar
+@using Home = PWA.Features.Home
+
+@inject ILogger<Index>? Logger
+@inject IToastService? Toast
+@inject NavigationManager? NavigationManager
+
+<PageTitle>@Nav.Parasha.Title @PageTitleDetail</PageTitle>
+
+
+<Buttons CurrentReading="CurrentReading"
+				 OnTriennialSelected="ReturnedTriennial"
+				 OnMenuItemSelected="ReturnedMenuItem" />
+
+	@if (CurrentReading is not null)
+{
+	<br />  @* ToDo: Fix this CSS HACK *@
+	<div class="card border-primary mb-3 mt-5">
+		<div class="@MediaQuery.XsOrSm.DivClass">
+			<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.XsOrSm" />
+		</div>
+		<div class="@MediaQuery.MdOrLgOrXl.DivClass">
+			<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.MdOrLgOrXl" />
+		</div>
+	</div>
+
+	<ReportWrapper CurrentReading="CurrentReading"
+								 CurrentVisibilityState="CurrentVisibilityState"
+								 UserSettings="UserSettings" />
+}
+else
+{
+	<br />  @* ToDo: Fix this CSS HACK *@
+	<div class="card border-danger mb-3 mt-5">
+		<div class="card-body text-center fs-1">No Parasha Found <br /> (◡︵◡)</div>
+	</div>
+}
+
+
+@if (ShowPageInstructionsModal)
+{
+	<PageInstructions />
+}
+
+@code {
+	[Parameter, EditorRequired] public int Id { get; set; }
+	[Parameter] public string? Slug { get; set; } // not used
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	protected Home.Enums.UserSettingsDTO? UserSettings { get; set; }
+	
+	protected PWA.Features.Parasha.Enums.Permutation CurrentVisibilityState;
+	public Triennial? CurrentReading { get; set; }
+
+	private string? PageTitleDetail = string.Empty;
+
+	protected override void OnInitialized()
+	{
+		//Logger!.LogInformation("{Method}, Id: {Id}", nameof(OnInitialized), Id);
+		try
+		{
+			Home.Enums.Permutation _currentPermutations = (Home.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+			UserSettings = new Home.Enums.UserSettingsDTO(
+				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Home.Enums.Permutation.StandaloneAlephTavDetailOn),
+				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Home.Enums.Permutation.ParashaDividerDetailOn),
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Home.Enums.Permutation.HebrewWordNumbersOn));
+
+			CurrentReading = GetCurrentReadingViaRoutes(Id);
+
+			if (CurrentReading is not null)
+			{
+				PageTitleDetail = CurrentReading.TorahAbrv;
+			}
+			else
+			{
+				Toast!.ShowWarning($"Parasha Id {Id} not found; inside: {nameof(Index)}!{nameof(OnInitialized)}");
+			}
+			CurrentVisibilityState = GetCurrentVisibilityState();
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnInitialized));
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnInitialized)}");
+		}
+	}
+
+	private Triennial? GetCurrentReadingViaRoutes(int id)
+	{
+		Triennial? _reading = Triennial.List.Where(w => w.Value == id).SingleOrDefault();
+		// _reading = null; Test for when the id is not found
+		if (_reading is null)
+		{
+			//Logger!.LogWarning("{id}; _reading is null", id);
+			//Toast!.ShowWarning($"Current reading is not found; id: {id}");
+			return null;
+		}
+		else
+		{
+			//Logger!.LogInformation("{Method}, _reading: {_reading}", nameof(GetCurrentReadingViaRoutes), _reading);
+			return _reading;
+		}
+	}
+
+	private PWA.Features.Parasha.Enums.Permutation GetCurrentVisibilityState()
+	{
+		int _permutation = State!.AppState!.ParashaState!.Get();
+		//Logger!.LogInformation("{Method}, _permutation: {_permutation}", nameof(GetCurrentPermutation), _permutation);
+		return (PWA.Features.Parasha.Enums.Permutation)_permutation;
+	}
+
+	private void ReturnedTriennial(Triennial triennial)
+	{
+		CurrentReading = triennial;
+		if (CurrentReading is not null) { PageTitleDetail = CurrentReading.TorahAbrv; }
+	}
+
+	protected bool ShowPageInstructionsModal = false;
+	private void ReturnedMenuItem(Enums.MenuItem item)
+	{
+		if (item == Enums.MenuItem.Instructions)
+		{
+			ShowPageInstructionsModal = !ShowPageInstructionsModal;
+		}
+		else if (item == Enums.MenuItem.ParashaList)
+		{
+			NavigationManager!.NavigateTo(Nav.ParashaList.Index);
+		}
+	}
+}
