@@ -19,27 +19,6 @@ public class SqliteDataService : IAsyncDisposable
 		_logger = logger;
 	}
 
-	// Called by: DatabaseSmokeTest.razor (Features/Home/)
-	public async Task<long> GetScriptureCountAsync()
-	{
-		await EnsureInitializedAsync();
-
-		const string sql = "SELECT COUNT(*) AS RowCnt FROM Scripture";
-		_logger.LogInformation("Executing scripture count query.");
-
-		try
-		{
-			var count = await _connection!.ExecuteScalarAsync<long>(sql);
-			_logger.LogInformation("Scripture count query completed. Count: {Count}", count);
-			return count;
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error executing scripture count query.");
-			throw;
-		}
-	}
-
 	private async Task EnsureInitializedAsync()
 	{
 		if (_initialized)
@@ -55,27 +34,27 @@ public class SqliteDataService : IAsyncDisposable
 				return;
 			}
 
-			_logger.LogInformation("Initializing SQLite data service.");
+			_logger.LogDebug("Initializing SQLite data service.");
 
 			var dbFileName = "MhbSqlite.db";
 			var dbPath = "/" + dbFileName;
 
-			_logger.LogInformation("Downloading SQLite database file: {DatabaseFile}", dbFileName);
+			_logger.LogDebug("Downloading SQLite database file: {DatabaseFile}", dbFileName);
 			var dbBytes = await _http.GetByteArrayAsync(dbFileName);
 
-			_logger.LogInformation("Writing SQLite database to WASM virtual file system: {DatabaseFile}", dbFileName);
+			_logger.LogDebug("Writing SQLite database to WASM virtual file system: {DatabaseFile}", dbFileName);
 			await WriteDbToVirtualFsAsync(dbBytes, dbFileName);
 
 			await VerifyDbFileAsync(dbPath, dbBytes.Length);
 
 			var connectionString = $"Data Source={dbPath};Mode=ReadOnly;Cache=Shared";
-			_logger.LogInformation("Opening SQLite connection. ConnectionString: {ConnectionString}", connectionString);
+			_logger.LogDebug("Opening SQLite connection. ConnectionString: {ConnectionString}", connectionString);
 
 			_connection = new SqliteConnection(connectionString);
 			await _connection.OpenAsync();
 
 			_initialized = true;
-			_logger.LogInformation("SQLite data service initialized successfully.");
+			_logger.LogDebug("SQLite data service initialized successfully.");
 		}
 		catch (Exception ex)
 		{
@@ -118,7 +97,7 @@ public class SqliteDataService : IAsyncDisposable
 				$"SQLite database header is invalid. Header read: '{headerText}'.");
 		}
 
-		_logger.LogInformation(
+		_logger.LogDebug(
 			"Verified SQLite DB file at {Path}. Size={Length} bytes, Header='{Header}'",
 			path,
 			fileInfo.Length,
@@ -129,7 +108,7 @@ public class SqliteDataService : IAsyncDisposable
 	{
 		var path = "/" + fileName;
 		await File.WriteAllBytesAsync(path, bytes);
-		_logger.LogInformation("Database file written to virtual FS at: {Path}", path);
+		_logger.LogDebug("Database file written to virtual FS at: {Path}", path);
 	}
 
 	public async Task<SqliteConnection> GetConnectionAsync()
@@ -142,12 +121,12 @@ public class SqliteDataService : IAsyncDisposable
 	{
 		if (_connection != null)
 		{
-			_logger.LogInformation("Disposing SQLite connection.");
+			_logger.LogDebug("Disposing SQLite connection.");
 			await _connection.DisposeAsync();
 			_connection = null;
 		}
 
 		_initLock.Dispose();
-		_logger.LogInformation("SqliteDataService disposed.");
+		_logger.LogDebug("SqliteDataService disposed.");
 	}
 }

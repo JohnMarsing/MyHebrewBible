@@ -1,0 +1,32 @@
+﻿@inject NavigationManager NavigationManager
+
+<h4 class="text-center mt-5">Health Check Index</h4>
+
+<div class="card-body px-0">
+	<div class="list-group">
+		@foreach (var item in Nav.List.ToList()
+				.Where(w => w.IsPartOfList(PageListType.HealthCheck))
+				.OrderBy(o => o.Sort))
+		{
+
+			<button @onclick="() => ButtonClicked(item)" type="button" title="@item!.Title"
+							class="list-group-item list-group-item-info mt-1 ">
+				<div class="d-flex w-100 justify-content-center gap-2">
+					<i class="@item!.Icon text-dark" aria-hidden="true"></i>
+					<span class="">@item!.Title</span>
+				</div>
+			</button>
+
+
+		}
+	</div>
+</div>
+
+<br />
+
+@code {
+	private void ButtonClicked(Nav item)
+	{
+		NavigationManager!.NavigateTo(item!.Index);
+	}
+}

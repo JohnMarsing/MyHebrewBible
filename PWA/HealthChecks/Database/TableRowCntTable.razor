@@ -1,0 +1,47 @@
+﻿@using PWA.HealthChecks.Database.Data
+@inject PWA.HealthChecks.Database.Data.IRepository? db;
+@inject ILogger<TableRowCntTable>? Logger
+@inject IToastService? Toast
+
+<PageHeader PageEnum="Nav.HealthCheckTableRowCount" />
+
+<LoadingComponent IsLoading="tableRowCnts==null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<TableTemplate Items="tableRowCnts!.OrderBy(o => o.Name).ToList()" HeaderCSS="table table-bordered border-warning table-sm table-hover">
+		<TableHeader>
+			<th class="text-primary">Name</th>
+			<th class="text-primary text-center">Count</th>
+		</TableHeader>
+		<RowTemplate>
+			<td>@context.Name</td>
+			<td class="text-center">@context.RowCnt.ToString("N0")</td>
+		</RowTemplate>
+	</TableTemplate>
+</LoadingComponent>
+
+@code {
+	protected bool TurnSpinnerOff = false;
+	private List<TableRowCountQuery>? tableRowCnts = null;
+	
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			tableRowCnts = await db!.GetTableRowCountQuery();
+			if (tableRowCnts is null)
+			{
+				Toast!.ShowWarning($"TableRowCountQuery not found (◡︵◡)");
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnInitializedAsync)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+
+}
