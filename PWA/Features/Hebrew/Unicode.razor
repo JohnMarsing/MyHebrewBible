@@ -2,15 +2,12 @@
 
 @using PWA.Enums;
 @using PWA.Features.Hebrew.Components;
-@using Page = PWA.Features.Hebrew.MenuItemConstants.Unicode
 
-<PageTitle>@Page.Title</PageTitle>
 
+@using Page = PWA.Features.Hebrew.Enums.Nav
+@using PWA.Features.Hebrew.Toolbar;
+<Buttons Page="@Page.Unicode" />
 <SubNavBar ActiveMenuItem="@MenuItems.Unicode" />
-
-<div class="d-print-none pb-2 mt-4 mb-2 border-bottom">
-	<h1><i class="@Page.Icon"></i> @Page.Title</h1>
-</div>
 
 <TableTemplate Items="Enums.HebrewChartExtra.List.OrderBy(o => o.Value).ToList()">
 	<TableHeader>

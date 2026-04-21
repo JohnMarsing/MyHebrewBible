@@ -3,7 +3,7 @@
 @using PWA.Components.Report.Summary
 @using PWA.Components.Report.ParashaDivider
 @using PWA.Constants
-@using Home=PWA.Features.Home
+@using Home = PWA.Features.Home
 
 @implements IAsyncDisposable
 
@@ -11,97 +11,103 @@
 @* @inject IToastService? Toast *@
 @inject IJSRuntime JSRuntime
 
-@if (Verses! is not null && Verses.Count() != 0)
-{
-	@foreach (var item in Verses!.OrderBy(o => o.ID))
-	{
-		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="@GetBCV(item.BCV!)" />
-		
-		@if(CalledBy != Enums.CalledBy.Parasha)
-		{
-			<ParashaDisplay ScriptureId="@item.ID" 
-											BookId="@item.BookID" 
-											IsUserSettingParashaDividerDetailOn="UserSettings.IsParashaDividerDetailsOn"   /> 
-		}	
+@* <div class="mx-1"> *@
 
-		if (DrilldownScriptureId == 0)
+	@if (Verses! is not null && Verses.Count() != 0)
+	{
+
+		@foreach (var item in Verses!.OrderBy(o => o.ID))
 		{
-			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
-				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-									 Verse="item"
-									 ScrollToScriptureId="CurrentScrollToScriptureId"
-									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
-									 OnVerseSelectedPassThrough="ReturnedVerse" />
-			</div>
-			@if (item.WordPartList?.Count() > 0)
+			<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="@GetBCV(item.BCV!)" />
+		
+			@if (CalledBy != Enums.CalledBy.Parasha)
 			{
-				if (UserSettings.IsStandaloneAlephTavDetailsOn)
+				<ParashaDisplay ScriptureId="@item.ID"
+												BookId="@item.BookID"
+												IsUserSettingParashaDividerDetailOn="UserSettings.IsParashaDividerDetailsOn" />
+			}
+
+			if (DrilldownScriptureId == 0)
+			{
+				<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
+					<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+										 Verse="item"
+										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
+										 OnVerseSelectedPassThrough="ReturnedVerse" />
+				</div>
+				@if (item.WordPartList?.Count() > 0)
 				{
-					<SatAndSurroundingWords SurroundingWords="item.WordPartList!.ToList()" />
+					if (UserSettings.IsStandaloneAlephTavDetailsOn)
+					{
+						<SatAndSurroundingWords SurroundingWords="item.WordPartList!.ToList()" />
+					}
 				}
 			}
-		}
-		else
-		{
-			if (item.ID == DrilldownScriptureId)
+			else
 			{
-				<div class="card border-primary mt-2 mb-4">
-					<div class="card-header">
-						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-												BCV="@item!.BCV"
-												VerseNumber="item!.Verse"
-												Filter="Filter"
-												OnFilter="ReturnedFilter"
-												OnClose="ReturnedCloseEvent" />
-					</div>
-
-
-					<div class="card-body">
-
-						<div class="@MediaQuery.Xs.DivClass">
-							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
-																				WordSelected="CurrentWordSelected"
-																				OnWordSelected="ReturnedWord" />
-							<hr />
-							<HebrewParagraph ScriptureId="DrilldownScriptureId"
-															 WordSelected="CurrentWordSelected"
-															 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
-															 OnWordSelected="ReturnedWord" />
+				if (item.ID == DrilldownScriptureId)
+				{
+					<div class="card border-primary mt-2 mb-4">
+						<div class="card-header">
+							<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+													BCV="@item!.BCV"
+													VerseNumber="item!.Verse"
+													Filter="Filter"
+													OnFilter="ReturnedFilter"
+													OnClose="ReturnedCloseEvent" />
 						</div>
 
-						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-							<div class="d-flex justify-content-between">
+
+						<div class="card-body">
+
+							<div class="@MediaQuery.Xs.DivClass">
 								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
 																					WordSelected="CurrentWordSelected"
 																					OnWordSelected="ReturnedWord" />
-
+								<hr />
 								<HebrewParagraph ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected"
 																 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
 																 OnWordSelected="ReturnedWord" />
+							</div>
 
+							<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+								<div class="d-flex justify-content-between">
+									<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																						WordSelected="CurrentWordSelected"
+																						OnWordSelected="ReturnedWord" />
+
+									<HebrewParagraph ScriptureId="DrilldownScriptureId"
+																	 WordSelected="CurrentWordSelected"
+																	 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+																	 OnWordSelected="ReturnedWord" />
+
+								</div>
 							</div>
 						</div>
+
+
 					</div>
-
-
-				</div>
-			}
-			else
-			{
-				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-									 Verse="item"
-									 ScrollToScriptureId="CurrentScrollToScriptureId"
-									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
-									 OnVerseSelectedPassThrough="ReturnedVerse" />
+				}
+				else
+				{
+					<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+										 Verse="item"
+										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
+										 OnVerseSelectedPassThrough="ReturnedVerse" />
+				}
 			}
 		}
 	}
-}
-else
-{
-	<p class="fs-3 text-danger text-center">Report Verses is null or empty  (◡︵◡)</p>
-}
+	else
+	{
+		<p class="fs-3 text-danger text-center">Report Verses is null or empty  (◡︵◡)</p>
+	}
+
+
+@* </div> *@
 
 @code {
 
@@ -186,7 +192,7 @@ else
 		{
 			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
 				with
-				{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
+			{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
 			await State!.AppState!.BookChapterState!.UpdateACV(CurrentAbrvChapterVerse!);
 		}
 		

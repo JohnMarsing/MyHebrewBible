@@ -1,0 +1,38 @@
+﻿@using PWA.Features.Hebrew
+@using Page = PWA.Features.Hebrew.Enums.Nav
+
+<PageTitle>@Page.Title</PageTitle>
+
+<header>
+	<nav class="navbar navbar-expand bg-primary-subtle">
+
+		<div class="collapse navbar-collapse justify-content-start">
+
+			<div class="ps-1">
+				<SitemapButton />
+			</div>
+		</div>
+
+		<div class="collapse navbar-collapse justify-content-center">
+			<div class="px-1">
+				<h4 class=""><i class="@Page.Icon"></i>&nbsp;@Page.Title</h4>
+			</div>
+		</div>
+
+		<div class="collapse navbar-collapse justify-content-end">
+			<div class="pe-1">
+			
+				<a class="btn btn-primary" title="" href="@Nav.Hebrew.Index">
+					<i class="@Nav.Hebrew.Icon"></i>
+				</a>
+
+			</div>
+
+		</div>
+
+	</nav>
+</header>
+
+@code {
+	[Parameter, EditorRequired] public Page Page { get; set; }
+}

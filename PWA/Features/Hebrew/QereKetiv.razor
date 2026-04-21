@@ -2,12 +2,12 @@
 
 @using PWA.Enums;
 @using PWA.Features.Hebrew.Components;
-@using Page = PWA.Features.Hebrew.MenuItemConstants.QereKetiv
 
-<PageTitle>@Page.Title</PageTitle>
+@using Page = PWA.Features.Hebrew.Enums.Nav
+@using PWA.Features.Hebrew.Toolbar;
 
+<Buttons Page="@Page.QereKetiv" />
 <SubNavBar ActiveMenuItem="@MenuItems.QereKetiv" />
-
 
 <div class="row">
 	<div class="col-12">

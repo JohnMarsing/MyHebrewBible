@@ -1,0 +1,76 @@
+﻿@using PWA.Features.Sitemap.PageHeader.Offcanvas
+@using PWA.Features.Sitemap.PageHeader.MenuNavbar
+
+<header>
+	<div class="d-print-none">
+
+		@* 		
+		<div class="pb-n1 mt-2 mb-3 @BorderCSS">
+			<div class="@MediaQuery.Xs.DivClass">
+				<h1 class="text-center"><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<h1 class=""><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+			</div>
+		</div>
+ *@
+
+		<div class="container-fluid px-0">
+			<div class="d-flex align-items-center justify-content-between bg-primary text-white p-2 navbar navbar-dark">
+				<div class="d-flex align-items-center gap-2">
+					<HomeImgButton />
+					<SearchButton />
+				</div>
+				<Title />
+				<div class="d-flex align-items-center gap-2">
+					<ThemeToggle />
+					<Toggler />
+				</div>
+			</div>
+		</div>
+			
+		<TierOneButtons />
+		<SearchModal />
+		<WifiConnectionMessage />
+		
+	</div>
+
+	<div class="d-none d-print-block">
+		<Title />
+	</div>
+
+</header>
+
+@if (ChildContent is null)
+{
+	<header>
+		<div class="pb-n1 mt-2 mb-3 @BorderCSS">
+			<div class="@MediaQuery.Xs.DivClass">
+				<h1 class="text-center"><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<h1 class=""><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+			</div>
+		</div>
+	</header>
+}
+else
+{
+	<header>
+		<div class="d-print-none">
+			@ChildContent
+		</div>
+
+		<div class="d-none d-print-block">
+			<Title />
+		</div>
+
+	</header>
+}
+
+@code {
+	[Parameter, EditorRequired] public Nav PageEnum { get; set; } //= Nav.Home;
+	[Parameter] public RenderFragment? ChildContent { get; set; } // the only diff with PageHeaderTopMenu
+	[Parameter] public string? PageTitle { get; set; }
+	[Parameter] public string? BorderCSS { get; set; } = "border-bottom border-info";
+}

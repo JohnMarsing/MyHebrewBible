@@ -178,3 +178,82 @@ span.verse-outline {
 hr.warning {
   border-bottom: 3px solid #ece1c1;
 }
+
+
+.fa-letter-aleph:before {
+  font-weight: bold;
+  content: "א";
+}
+
+
+.fa-letter-bet:before {
+  font-weight: bold;
+  content: "בּ";
+}
+
+
+.fa-letter-tav:before {
+  font-weight: bold;
+  content: "ת";
+}
+
+.fa-letter-aleph-tav:before {
+  font-weight: bold;
+  content: "את";
+}
+
+.fa-letter-emendations:before {
+  font-weight: bold;
+  content: "𝕸";
+}
+
+/* U+2655  &#9813; */
+.fa-letter-jot-tittle:before {
+  font-weight: bold;
+  content: "♕";
+}
+
+/*C:\Source\MyHebrewBible_ConvertToCore\MyHebrewBible\MyHebrewBible.Web\wwwroot\css\site.css*/
+
+.fa-number-one:before {
+  font-weight: bold;
+  content: "1";
+}
+
+.fa-number-two:before {
+  font-weight: bold;
+  content: "2";
+}
+
+
+/*color: #800000;*/
+.at-red {
+  color: #ff0000;
+}
+
+
+.hebrewchart {
+  font-size: 22.0pt;
+  font-family: david;
+  direction: rtl;
+  line-height: 1.1;
+}
+
+.hebrewchart.black {
+  font-size: 26.0pt;
+  font-family: david;
+  vertical-align: text-top;
+  color: #333333;
+}
+
+.hebrewchart.gray {
+  color: #b9b9b9;
+  font-family: david;
+  font-size: 26.0pt;
+}
+
+.hebrewchart.vp {
+  font-size: 28.0pt;
+  font-family: david;
+  color: #ff0000
+}

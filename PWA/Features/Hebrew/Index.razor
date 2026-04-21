@@ -1,9 +1,11 @@
 ﻿@page "/Hebrew"
-@using PWA.Enums;
-@using PWA.Features.Hebrew.Components;
+@using PWA.Enums
+@using PWA.Features.Hebrew.Components
+@using PWA.Features.Hebrew.Toolbar
 
-<PageHeader PageEnum="@PWA.Enums.Nav.Hebrew" />
+@using Page = PWA.Features.Hebrew.Enums.Nav
 
+<Buttons Page="@Page.Chart" />
 <SubNavBar ActiveMenuItem="@MenuItems.Chart" />
 
 <div class="@MediaQuery.XsOrSmOrMd.DivClass">
@@ -45,3 +47,8 @@
 		</div>
 	</div>
 </div>
+
+
+@code {
+	[Parameter] public string? BorderCSS { get; set; } = "border-bottom border-info";
+}

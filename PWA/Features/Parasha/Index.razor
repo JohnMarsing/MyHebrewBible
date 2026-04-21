@@ -10,15 +10,15 @@
 
 <PageTitle>@Nav.Parasha.Title @PageTitleDetail</PageTitle>
 
+<header>
+	<Buttons CurrentReading="CurrentReading"
+					 OnTriennialSelected="ReturnedTriennial"
+					 OnMenuItemSelected="ReturnedMenuItem" />
+</header>
 
-<Buttons CurrentReading="CurrentReading"
-				 OnTriennialSelected="ReturnedTriennial"
-				 OnMenuItemSelected="ReturnedMenuItem" />
-
-	@if (CurrentReading is not null)
+@if (CurrentReading is not null)
 {
-	<br />  @* ToDo: Fix this CSS HACK *@
-	<div class="card border-primary mb-3 mt-5">
+	<div class="card border-primary mt-2 mb-3">
 		<div class="@MediaQuery.XsOrSm.DivClass">
 			<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.XsOrSm" />
 		</div>
@@ -33,8 +33,7 @@
 }
 else
 {
-	<br />  @* ToDo: Fix this CSS HACK *@
-	<div class="card border-danger mb-3 mt-5">
+	<div class="card border-danger mb-3 mt-2">
 		<div class="card-body text-center fs-1">No Parasha Found <br /> (◡︵◡)</div>
 	</div>
 }
@@ -42,7 +41,7 @@ else
 
 @if (ShowPageInstructionsModal)
 {
-	<PageInstructions />
+	<PageInstructions OnClose="ReturnedCloseEvent" />
 }
 
 @code {
@@ -51,7 +50,7 @@ else
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 
 	protected Home.Enums.UserSettingsDTO? UserSettings { get; set; }
-	
+
 	protected PWA.Features.Parasha.Enums.Permutation CurrentVisibilityState;
 	public Triennial? CurrentReading { get; set; }
 
@@ -115,6 +114,11 @@ else
 	{
 		CurrentReading = triennial;
 		if (CurrentReading is not null) { PageTitleDetail = CurrentReading.TorahAbrv; }
+	}
+
+	private void ReturnedCloseEvent()
+	{
+		ShowPageInstructionsModal = !ShowPageInstructionsModal;
 	}
 
 	protected bool ShowPageInstructionsModal = false;

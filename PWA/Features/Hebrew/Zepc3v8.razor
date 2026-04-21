@@ -2,16 +2,11 @@
 
 @using PWA.Enums;
 @using PWA.Features.Hebrew.Components;
-@using Page = PWA.Features.Hebrew.MenuItemConstants.Zepc3v8
+@using Page = PWA.Features.Hebrew.Enums.Nav
+@using PWA.Features.Hebrew.Toolbar;
 
-<PageTitle>@Page.Title</PageTitle>
-
+<Buttons Page="@Page.Zepc3v8" />
 <SubNavBar ActiveMenuItem="@MenuItems.Zepc3v8" />
-
-<div class="d-print-none pb-2 mt-4 mb-2 border-bottom">
-	<h1><i class="@Page.Icon"></i> @Page.Title</h1>
-</div>
-
 
 <div class="row">
 	<div class="col-5">
