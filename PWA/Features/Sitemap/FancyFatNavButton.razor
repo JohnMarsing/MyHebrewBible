@@ -1,9 +1,8 @@
-﻿
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 
 <button @onclick="ButtonClicked" type="button" title="@Nav!.Title @Nav!.HomeTitleSuffix"
 				class="list-group-item @ButtonCollor mt-1 @Padding  @Nav!.DisabledHtml">
-	<div class="d-flex w-100 justify-content-between">
+	<div class="d-flex w-100 justify-content-center gap-2">
 		<i class="@Nav!.Icon fa-fw @IconSize text-dark" aria-hidden="true"></i>
 		<span class="@FontSize @Nav!.TextColor">@Nav!.Title</span>
 		<span class="float-end text-info">

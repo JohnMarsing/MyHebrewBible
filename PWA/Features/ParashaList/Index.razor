@@ -2,13 +2,14 @@
 
 @using PWA.Features.ParashaList.Toolbar
 
-<PageTitle>@Nav.ParashaList.Title</PageTitle> 
+<PageTitle>@Nav.ParashaList.Title</PageTitle>
 
-<Buttons />
-<br />
+<header>
+	<Buttons />
+</header>
 
 <FilterPills CurrentFilter="@CurrentFilter"
-             OnFilterSelected="@ReturnedFilter" />
+						 OnFilterSelected="@ReturnedFilter" />
 
 @if (CurrentFilter == ParashaButtonToShow.GridTab)
 {
@@ -24,7 +25,7 @@ else
 	}
 	else
 	{
-		<PrintFriendlyTable/>
+		<PrintFriendlyTable />
 	}
 }
 

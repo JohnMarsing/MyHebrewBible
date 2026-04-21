@@ -1,0 +1,26 @@
+﻿@using PWA.Features.Sitemap.PageHeader.Offcanvas.Constants
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="@DomIds.Menu.OffCanvas"
+		 aria-labelledby="@DomIds.Menu.OffCanvasLabel" style="width: 260px;">
+
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title" id="@DomIds.Menu.OffCanvasLabel">Menu</h5>
+		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+	</div>
+
+	<div class="offcanvas-body px-0">
+		<nav class="nav flex-column">
+			@foreach (var item in Enums.Nav.List.ToList()
+																.Where(w => w.IsPartOfList(PageListType.TierOne))
+																.OrderBy(o => o.Value))
+			{
+				<a class="nav-link px-3" href="@item.Index"><i class="@item.Icon"></i> @item.Title</a>
+			}
+		</nav>
+	</div>
+</div>
+
+
+@code {
+
+}

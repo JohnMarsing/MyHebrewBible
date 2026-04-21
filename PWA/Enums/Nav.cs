@@ -58,7 +58,7 @@ public abstract class Nav : SmartEnum<Nav>
 	public static readonly Nav Sitemap = new SitemapSE();
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Parasha = new ParashaSE();
-		public static readonly Nav Hebrew = new HebrewSE();
+	public static readonly Nav Hebrew = new HebrewSE();
 	/*
 		public static readonly Nav Donate = new DonateSE();
 		public static readonly Nav Article = new ArticleSE();
@@ -132,7 +132,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Home;
 		public override string HomeTitleSuffix => " bayit H1004";
 		public override string HomeFloatRightHebrew => "בַּיִת";
-		public override PageListType PageListType => PageListType.SitemapPage;
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
@@ -160,7 +160,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Parasha;
 		public override string HomeTitleSuffix => " Parashat H6567";
 		public override string HomeFloatRightHebrew => "פָּרָשַׁת";
-		public override PageListType PageListType => PageListType.SitemapPage;
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
@@ -176,7 +176,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override string HomeTitleSuffix => "";
 		public override string HomeFloatRightHebrew => "";
 
-		public override PageListType PageListType => PageListType.None;
+		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false; // N/A
 	}
@@ -190,7 +190,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.Hebrew;
 		public override string HomeTitleSuffix => " Ivri H5680";
 		public override string HomeFloatRightHebrew => "עִבְרִי";
-		public override PageListType PageListType => PageListType.SitemapPage;
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}

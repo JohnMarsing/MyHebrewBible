@@ -1,11 +1,12 @@
 ﻿@page "/Hebrew/Peshitta"
 
 @using PWA.Enums;
-@using PWA.Features.Hebrew.Components;
-@using Page = PWA.Features.Hebrew.MenuItemConstants.Peshitta
+@using PWA.Features.Hebrew.Components; 
 
-<PageTitle>@Page.Title</PageTitle>
+@using Page = PWA.Features.Hebrew.Enums.Nav
+@using PWA.Features.Hebrew.Toolbar;
 
+<Buttons Page="@Page.Peshitta" />
 <SubNavBar ActiveMenuItem="@MenuItems.Peshitta" />
 
 @*
@@ -16,9 +17,6 @@ flaky url
 	</span>
 </p>
 *@
-<div class="d-print-none pb-2 mt-4 mb-2 border-bottom">
-	<h1><i class="@Page.Icon"></i> @Page.Title</h1>
-</div>
 
 <div class="table-responsive">
 	<table class="table table-sm table-striped">

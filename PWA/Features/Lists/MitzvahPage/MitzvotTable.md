@@ -1,0 +1,69 @@
+
+# Notes
+- this was in Components folder, but was only by the MitzvahPage/Index.razor
+
+
+```
+@inject ILogger<MitzvotTable>? Logger	MitzvotTable.razor	PWA\Components\MitzvotTable.razor	2
+<MitzvotTable TorahBookFilter="CurrentFilter" />					Index.razor	PWA\Features\Lists\MitzvahPage\Index.razor	34
+```
+
+
+```html
+@inject ApiClient Api
+@inject ILogger<MitzvotTable>? Logger
+@inject IToastService? Toast
+
+<h3>Mitzvot Table</h3>
+
+<LoadingComponent IsLoading="mitzvot==null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<TableTemplate Items="mitzvot!.ToList()">
+		<TableHeader>
+			<th class="text-info">#</th>
+			<th class="text-info">Verse</th>
+			<th class="text-info">Scripture ID</th>
+			<th class="text-info">Description</th>
+			<th class="text-info">Detail</th>
+		</TableHeader>
+		<RowTemplate>
+			<td>@context.Id</td>
+			<td>@context.Verse</td>
+			<td>@context.BegId - @context.EndId</td>
+			<td><i>@context.Descr</i></td>
+			<td>@context.Detail</td>
+		</RowTemplate>
+	</TableTemplate>
+</LoadingComponent>
+
+@code {
+	[Parameter, EditorRequired] public Enums.TorahBookFilter? TorahBookFilter { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	private ICollection<Mitzvah>? mitzvot = null;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			mitzvot = await Api.GetMitzvotAsync(TorahBookFilter!.Value);
+			if (mitzvot is null || !mitzvot.Any())
+			{
+				Toast!.ShowWarning($"{TorahBookFilter} not found (◡︵◡)");
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnParametersSetAsync));
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(MitzvotTable)}!{nameof(OnParametersSetAsync)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+	// Ignore Spelling: Mitzvot
+}
+
+
+```

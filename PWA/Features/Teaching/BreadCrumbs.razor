@@ -1,0 +1,69 @@
+﻿
+@* 
+	ToDo: This was in the Old Components folder and was only used by Teachings, 
+	- DO NOT KNOW IF I WILL USE IT OR NOT
+
+*@
+
+@using PWA.Enums
+
+@if (IsValid)
+{
+	<ol class="breadcrumb">
+		<li>
+			<i class="fas fa-chevron-left"></i>&nbsp;
+			<a href='@Href'> @ParentTitle</a>
+		</li>
+	</ol>
+
+	@*
+	ToDo: can I use <PageHeader or maybe a <SubPageHeader
+	<PageHeader Page="@GlobalEnums.Link.Teaching" />
+*@
+
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		@*<h2><span class="text-warning @Icon"></span> @Title</h2>*@
+		<h2> @IconMarkup @Title</h2>
+	</div>
+
+}
+else
+{
+	<small>bread crumb invalid</small>
+}
+
+@code {
+	[Parameter] public string? Href { get; set; }
+	[Parameter] public string? ParentTitle { get; set; }
+	[Parameter] public string? Title { get; set; }
+	//[Parameter] public string? Icon { get; set; }
+	[Parameter] public MarkupString IconMarkup { get; set; }
+	[Parameter, EditorRequired] public Nav? ParentPage { get; set; }
+
+	protected bool IsValid;
+
+	protected override Task OnInitializedAsync()
+	{
+		if (!String.IsNullOrWhiteSpace(Href))
+		{
+			IsValid = true;
+		}
+		else
+		{
+			IsValid = false;
+		}
+
+		if (String.IsNullOrWhiteSpace(ParentTitle))
+		{
+			ParentTitle = "???";
+		}
+
+		if (String.IsNullOrWhiteSpace(Title))
+		{
+			Title = "???";
+		}
+
+		return base.OnInitializedAsync();
+	}
+
+}

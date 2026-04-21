@@ -17,65 +17,64 @@
 @inject NavigationManager NavigationManager
 @inject IToastService? Toast
 
-<PageTitle>@PageTitle</PageTitle>
-@* <PageHeader PageEnum="Nav.Home" /> *@
+@* <SemanticHeader PageEnum="Nav.Home"></SemanticHeader> *@
 
-<NavSkeleton>
+<header>
 
-	<JustifyStart>
-		<SitemapAndDropdownSkeleton>
-			<Recent>
-				<RecentListPicker OnBCVSelected="ReturnedBCV" />
-			</Recent>
-			<Parashot>
-				<ParashotPicker OnBCVSelected="ReturnedBCV" />
-			</Parashot>
-		</SitemapAndDropdownSkeleton>
-	</JustifyStart>
+	<NavSkeleton>
 
-	<PrevButtonDiv>
-		@if (CurrentBookAndChapter is not null)
-		{
-			<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
-														IsPrevious=true
-														OnBookAndChapterSelected="ReturnedBookAndChapter" />
-		}
-	</PrevButtonDiv>
+		<JustifyStart>
+			<SitemapAndDropdownSkeleton>
+				<Recent>
+					<RecentListPicker OnBCVSelected="ReturnedBCV" />
+				</Recent>
+				<Parashot>
+					<ParashotPicker OnBCVSelected="ReturnedBCV" />
+				</Parashot>
+			</SitemapAndDropdownSkeleton>
+		</JustifyStart>
 
-	<PickerDiv>
-		<div class="@MediaQuery.Xs.DivClass">
-			<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="true" />
-		</div>
-		<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-			<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="false" />
-		</div>
-	</PickerDiv>
+		<PrevButtonDiv>
+			@if (CurrentBookAndChapter is not null)
+			{
+				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
+															IsPrevious=true
+															OnBookAndChapterSelected="ReturnedBookAndChapter" />
+			}
+		</PrevButtonDiv>
 
-	<NextButtonDiv>
-		@if (CurrentBookAndChapter is not null)
-		{
-			<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
-														IsPrevious=false
-														OnBookAndChapterSelected="ReturnedBookAndChapter" />
-		}
-	</NextButtonDiv>
+		<PickerDiv>
+			<div class="@MediaQuery.Xs.DivClass">
+				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="true" />
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="false" />
+			</div>
+		</PickerDiv>
 
-	<JustifyEnd>
-		<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
-	</JustifyEnd>
+		<NextButtonDiv>
+			@if (CurrentBookAndChapter is not null)
+			{
+				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
+															IsPrevious=false
+															OnBookAndChapterSelected="ReturnedBookAndChapter" />
+			}
+		</NextButtonDiv>
 
-</NavSkeleton>
+		<JustifyEnd>
+			<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+		</JustifyEnd>
 
-<div class="mt-5">
-	<br />
-	@if (CurrentAbrvChapterVerse is not null && CurrentBookAndChapter is not null && UserSettings is not null)
-	{
-		<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
-									 UserSettings="UserSettings"
-									 BookAndChapter="CurrentBookAndChapter" />
+	</NavSkeleton>
+</header>
 
-	}
-</div>
+	
+@if (CurrentAbrvChapterVerse is not null && CurrentBookAndChapter is not null && UserSettings is not null)
+{
+	<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
+								 UserSettings="UserSettings"
+								 BookAndChapter="CurrentBookAndChapter" />
+}
 
 @* <DatabaseSmokeTest /> *@
 
@@ -160,9 +159,9 @@
 		Logger!.LogInformation("{Method}, abrv/c/v/SID: {abrv}/{chapter}/{verse}/{scriptureId}"
 		, nameof(GetAbrvChapterVerseViaRoutes), abrv, chapter, verse, scriptureId);
 
-		if (string.IsNullOrEmpty(abrv))	
-		{	
-			//throw new ArgumentException("`abrv` cannot be null or empty.", nameof(abrv));		
+		if (string.IsNullOrEmpty(abrv))
+		{
+			//throw new ArgumentException("`abrv` cannot be null or empty.", nameof(abrv));
 		}
 
 		var (errMsg, _value) = RCL.Enums.BibleBookDictionary.GetId(abrv);

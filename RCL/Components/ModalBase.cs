@@ -1,4 +1,10 @@
+/*
+ToDo: used only by `Picker.razor` (Home\Toolbar\NumberPad) so why is it here?
+*/
+
 using Microsoft.AspNetCore.Components;
+
+namespace RCL.Components;
 
 public class ModalBase : ComponentBase
 {

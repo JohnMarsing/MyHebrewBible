@@ -1,0 +1,55 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@if (!isOnline)
+{
+	<div class="text-center">
+		<span class="badge bg-warning text-dark py-1 px-2" style="font-size: 0.75rem;">
+			Offline
+		</span>
+	</div>
+}
+
+@code {
+	private bool isOnline = true;
+	private IJSObjectReference? module;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await InitializeConnectionStatus();
+		}
+	}
+
+	private async Task InitializeConnectionStatus()
+	{
+		try
+		{
+			module = await JS.InvokeAsync<IJSObjectReference>("import", "./Features/Sitemap/PageHeader/WifiConnectionMessage.razor.js");
+			isOnline = await module.InvokeAsync<bool>("getOnlineStatus");
+			await module.InvokeVoidAsync("initializeConnectionListener", DotNetObjectReference.Create(this));
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+			isOnline = true; // Fallback to assuming online if check fails
+		}
+	}
+
+	[JSInvokable]
+	public void UpdateConnectionStatus(bool online)
+	{
+		isOnline = online;
+		StateHasChanged();
+	}
+
+	async ValueTask IAsyncDisposable.DisposeAsync()
+	{
+		if (module is not null)
+		{
+			await module.InvokeVoidAsync("dispose");
+			await module.DisposeAsync();
+		}
+	}
+}
