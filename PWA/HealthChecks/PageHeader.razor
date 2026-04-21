@@ -1,0 +1,21 @@
+﻿
+<PageTitle>
+	@PageEnum.Title
+@* 	
+	@if (String.IsNullOrEmpty(PageTitle))	{	@Nav.Title	}
+	else	{	@PageTitle	}
+ *@
+</PageTitle>
+
+<div class="pb-n1 mt-2 mb-3 border-bottom border-info">
+	<div class="@MediaQuery.Xs.DivClass">
+		<h1 class="text-center fs-4"><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+	</div>
+	<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+		<h1 class=""><i class="@PageEnum.Icon"></i>&nbsp;&nbsp;@PageEnum.Title</h1>
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public Nav PageEnum { get; set; }
+}

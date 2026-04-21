@@ -7,6 +7,7 @@ using PWA;
 using PWA.Data;
 using PWA.Features.Home.Data;
 using PWA.Features.Parasha.Data;
+using PWA.HealthChecks.Database.Data;
 using PWA.State;
 
 using Serilog;
@@ -28,6 +29,7 @@ builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(build
 
 builder.Services.AddHomeData(); 
 builder.Services.AddParashaData(); 
+builder.Services.AddDatabaseHealthChecks(); 
 builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how
 
 builder.Services.AddPWAUpdater(); // This is Toolbelt.Blazor

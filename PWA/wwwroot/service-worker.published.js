@@ -35,6 +35,8 @@ async function onActivate(event) {
     await Promise.all(cacheKeys
         .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
         .map(key => caches.delete(key)));
+
+    await self.clients.claim();
 }
 
 async function onFetch(event) {
@@ -51,5 +53,27 @@ async function onFetch(event) {
         cachedResponse = await cache.match(request);
     }
 
-    return cachedResponse || fetch(event.request);
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+
+    try {
+        const networkResponse = await fetch(event.request);
+        
+        // If this is a navigation request and we get a successful response,
+        // cache it for offline use
+        if (event.request.method === 'GET' && networkResponse.ok) {
+            const cache = await caches.open(cacheName);
+            cache.put(event.request, networkResponse.clone());
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        // Network fetch failed, try to return index.html for navigation requests
+        if (event.request.mode === 'navigate') {
+            const cache = await caches.open(cacheName);
+            return cache.match('index.html');
+        }
+        throw error;
+    }
 }

@@ -24,6 +24,7 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int Parasha = 3;
 		internal const int ParashaList = 4;
 		internal const int Hebrew = 5;
+		internal const int HealthCheckTableRowCount = 28;
 		/*
 		internal const int Donate = 4;
 		internal const int Article = 5;
@@ -46,7 +47,6 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int HealthCheckBitwise = 25;
 		internal const int HebrewRevelation = 26;
 		internal const int HealthCheckParasha = 27;
-		internal const int HealthCheckTableRowCount = 28;
 		internal const int HealthCheckQuickGrid = 29;
 		internal const int HealthCheckTypeahead = 30;
 		*/
@@ -59,6 +59,7 @@ public abstract class Nav : SmartEnum<Nav>
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Parasha = new ParashaSE();
 	public static readonly Nav Hebrew = new HebrewSE();
+	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
 	/*
 		public static readonly Nav Donate = new DonateSE();
 		public static readonly Nav Article = new ArticleSE();
@@ -81,7 +82,6 @@ public abstract class Nav : SmartEnum<Nav>
 		public static readonly Nav HealthCheckBitwise = new HealthCheckBitwiseSE();
 		public static readonly Nav HebrewRevelation = new HebrewRevelationSE();
 		public static readonly Nav HealthCheckParasha = new HealthCheckParashaSE();
-		public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
 		public static readonly Nav HealthCheckQuickGrid = new HealthCheckQuickGridSE();
 		public static readonly Nav HealthCheckTypeahead = new HealthCheckTypeaheadSE();
 	*/
@@ -192,6 +192,21 @@ public abstract class Nav : SmartEnum<Nav>
 		public override string HomeFloatRightHebrew => "עִבְרִי";
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+
+	private sealed class HealthCheckTableRowCountSE : Nav
+	{
+		public HealthCheckTableRowCountSE() : base($"{nameof(Id.HealthCheckTableRowCount)}", Id.HealthCheckTableRowCount) { }
+		public override string Index => "HealthChecks/TableRowCount";
+		public override string Title => "Table Row Count (HC)";
+		public override string Icon => "fas fa-wave-square";  // fa-stopwatch-20
+		public override int Sort => Id.HealthCheckTableRowCount;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.HealthCheck;
+				public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
@@ -481,20 +496,6 @@ public abstract class Nav : SmartEnum<Nav>
 		public override int Sort => Id.HealthCheckParasha;
 		public override string HomeTitleSuffix => " Parashat H6567";
 		public override string HomeFloatRightHebrew => "פָּרָשַׁת";
-		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-
-	private sealed class HealthCheckTableRowCountSE : Nav
-	{
-		public HealthCheckTableRowCountSE() : base($"{nameof(Id.HealthCheckTableRowCount)}", Id.HealthCheckTableRowCount) { }
-		public override string Index => "HealthChecks/TableRowCount";
-		public override string Title => "Table Row Count (HC)";
-		public override string Icon => "fas fa-wave-square";  // fa-stopwatch-20
-		public override int Sort => Id.HealthCheckTableRowCount;
-		public override string HomeTitleSuffix => " ";
-		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.HealthCheck;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
