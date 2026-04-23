@@ -1,7 +1,15 @@
 ﻿
-<a class="btn btn-primary" title="" href="@Nav.Sitemap.Index">
-	<i class="@Nav.Sitemap.Icon"></i>
-</a>
+<div class="@MediaQuery.Xs.DivClass">
+	<a class="btn btn-info btn-sm" title="return to @Nav.Sitemap.Name" href="@Nav.Sitemap.Index">
+		<i class="fas fa-chevron-left"></i>
+	</a>
+</div>
+
+<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+	<a class="btn btn-info" title="return to @Nav.Sitemap.Name" href="@Nav.Sitemap.Index">
+		<i class="fas fa-chevron-left"></i>
+	</a>
+</div>
 
 @code {
 

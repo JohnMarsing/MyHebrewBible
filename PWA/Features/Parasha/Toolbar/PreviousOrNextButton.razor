@@ -1,20 +1,43 @@
-﻿
-<button type="button" class="btn btn-outline-primary" title="@Title"
-				@onclick="ButtonClick">
-	<i class="@Icon"></i>
-</button>
+﻿@using RCL.Features.Parasha.Enums
+@using PWA.Components.Toolbar
+
+@if (IsOnEdge)
+{
+	<div class="@MediaQuery.Xs.DivClass">
+		<button type="button" class="btn btn-outline-primary btn-sm" title="@Title"
+						@onclick="ButtonClick">
+			<i class='@Icon'></i>
+		</button>
+	</div>
+
+	<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+		<button type="button" class="btn btn-outline-primary" title="@Title"
+						@onclick="ButtonClick">
+			<i class="@Icon"></i>
+		</button>
+	</div>
+}
+else
+{
+	<OnEdgeButton />
+}
 
 @code {
+	[Parameter, EditorRequired] public Triennial Triennial { get; set; }
+	[Parameter, EditorRequired] public bool IsPrevious { get; set; }
 	[Parameter, EditorRequired] public RCL.Features.Parasha.Toolbar.PrevNextVM? PrevNextVM { get; set; }
 	[Parameter, EditorRequired] public EventCallback<RCL.Features.Parasha.Toolbar.PrevNextVM> OnTriennialSelected { get; set; }
 
-	private string Icon => PrevNextVM!.Icon;
-	private string Title => PrevNextVM!.Triennial.TorahAbrv;
+	private string Icon => PrevNextVM!.Icon;                 
+	private string Title => PrevNextVM!.Triennial.TorahAbrv; 
+	
+	private bool IsOnEdge => IsPrevious
+		? Triennial.HasPrevious
+		: Triennial.HasNext;
 
 	private void ButtonClick()
 	{
 		OnTriennialSelected.InvokeAsync(PrevNextVM);
 	}
-
 }
 

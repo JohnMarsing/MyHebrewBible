@@ -5,49 +5,56 @@
 
 @using Page = PWA.Features.Hebrew.Enums.Nav
 
-<Buttons Page="@Page.Chart" />
-<SubNavBar ActiveMenuItem="@MenuItems.Chart" />
+<header>
+	<Buttons Page="@Page.Chart" />
+</header>
 
-<div class="@MediaQuery.XsOrSmOrMd.DivClass">
-	<div class="row">
-		<div class="col-12">
-			<h3 class="text-success">
-				Hebrew Letters
-				<span class="hebrew small float-end">אָלֶף־בֵּית עִבְרִי</span>
-			</h3>
-			<AlephBetTableXsSmMd />
+<section class="container-fluid px-1 px-sm-2 px-md-3">
+	<aside class="mt-2">
+		<SubNavBar ActiveMenuItem="@MenuItems.Chart" />
+	</aside>
+
+	<div class="@MediaQuery.XsOrSmOrMd.DivClass">
+		<div class="row">
+			<div class="col-12">
+				<h3 class="text-success">
+					Hebrew Letters
+					<span class="hebrew small float-end">אָלֶף־בֵּית עִבְרִי</span>
+				</h3>
+				<AlephBetTableXsSmMd />
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12">
+				<h3 class="text-success">
+					Vowel Points<span class="hebrew small float-end">נִקּוּד</span>
+				</h3>
+				<AlephBetVowelPoints />
+			</div>
+		</div>
+
+	</div>
+
+	<div class="@MediaQuery.LgOrXl.DivClass">
+		<div class="row">
+			<div class="col-9">
+				<h3 class="text-success">
+					Hebrew Letters
+					<span class="hebrew small float-end">אָלֶף־בֵּית עִבְרִי</span>
+				</h3>
+				<AlephBetTableLgXl />
+			</div>
+			<div class="col-3">
+				<h3 class="text-success">
+					Vowel Points<span class="hebrew small float-end">נִקּוּד</span>
+				</h3>
+				<AlephBetVowelPoints />
+			</div>
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-12">
-			<h3 class="text-success">
-				Vowel Points<span class="hebrew small float-end">נִקּוּד</span>
-			</h3>
-			<AlephBetVowelPoints />
-		</div>
-	</div>
-
-</div>
-
-<div class="@MediaQuery.LgOrXl.DivClass">
-	<div class="row">
-		<div class="col-9">
-			<h3 class="text-success">
-				Hebrew Letters
-				<span class="hebrew small float-end">אָלֶף־בֵּית עִבְרִי</span>
-			</h3>
-			<AlephBetTableLgXl />
-		</div>
-		<div class="col-3">
-			<h3 class="text-success">
-				Vowel Points<span class="hebrew small float-end">נִקּוּד</span>
-			</h3>
-			<AlephBetVowelPoints />
-		</div>
-	</div>
-</div>
-
+</section>
 
 @code {
 	[Parameter] public string? BorderCSS { get; set; } = "border-bottom border-info";

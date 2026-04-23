@@ -1,0 +1,42 @@
+﻿@using PWA.Features.Sitemap.PageHeader.Offcanvas
+@using PWA.Features.Sitemap.PageHeader.MenuNavbar
+
+<div class="d-print-none">
+	@* bg-primary *@
+	<div class="container-fluid px-0">
+		<div class="d-flex align-items-center justify-content-between bg-info text-white p-2 navbar navbar-dark">
+			@* 
+			<div class="d-flex align-items-center gap-2">
+				<HomeImgButton />
+				<SearchButton />
+			</div>
+
+ *@
+			<Title />
+			
+			<div class="d-flex align-items-center gap-2">
+				<ThemeToggle />
+				<Toggler />
+			</div>
+		</div>
+	</div>
+			
+	<TierOneButtons />
+	@* <SearchModal /> *@
+	<WifiConnectionMessage />
+		
+</div>
+
+<div class="d-none d-print-block text-center">
+	<Title />
+</div>
+
+<div class="pb-n1 mt-4 mb-2 border-bottom border-info">
+	<h1 class="text-center"><i class="@Nav.Sitemap.Icon"></i>&nbsp;&nbsp;@Nav.Sitemap.Title</h1>
+</div>
+
+
+
+@code {
+	
+}

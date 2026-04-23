@@ -4,11 +4,9 @@
 
 <div class="btn-group " role="group" aria-label="Vertical button group">
 
-	<button @onclick="ButtonClick" class="btn btn-primary" type="button" title="@Page.Sitemap.Title">
-		<i class="@Page.Sitemap.Icon"></i>
-	</button>
-
-	<button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+	<button type="button" class="btn btn-primary @BtnSize dropdown-toggle" 
+		data-bs-toggle="dropdown" aria-expanded="false" title="Recent history">
+		<i class="fa-solid fa-clock-rotate-left"></i>
 		<span class="visually-hidden">Toggle Dropdown</span>
 	</button>
 
@@ -36,11 +34,7 @@
 @code {
 	[Parameter, EditorRequired] public RenderFragment? Recent { get; set; }
 	[Parameter, EditorRequired] public RenderFragment? Parashot { get; set; }
-
-	private void ButtonClick()
-	{
-		NavigationManager!.NavigateTo($"{Page.Sitemap.Index}");
-	}
+	[Parameter] public string BtnSize { get; set; } = string.Empty;
 
 }
 

@@ -5,7 +5,7 @@
 
 @if (ModalIsNotShownToggle)
 {
-	<button type="button" class="btn btn-info" title="@bcvTitle"
+	<button type="button" class="btn btn-info @BtnSize" title="@bcvTitle"
 	@onclick="() => ShowModal()">
 		@Title <i class="fas fa-angle-down"></i>
 	</button>
@@ -60,15 +60,12 @@ else
 }
 
 @code {
-	//[Parameter, EditorRequired] public BookChapterVerse? CurrentBCV { get; set; }
 	[Parameter, EditorRequired] public BookChapterVerseRecord? CurrentBCV { get; set; }
-
-		[Parameter, EditorRequired] public bool IsXs { get; set; }
-	
-	//[Parameter] public EventCallback<BookChapterVerse> OnBCVSelected { get; set; }
+	[Parameter, EditorRequired] public bool IsXs { get; set; }
 	[Parameter] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
-	
 	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	protected string BtnSize => IsXs ? "btn-sm" : "";	
 
 	protected RCL.Enums.BibleBook? SelectedBook { get; set; }
 
@@ -107,7 +104,6 @@ else
 		}
 	}
 
-	//private async Task ReturnedBCV(BookChapterVerse bcv)
 	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
 	{
 		try
