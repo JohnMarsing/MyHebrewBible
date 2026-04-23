@@ -5,11 +5,12 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+self.addEventListener('message', event => { if (event.data === 'SKIP_WAITING') self.skipWaiting(); });
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [ /\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/, /\.webmanifest$/ ];
-const offlineAssetsExclude = [ /^service-worker\.js$/ ];
+const offlineAssetsExclude = [ /^service-worker\.js$/, /staticwebapp\.config\.json$/ ];
 
 // Replace with your base path if you are hosting on a subfolder. Ensure there is a trailing '/'.
 const base = "/";
@@ -36,6 +37,7 @@ async function onActivate(event) {
         .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
         .map(key => caches.delete(key)));
 
+    // Take control of all clients immediately
     await self.clients.claim();
 }
 
@@ -72,7 +74,10 @@ async function onFetch(event) {
         // Network fetch failed, try to return index.html for navigation requests
         if (event.request.mode === 'navigate') {
             const cache = await caches.open(cacheName);
-            return cache.match('index.html');
+            const fallbackResponse = await cache.match('index.html');
+            if (fallbackResponse) {
+                return fallbackResponse;
+            }
         }
         throw error;
     }

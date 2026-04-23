@@ -4,7 +4,7 @@
 {
 	<div class="btn-group-vertical btn-group dropstart" role="group" aria-label="Vertical button group">
 
-		<button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+		<button type="button" class="btn btn-primary @BtnSize dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 			<i class="fas fa-cogs"></i>
 		</button>
 
@@ -29,6 +29,7 @@ else { 	<p><em>Loading...</em></p> }
 
 @code {
 	[Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = default!;
+	[Parameter] public string BtnSize { get; set; } = string.Empty;
 	[Parameter, EditorRequired] public EventCallback<int> OnItemSelected { get; set; }
 	[Parameter] public string? Header { get; set; }
 }

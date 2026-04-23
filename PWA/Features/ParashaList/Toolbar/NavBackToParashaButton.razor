@@ -2,16 +2,28 @@
 
 @inject NavigationManager NavigationManager
 
-<button @onclick="ButtonClicked" class="btn btn-primary" title="@Nav.Parasha.Title"
-				href="@Nav.Parasha.Index">
-	<i class="@Nav.Parasha.Icon"></i>
-</button>
+<div class="@MediaQuery.Xs.DivClass">
+	<button @onclick="ButtonClicked" class="btn btn-primary btn-sm" title="return to current @Nav.Parasha.Title"
+					href="@Nav.Parasha.Index">
+		<i class="@Nav.Parasha.Icon"></i>
+	</button>
+
+</div>
+
+<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+	<button @onclick="ButtonClicked" class="btn btn-primary" title="return to current @Nav.Parasha.Title"
+					href="@Nav.Parasha.Index">
+		<i class="@Nav.Parasha.Icon"></i>
+	</button>
+
+</div>
+
 
 @code {
 	
 	[Parameter, EditorRequired] public string? ReturnUrl { get; set; }
 
-	private void ButtonClicked() 
+	private void ButtonClicked()
 	{
 		NavigationManager!.NavigateTo(ReturnUrl!);
 	}

@@ -127,11 +127,21 @@ public abstract class Nav : SmartEnum<Nav>
 	{
 		public HomeSE() : base($"{nameof(Id.Home)}", Id.Home) { }
 		public override string Index => "/";
+		//public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
+		public override string Title => "Book & Chapter";
+		public override string Icon => "fa fa-book";
+		public override string HomeTitleSuffix => " mispar h4557";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
+		public override int Sort => Id.Home;
+		
+
+		/*
 		public override string Title => "Home";
 		public override string Icon => "fas fa-home";
-		public override int Sort => Id.Home;
 		public override string HomeTitleSuffix => " bayit H1004";
 		public override string HomeFloatRightHebrew => "בַּיִת";
+		*/
+
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;

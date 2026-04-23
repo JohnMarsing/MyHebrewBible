@@ -12,26 +12,42 @@
 @using PWA.Components.Toolbar
 @using PWA.Enums
 
-@* @inject SqliteDataService SqliteDataService *@
 @inject ILogger<Index>? Logger
 @inject NavigationManager NavigationManager
 @inject IToastService? Toast
 
-@* <SemanticHeader PageEnum="Nav.Home"></SemanticHeader> *@
-
 <header>
-
 	<NavSkeleton>
+		
+		<Sitemap><SitemapButton /></Sitemap>
 
 		<JustifyStart>
-			<SitemapAndDropdownSkeleton>
-				<Recent>
-					<RecentListPicker OnBCVSelected="ReturnedBCV" />
-				</Recent>
-				<Parashot>
-					<ParashotPicker OnBCVSelected="ReturnedBCV" />
-				</Parashot>
-			</SitemapAndDropdownSkeleton>
+			<div class="@MediaQuery.Xs.DivClass">
+				<HistoryDropdown BtnSize="btn-sm">
+					<Recent>
+						<RecentListPicker OnBCVSelected="ReturnedBCV" />
+					</Recent>
+					<Parashot>
+						<ParashotPicker OnBCVSelected="ReturnedBCV" />
+					</Parashot>
+				</HistoryDropdown>
+
+			</div>
+
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				
+				<HistoryDropdown>
+					<Recent>
+						<RecentListPicker OnBCVSelected="ReturnedBCV" />
+					</Recent>
+					<Parashot>
+						<ParashotPicker OnBCVSelected="ReturnedBCV" />
+					</Parashot>
+				</HistoryDropdown>
+
+			</div>
+
+
 		</JustifyStart>
 
 		<PrevButtonDiv>
@@ -62,7 +78,12 @@
 		</NextButtonDiv>
 
 		<JustifyEnd>
-			<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+			<div class="@MediaQuery.Xs.DivClass">
+				<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemId" />
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+			</div>
 		</JustifyEnd>
 
 	</NavSkeleton>
@@ -71,9 +92,11 @@
 	
 @if (CurrentAbrvChapterVerse is not null && CurrentBookAndChapter is not null && UserSettings is not null)
 {
-	<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
-								 UserSettings="UserSettings"
-								 BookAndChapter="CurrentBookAndChapter" />
+	<section class="container-fluid px-1 px-sm-2 px-md-3">
+		<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
+									 UserSettings="UserSettings"
+									 BookAndChapter="CurrentBookAndChapter" />
+	</section>
 }
 
 <ModalSkeleton ShowMenuItem="CurrentModalToShow">
@@ -84,6 +107,8 @@
 		<EditModal OnUserSettingsSelected="ReturnUserSettingsDTO" OnClose="ReturnedCloseEvent" />
 	</UserConfigurationModal>
 </ModalSkeleton>
+
+<ScrollToTop />
 
 @code {
 

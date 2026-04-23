@@ -11,38 +11,46 @@
 <PageTitle>@Nav.Parasha.Title @PageTitleDetail</PageTitle>
 
 <header>
-	<Buttons CurrentReading="CurrentReading"
-					 OnTriennialSelected="ReturnedTriennial"
-					 OnMenuItemSelected="ReturnedMenuItem" />
+	@if (CurrentReading is not null)
+	{
+		<Buttons Triennial="CurrentReading"
+						 OnTriennialSelected="ReturnedTriennial"
+						 OnMenuItemSelected="ReturnedMenuItem" />
+	}
+
 </header>
 
-@if (CurrentReading is not null)
-{
-	<div class="card border-primary mt-2 mb-3">
-		<div class="@MediaQuery.XsOrSm.DivClass">
-			<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.XsOrSm" />
+<section class="container-fluid px-2 px-md-3">
+	@if (CurrentReading is not null)
+	{
+		<div class="card border-primary mt-2 mb-3">
+			<div class="@MediaQuery.XsOrSm.DivClass">
+				<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.XsOrSm" />
+			</div>
+			<div class="@MediaQuery.MdOrLgOrXl.DivClass">
+				<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.MdOrLgOrXl" />
+			</div>
 		</div>
-		<div class="@MediaQuery.MdOrLgOrXl.DivClass">
-			<Header CurrentReading="CurrentReading" MediaQuery="@MediaQuery.MdOrLgOrXl" />
-		</div>
-	</div>
 
-	<ReportWrapper CurrentReading="CurrentReading"
-								 CurrentVisibilityState="CurrentVisibilityState"
-								 UserSettings="UserSettings" />
-}
-else
-{
-	<div class="card border-danger mb-3 mt-2">
-		<div class="card-body text-center fs-1">No Parasha Found <br /> (◡︵◡)</div>
-	</div>
-}
+		<ReportWrapper CurrentReading="CurrentReading"
+									 CurrentVisibilityState="CurrentVisibilityState"
+									 UserSettings="UserSettings" />
+	}
+	else
+	{
+		<div class="card border-danger mb-3 mt-2">
+			<div class="card-body text-center fs-1">No Parasha Found <br /> (◡︵◡)</div>
+		</div>
+	}
+</section>
 
 
 @if (ShowPageInstructionsModal)
 {
 	<PageInstructions OnClose="ReturnedCloseEvent" />
 }
+
+<ScrollToTop />
 
 @code {
 	[Parameter, EditorRequired] public int Id { get; set; }

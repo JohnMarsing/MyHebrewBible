@@ -6,7 +6,6 @@
 @inject IToastService? Toast
 @inject NavigationManager NavigationManager
 
-@* <nav class="navbar navbar-expand bg-primary-subtle fixed-top"> *@
 <nav class="navbar navbar-expand bg-primary-subtle">
 
 	<div class="collapse navbar-collapse justify-content-start">
@@ -15,56 +14,40 @@
 		</div>
 	</div>
 
-	@if (CurrentReading is null)
-	{
-		<text><span class="text-center fw-bold fst-italic">CurrentReading is null</span></text>
-	}
-	else
-	{
-		<div class="collapse navbar-collapse justify-content-center">
-			@if (CurrentReading.HasPrevious)
-			{
-				<div class="pe-2">
-					<PreviousOrNextButton PrevNextVM="CurrentReading.PreviousVM"
-																OnTriennialSelected="ReturnedPrevNextVM" />
-				</div>
-			}
-			else
-			{
-				<div class="pe-2">
-					<OnEdgeButton />
-				</div>
-			}
+	<div class="collapse navbar-collapse justify-content-center">
+		<PreviousOrNextButton PrevNextVM="Triennial.PreviousVM"
+													Triennial="Triennial"
+													IsPrevious="true"
+													OnTriennialSelected="ReturnedPrevNextVM" />
 
-			<div class="px-1">
-				<h4 class=""><i class="@Nav.Parasha.Icon"></i>&nbsp;@Nav.Parasha.Title</h4>
-			</div>
-
-			@if (CurrentReading.HasNext)
-			{
-				<div class="ps-2">
-					<PreviousOrNextButton PrevNextVM="CurrentReading.NextVM"
-																OnTriennialSelected="ReturnedPrevNextVM" />
-				</div>
-			}
-			else
-			{
-				<div class="ps-2">
-					<OnEdgeButton />
-				</div>
-			}
-
-
+		<div class="@MediaQuery.Xs.DivClass">
+			<h5 class="px-1 mt-2"><i class="@Nav.Parasha.Icon"></i>&nbsp;@Nav.Parasha.Title</h5>
 		</div>
-	}
+		<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+			<h2 class="px-1 mt-1"><i class="@Nav.Parasha.Icon"></i>&nbsp;@Nav.Parasha.Title</h2>
+		</div>
+
+		
+		<PreviousOrNextButton PrevNextVM="Triennial.NextVM"
+													Triennial="Triennial"
+													IsPrevious="false"
+													OnTriennialSelected="ReturnedPrevNextVM" />
+	</div>
+
+
 	<div class="collapse navbar-collapse justify-content-end pe-1">
-		<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+		<div class="@MediaQuery.Xs.DivClass">
+			<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemId" />
+		</div>
+		<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+			<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+		</div>
 	</div>
 </nav>
 
 
 @code {
-	[Parameter, EditorRequired] public Triennial? CurrentReading { get; set; }
+	[Parameter, EditorRequired] public Triennial Triennial { get; set; }
 	[Parameter, EditorRequired] public EventCallback<Triennial> OnTriennialSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback<Enums.MenuItem> OnMenuItemSelected { get; set; }
 

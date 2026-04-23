@@ -8,6 +8,7 @@
 @inject Data.IRepository? db;
 @inject ILogger<ReportWrapper>? Logger
 @inject IToastService? Toast
+@implements IAsyncDisposable
 @inject IJSRuntime? JSRuntime
 
 <LoadingComponent IsLoading="verses==null" TurnSpinnerOff="TurnSpinnerOff">
@@ -117,9 +118,19 @@
 
 	protected bool TurnSpinnerOff = false;
 	private List<ParashaWithAT>? verses = null;
-
 	private TOC_VM? VM;
 	private int ScrollToScriptureId = 0;
+	
+	private IJSObjectReference? _jsModule;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_jsModule = await JSRuntime!.InvokeAsync<IJSObjectReference>(
+				"import", "./Features/Parasha/ReportWrapper.razor.js");
+		}
+	}
 
 	protected override async Task OnParametersSetAsync()
 	{
@@ -221,23 +232,26 @@
 	{
 		try
 		{
+			if (_jsModule is null) return;
+			
 			ScrollToScriptureId = scriptureSelected.ScriptureId;
-			//string msg = $"Id: {scriptureSelected.ScriptureId}; State before:{CurrentVisibilityState}";
 			CurrentVisibilityState = CurrentVisibilityState | scriptureSelected.ShowSection!.VisibilityState;
 			await State!.AppState!.ParashaState!.Update(CurrentVisibilityState);
-			//await Task.Delay(200);
-			//msg += $" | after:{CurrentVisibilityState}";
-			//Toast!.ShowInfo(msg);
-			await JSRuntime!.InvokeVoidAsync(PWA.Constants.JS.SetFocusToElement, scriptureSelected.ScriptureId.ToString());
-			await JSRuntime!.InvokeVoidAsync(PWA.Constants.JS.ScrollToElementById, scriptureSelected.ScriptureId.ToString());
+			
+			await _jsModule.InvokeVoidAsync("scrollToElementById", scriptureSelected.ScriptureId.ToString());
 		}
 		catch (Exception ex)
 		{
-			//string err;
-			//err = $"Exception inside {nameof(ReturnedScriptureId)}, JS {JS.ScrollToElementById}";
-			Toast!.ShowWarning($"{nameof(ReportWrapper)}!{nameof(ReturnedScriptureId)};  JS:{PWA.Constants.JS.ScrollToElementById}, scriptureSelected:{scriptureSelected}");
+			Toast!.ShowWarning($"{nameof(ReportWrapper)}!{nameof(ReturnedScriptureId)};  scriptureSelected:{scriptureSelected}");
 			Logger!.LogError(ex, "{Method} scriptureSelected: {scriptureSelected}", nameof(ReturnedScriptureId), scriptureSelected);
 		}
 	}
 
+	async ValueTask IAsyncDisposable.DisposeAsync()
+	{
+		if (_jsModule is not null)
+		{
+			await _jsModule.DisposeAsync();
+		}
+	}
 }
