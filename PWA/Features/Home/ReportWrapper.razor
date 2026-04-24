@@ -8,12 +8,12 @@
 @inject IJSRuntime? JSRuntime
 @* @inject IToastService? Toast *@
 
-
 <LoadingComponent IsLoading="verses == null || CurrentAbrvChapterVerse == null " TurnSpinnerOff="TurnSpinnerOff">
 	<Sections Verses="GetBookChapterVerses()"
 						AbrvChapterVerse="CurrentAbrvChapterVerse"
 						UserSettings="UserSettings"
 						CalledBy="ReportEnums.CalledBy.BookChapter" />
+	
 </LoadingComponent>
 
 @code {

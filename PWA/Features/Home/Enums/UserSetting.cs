@@ -8,6 +8,7 @@ public enum Permutation : int
 	StandaloneAlephTavDetailOn = 1,
 	ParashaDividerDetailOn = 2,
 	HebrewWordNumbersOn = 4,
+	VerseScrollButtonsOn = 8,
 }
 
 public abstract class UserSetting : SmartEnum<UserSetting>
@@ -18,6 +19,8 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 		internal const int StandaloneAlephTav = 2;
 		internal const int ParashaDivider = 3;
 		internal const int HebrewWordNumbers = 4;	
+		internal const int VerseScrollButtons = 5;	
+
 		//internal const int WordReplaceLevel = 5;
 	}
 	#endregion
@@ -26,6 +29,7 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	public static readonly UserSetting StandaloneAlephTav = new StandaloneAlephTavSE();
 	public static readonly UserSetting ParashaDivider = new ParashaDividerSE();
 	public static readonly UserSetting HebrewWordNumbers = new HebrewWordNumbersSE();	
+	public static readonly UserSetting VerseScrollButtons = new VerseScrollButtonsSE();	
 	//public static readonly UserSetting WordReplaceLevel = new WordReplaceLevelSE();
 	#endregion
 
@@ -78,7 +82,17 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 		public override string DetailWhenOff => "sequential cardinal numbers NOT shown";
 	}
 
+	private sealed class VerseScrollButtonsSE : UserSetting
+	{
+		public VerseScrollButtonsSE() : base($"{nameof(Id.VerseScrollButtons)}", Id.VerseScrollButtons) { }
+		public override Permutation OnState => Permutation.VerseScrollButtonsOn;
+		public override string Title => "Verse Scrolling Button";
+		public override string DetailWhenOn => "Display the scrolling buttons";
+		public override string DetailWhenOff => "The scrolling buttons NOT shown";
+	}
+
 	/*
+	
 	private sealed class WordReplaceLevelSE : UserSetting
 	{
 		public WordReplaceLevelSE() : base($"{nameof(Id.WordReplaceLevel)}", Id.WordReplaceLevel) { }

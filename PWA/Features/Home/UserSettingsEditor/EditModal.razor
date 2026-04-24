@@ -83,7 +83,8 @@
 			var usDTO = new Enums.UserSettingsDTO(
 				IsStandaloneAlephTavDetailsOn: CurrentPermutations.HasFlag(Enums.Permutation.StandaloneAlephTavDetailOn),
 				IsParashaDividerDetailsOn: CurrentPermutations.HasFlag(Enums.Permutation.ParashaDividerDetailOn),
-				IsHebrewWordNumbersOn: CurrentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn));
+				IsHebrewWordNumbersOn: CurrentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn),	
+				IsVerseScrollButtonsOn: CurrentPermutations.HasFlag(Enums.Permutation.VerseScrollButtonsOn));
 
 			await OnUserSettingsSelected.InvokeAsync(usDTO);
 		}

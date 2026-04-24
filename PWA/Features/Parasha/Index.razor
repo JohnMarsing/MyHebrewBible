@@ -73,7 +73,9 @@
 			UserSettings = new Home.Enums.UserSettingsDTO(
 				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Home.Enums.Permutation.StandaloneAlephTavDetailOn),
 				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Home.Enums.Permutation.ParashaDividerDetailOn),
-				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Home.Enums.Permutation.HebrewWordNumbersOn));
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Home.Enums.Permutation.HebrewWordNumbersOn),
+				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(Home.Enums.Permutation.VerseScrollButtonsOn)
+			 );
 
 			CurrentReading = GetCurrentReadingViaRoutes(Id);
 

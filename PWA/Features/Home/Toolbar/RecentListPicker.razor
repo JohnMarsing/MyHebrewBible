@@ -22,6 +22,13 @@ else
 	[Parameter] public EventCallback<RCL.Components.BookChapterVerseRecord> OnBCVSelected { get; set; }
 	[CascadingParameter] public CascadingAppState? State { get; set; } /* Can this be done in NavBar?*/
 
+	
+	protected override async Task OnInitializedAsync()
+	{
+		//need to call here before OnParametersSet so that RecentList can be populated
+		await State!.AppState!.BookChapterState!.Initialize(); 
+	}
+
 	protected List<BookChapterVerseHistory>? RecentList = new();
 	protected override void OnParametersSet()
 	{

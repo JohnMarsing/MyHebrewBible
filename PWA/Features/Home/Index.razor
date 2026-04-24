@@ -125,43 +125,42 @@
 	public BookAndChapter? CurrentBookAndChapter { get; set; }     // parameter for ReportWrapper
 	public AbrvChapterVerse? CurrentAbrvChapterVerse { get; set; } // parameter for ReportWrapper
 	protected Enums.UserSettingsDTO? UserSettings { get; set; }
-	
-	//public NumberPad.BookChapterVerse? CurrentBCV { get; set; }
 	public BookChapterVerseRecord? CurrentBCV { get; set; }
 
-		
+	protected override async Task OnInitializedAsync()
+	{
+		//need to call here before OnParametersSet so that _currentPermutations can be used
+		await State!.AppState!.BookChapterState!.Initialize(); 
+	}
+
 	protected override void OnParametersSet()
 	{
-		Logger!.LogInformation("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
+		Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
 		try
 		{
 			Enums.Permutation _currentPermutations = (Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
 			UserSettings = new Enums.UserSettingsDTO(
 				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.StandaloneAlephTavDetailOn),
 				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.ParashaDividerDetailOn),
-				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn));
-
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn),
+				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(Enums.Permutation.VerseScrollButtonsOn));
+			
 			if (Abrv == Constants.Abrv.Value || string.IsNullOrEmpty(Abrv))
 			{
-				Logger!.LogInformation("{Method}, {Message}", nameof(OnParametersSet), "Abrv is default or empty");
-				//Toast!.ShowInfo($"Abrv is default or empty");
+				Logger!.LogDebug("{Method}, {Message}", nameof(OnParametersSet), "Abrv is default or empty");
 				AbrvChapterVerse? rec = State!.AppState!.BookChapterState!.GetACV();
-
-				//NavigationManager!.NavigateTo($"{Constants.BaseUrl.Value}/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId
 				NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
 			}
 			else
 			{
-				Logger!.LogInformation("{Method}, CallingMethod: {CallingMethod}", nameof(OnParametersSet), nameof(GetAbrvChapterVerseViaRoutes));
+				Logger!.LogDebug("{Method}, CallingMethod: {CallingMethod}", nameof(OnParametersSet), nameof(GetAbrvChapterVerseViaRoutes));
 				var (abrvChapterVerse, bibleBook) = GetAbrvChapterVerseViaRoutes(Abrv, Chapter, Verse, ScriptureId);
 				if (abrvChapterVerse is not null && bibleBook is not null)
 				{
 					CurrentAbrvChapterVerse = abrvChapterVerse;
 					CurrentBookAndChapter = bibleBook;
-					//CurrentBCV = new NumberPad.BookChapterVerse(bibleBook.BibleBook, Chapter, Verse);
 					CurrentBCV = new BookChapterVerseRecord(bibleBook.BibleBook, Chapter, Verse);
-
-					//Logger!.LogInformation("{Method}, CurrentAbrvChapterVerse: {CurrentAbrvChapterVerse}", nameof(OnParametersSet), CurrentAbrvChapterVerse);
+					//Logger!.LogDebug("{Method}, CurrentAbrvChapterVerse: {CurrentAbrvChapterVerse}", nameof(OnParametersSet), CurrentAbrvChapterVerse);
 				}
 				else
 				{
@@ -176,10 +175,9 @@
 		}
 	}
 
-	// tuple used by ReportWrapper.
 	private (AbrvChapterVerse?, BookAndChapter?) GetAbrvChapterVerseViaRoutes(string abrv, int chapter, int verse, int scriptureId)
 	{
-		Logger!.LogInformation("{Method}, abrv/c/v/SID: {abrv}/{chapter}/{verse}/{scriptureId}"
+		Logger!.LogDebug("{Method}, abrv/c/v/SID: {abrv}/{chapter}/{verse}/{scriptureId}"
 		, nameof(GetAbrvChapterVerseViaRoutes), abrv, chapter, verse, scriptureId);
 
 		if (string.IsNullOrEmpty(abrv))
@@ -210,7 +208,7 @@
 
 	private void ReturnUserSettingsDTO(Enums.UserSettingsDTO userSettingsDTO)
 	{
-		//Logger!.LogInformation("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
+		//Logger!.LogDebug("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
 		UserSettings = userSettingsDTO;
 	}
 
@@ -218,30 +216,27 @@
 	private async Task ReturnedBookAndChapter(BookAndChapter bookAndChapter)
 	{
 		AbrvChapterVerse rec = new AbrvChapterVerse(bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0);
-		//Logger!.LogInformation("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
+		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
 		
-		//NavigationManager!.NavigateTo($"{Constants.BaseUrl.Value}/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
 		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
 
 		//
 		await State!.AppState!.BookChapterState!.UpdateACV(rec);
 		CurrentBookAndChapter = bookAndChapter!;
-		//Logger!.LogInformation("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
+		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
 		PageTitle = RCL.Enums.BibleBookFormat.BC(bookAndChapter);
 	}
 
 	// Called inside <NavSkeleton>, by <RecentListPicker>, <ParashotPicker> and <Picker>
-	//private async Task ReturnedBCV(NumberPad.BookChapterVerse bcv)
 	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
 	{
 		AbrvChapterVerse rec = new AbrvChapterVerse(bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0);
-		//Logger!.LogInformation("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
+		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
 
-		//NavigationManager!.NavigateTo($"{Constants.BaseUrl.Value}/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
 		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
 		
 		await State!.AppState!.BookChapterState!.UpdateACV(rec);
-		//Logger!.LogInformation("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
+		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
 		PageTitle = RCL.Enums.BibleBookFormat.BCV(bcv);
 	}
 
@@ -255,7 +250,7 @@
 
 	private void ReturnedMenuItemId(int id)
 	{
-		//Logger!.LogInformation("{Method}, id: {Id}", nameof(ReturnedMenuItemId), id);
+		//Logger!.LogDebug("{Method}, id: {Id}", nameof(ReturnedMenuItemId), id);
 		if (Enums.MenuItem.TryFromValue(id, out Enums.MenuItem? menuItem))
 		{
 			CurrentModalToShow = menuItem;
@@ -270,7 +265,7 @@
 	private void ReturnedCloseEvent()
 	{
 		CurrentModalToShow = null;
-		//Logger!.LogInformation("{Method}, CurrentModalToShow set to null", nameof(ReturnedCloseEvent));
+		//Logger!.LogDebug("{Method}, CurrentModalToShow set to null", nameof(ReturnedCloseEvent));
 	}
 
 	#endregion
