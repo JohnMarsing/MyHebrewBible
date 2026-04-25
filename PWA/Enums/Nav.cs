@@ -127,7 +127,6 @@ public abstract class Nav : SmartEnum<Nav>
 	{
 		public HomeSE() : base($"{nameof(Id.Home)}", Id.Home) { }
 		public override string Index => "/";
-		//public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
 		public override string Title => "Book & Chapter";
 		public override string Icon => "fa fa-book";
 		public override string HomeTitleSuffix => " mispar h4557";

@@ -18,7 +18,7 @@
 			{
 				<div class="btn-group-sm" role="group">
 					<button type="button" class="btn @showSection.HeaderColor">
-						<span class="@textSize text-secondary"><strike>@showSection.Name</strike></span>
+						<span class="fw-bold @textSize text-secondary"><strike>@showSection.Name</strike></span>
 					</button>
 				</div>
 			}
@@ -32,7 +32,7 @@
 						{
 							<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
 											type="button" class="btn @showSection.ButtonColorTOC">
-								<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+								<span class="fw-bold @textSize @showSection.HeaderColor">@item.VerseRange</span>
 							</button>
 						}
 
@@ -48,7 +48,7 @@
 							{
 								<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
 												type="button" class="btn @showSection.ButtonColorTOC mb-1">
-									<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+									<span class="fw-bold @textSize @showSection.HeaderColor">@item.VerseRange</span>
 								</button>
 							}
 						</div>
@@ -66,7 +66,7 @@
 									<li class="btn-group-sm">
 										<button @onclick="@(e => ButtonClick(item.ScriptureID_Beg, showSection))"
 														type="button" class="btn @showSection.LineItemButtonColor ms-1 mb-1">
-											<span class="@textSize @showSection.HeaderColor">@item.VerseRange</span>
+											<span class="fw-bold @textSize @showSection.HeaderColor">@item.VerseRange</span>
 										</button>
 									</li>
 								}

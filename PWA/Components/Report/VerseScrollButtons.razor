@@ -1,0 +1,30 @@
+﻿@using DirEnums = PWA.Components.Report.Enums.VerticalDirection
+
+<div class="nav-buttons-container">
+  <button class="nav-button nav-up"
+          @onclick="() => ButtonClick(DirEnums.Up)" title="@DirEnums.Up.Title>">
+    <i class="@DirEnums.Up.Icon"></i>    
+  </button>
+
+  <button class="nav-button nav-down"
+          @onclick="() => ButtonClick(DirEnums.Down)" title="@DirEnums.Down.Title">
+    <i class="@DirEnums.Down.Icon"></i>
+  </button>
+</div>
+
+@code {
+  // [Parameter, EditorRequired] public int Verse { get; set; }
+  // [Parameter, EditorRequired] public int MaxVerses { get; set; }
+  // [Parameter, EditorRequired] public int CurrentScriptureId { get; set; }
+
+  [Parameter, EditorRequired] public EventCallback<DirEnums> OnNavigate { get; set; }
+
+  //protected string UpDisabled => Verse == 1 ? " disabled" : "";
+  //protected string DownDisabled => Verse == MaxVerses ? " disabled" : "";
+
+
+  private async Task ButtonClick(DirEnums direction)
+  {
+    await OnNavigate.InvokeAsync(direction);
+  }
+}

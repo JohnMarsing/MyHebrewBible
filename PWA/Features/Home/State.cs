@@ -105,7 +105,7 @@ public class State
 
 	public int GetUserSetting()
 	{
-		//Logger!.LogInformation("{Method}, permutation: {permutation}", nameof(Get), _permutation); // DEBUG 
+		//Logger!.LogInformation("{Method}, permutation: {permutation}", nameof(GetUserSetting), _UserSetting); // DEBUG 
 		return _UserSetting;
 	}
 
