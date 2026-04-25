@@ -109,7 +109,9 @@ else
 
 @if (@UserSettings.IsVerseScrollButtonsOn && CurrentAbrvChapterVerse is not null && Verses is not null)
 {
-	<VerseScrollButtons OnNavigate="ReturnedNavigate" />
+	<VerseScrollButtons 
+		Verse="CurrentVerse" LastVerse="LastVerse" ScriptureId="CurrentScrollToScriptureId"
+		OnNavigate="ReturnedNavigate" OnSetFocus="ReturnedSetFocus"		 />
 }
 
 
@@ -128,6 +130,8 @@ else
 	#region OnAfter-and-OnParameters
 	protected Home.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected int CurrentScrollToScriptureId;
+	protected int CurrentVerse;
+	protected int LastVerse;
 	protected bool _firstRendered = false;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -152,6 +156,10 @@ else
 			CurrentScrollToScriptureId = ScrollToScriptureId;
 		}
 
+		var currentVerseModel = Verses!.FirstOrDefault(f => f.ID == CurrentScrollToScriptureId);
+		CurrentVerse = currentVerseModel?.Verse ?? 0;
+		LastVerse = currentVerseModel?.LastVerse ?? 0;
+
 		if (_firstRendered && _module is not null)
 		{
 			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
@@ -171,6 +179,15 @@ else
 		return new BookAndChapter(RCL.Enums.BibleBook.FromValue(bookId), chapter);
 	}
 
+	private async Task ReturnedSetFocus(int scriptureId)
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{scriptureId}");
+		}
+
+	}
+
 	private void ReturnedNavigate(DirEnums dirEnums)
 	{
 		var(errMsg, verse, _scriptureId) = DirHelper.GetVerseAndScriptureId(
@@ -184,6 +201,7 @@ else
 		else
 		{
 			CurrentScrollToScriptureId = _scriptureId;
+			CurrentVerse = verse;
 		}
 
 	}
@@ -204,6 +222,7 @@ else
 		else
 		{
 			CurrentScrollToScriptureId = _scriptureId;
+			CurrentVerse = verse;
 		}
 
 		if (CalledBy == Enums.CalledBy.BookChapter && CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)

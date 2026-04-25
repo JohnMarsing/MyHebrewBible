@@ -22,7 +22,7 @@ public class VerticalDirectionHelper
 	Returned tuple:
 	1. Msg: blank if valid else "Topped out" or "Bottomed out"
 	2. verse id: e.g. John 3:16 is verse 16
-	3. scripture id: the unique id for the verse in the database
+	3. new scripture id: currentScriptureId (+ or -) 1; the unique id for the verse in the database
 
 	Parameters:
 	1. dir: up or down

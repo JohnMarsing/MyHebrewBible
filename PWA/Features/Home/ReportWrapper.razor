@@ -101,6 +101,7 @@
 			DescD = bc.DescD,
 			BookID = BookAndChapter!.BibleBook!.Value,
 			Chapter = BookAndChapter.Chapter,
+			LastVerse = RCL.Components.Helper.LastVerseCount(BookAndChapter.BibleBook, BookAndChapter.Chapter),
 			WordPartList = bc.WordPartList?
 			.Select(wp => new Components.Report.WordPart
 			{
