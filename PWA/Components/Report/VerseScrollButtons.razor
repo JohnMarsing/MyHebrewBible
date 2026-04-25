@@ -1,30 +1,55 @@
 ﻿@using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 
 <div class="nav-buttons-container">
-  <button class="nav-button nav-up"
-          @onclick="() => ButtonClick(DirEnums.Up)" title="@DirEnums.Up.Title>">
-    <i class="@DirEnums.Up.Icon"></i>    
-  </button>
+	@if (Verse == 1)
+	{
+		<button class="btn disabled">
+			<i class="fa-2x fas fa-ban text-black-50"></i>
+		</button>
+	}
+	else
+	{
+		<button class="nav-button nav-up"
+						@onclick="() => ButtonClick(DirEnums.Up)" title="@DirEnums.Up.Title @(Verse - 1)">
+			<i class="@DirEnums.Up.Icon"></i>
+		</button>
+	}
 
-  <button class="nav-button nav-down"
-          @onclick="() => ButtonClick(DirEnums.Down)" title="@DirEnums.Down.Title">
-    <i class="@DirEnums.Down.Icon"></i>
-  </button>
+	<button class="setfocus-button"
+				@onclick="ButtonClickSetFocus" title="Set focus on Verse @Verse">
+		<i class="fa-solid fa-arrow-left"></i>
+	</button>
+
+	@if (Verse == LastVerse)
+	{
+		<button class="btn disabled">
+			<i class="fa-2x fas fa-ban text-black-50"></i>
+		</button>
+	}
+	else
+	{
+		<button class="nav-button nav-down"
+						@onclick="() => ButtonClick(DirEnums.Down)" title="@DirEnums.Down.Title @(Verse + 1)">
+			<i class="@DirEnums.Down.Icon"></i>
+		</button>
+	}
+
 </div>
 
 @code {
-  // [Parameter, EditorRequired] public int Verse { get; set; }
-  // [Parameter, EditorRequired] public int MaxVerses { get; set; }
-  // [Parameter, EditorRequired] public int CurrentScriptureId { get; set; }
+	[Parameter, EditorRequired] public int Verse { get; set; }
+	[Parameter, EditorRequired] public int LastVerse { get; set; }
+	[Parameter, EditorRequired] public int ScriptureId { get; set; }
+	[Parameter, EditorRequired] public EventCallback<DirEnums> OnNavigate { get; set; }
+	[Parameter, EditorRequired] public EventCallback<int> OnSetFocus { get; set; }
 
-  [Parameter, EditorRequired] public EventCallback<DirEnums> OnNavigate { get; set; }
+	private async Task ButtonClick(DirEnums direction)
+	{
+		await OnNavigate.InvokeAsync(direction);
+	}
 
-  //protected string UpDisabled => Verse == 1 ? " disabled" : "";
-  //protected string DownDisabled => Verse == MaxVerses ? " disabled" : "";
-
-
-  private async Task ButtonClick(DirEnums direction)
-  {
-    await OnNavigate.InvokeAsync(direction);
-  }
+	private async Task ButtonClickSetFocus()
+	{
+		await OnSetFocus.InvokeAsync(ScriptureId);
+	}
 }

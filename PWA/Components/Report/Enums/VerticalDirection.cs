@@ -33,7 +33,7 @@ public abstract class VerticalDirection : SmartEnum<VerticalDirection>
 	private sealed class DownSE : VerticalDirection
   {
     public DownSE() : base($"{nameof(Id.Down)}", Id.Down) { }
-    public override string Title => "change focus to previous verse";
+    public override string Title => "go down to verse ";
     public override string Icon => "fa-solid fa-arrow-down";  
     public override string ChapterBoundryMessage => "Bottomed out";
 		public override string KeyboardKey => "ArrowDown";
@@ -42,7 +42,7 @@ public abstract class VerticalDirection : SmartEnum<VerticalDirection>
   private sealed class UpSE : VerticalDirection
   {
     public UpSE() : base($"{nameof(Id.Up)}", Id.Up) { }
-    public override string Title => "change focus to next verse";
+    public override string Title => "go up to verse";
     public override string Icon => "fa-solid fa-arrow-up";
     public override string ChapterBoundryMessage => "Topped out";
 		public override string KeyboardKey => "ArrowUp";
