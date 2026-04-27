@@ -15,7 +15,14 @@ const offlineAssetsExclude = [ /^service-worker\.js$/, /staticwebapp\.config\.js
 // Replace with your base path if you are hosting on a subfolder. Ensure there is a trailing '/'.
 const base = "/";
 const baseUrl = new URL(base, self.origin);
+const indexHtmlUrl = new URL('index.html', baseUrl).href;
 const manifestUrlList = self.assetsManifest.assets.map(asset => new URL(asset.url, baseUrl).href);
+
+async function getCachedIndexHtml(cache) {
+    return (await cache.match(indexHtmlUrl, { ignoreSearch: true }))
+        || (await cache.match('index.html', { ignoreSearch: true }))
+        || (await cache.match('./index.html', { ignoreSearch: true }));
+}
 
 async function onInstall(event) {
     console.info('Service worker: Install');
@@ -50,9 +57,10 @@ async function onFetch(event) {
         const shouldServeIndexHtml = event.request.mode === 'navigate'
             && !manifestUrlList.some(url => url === event.request.url);
 
-        const request = shouldServeIndexHtml ? 'index.html' : event.request;
         const cache = await caches.open(cacheName);
-        cachedResponse = await cache.match(request);
+        cachedResponse = shouldServeIndexHtml
+            ? await getCachedIndexHtml(cache)
+            : await cache.match(event.request);
     }
 
     if (cachedResponse) {
@@ -74,7 +82,7 @@ async function onFetch(event) {
         // Network fetch failed, try to return index.html for navigation requests
         if (event.request.mode === 'navigate') {
             const cache = await caches.open(cacheName);
-            const fallbackResponse = await cache.match('index.html');
+            const fallbackResponse = await getCachedIndexHtml(cache);
             if (fallbackResponse) {
                 return fallbackResponse;
             }
