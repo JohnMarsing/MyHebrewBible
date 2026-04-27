@@ -1,0 +1,37 @@
+@inject IJSRuntime JS
+
+<button class="btn btn-outline-primary" @onclick="UpdateAppAsync" disabled="@isUpdating">
+  @(isUpdating ? "Updating..." : "Update app")
+</button>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+  <div class="small text-muted mt-1">@message</div>
+}
+
+@code {
+  private bool isUpdating;
+  private string? message;
+
+  private async Task UpdateAppAsync()
+  {
+    isUpdating = true;
+    message = null;
+
+    try
+    {
+      var updated = await JS.InvokeAsync<bool>("pwaUpdate.applyUpdate");
+      message = updated
+        ? "Applying update..."
+        : "No update is waiting right now.";
+    }
+    catch (Exception ex)
+    {
+      message = $"Update failed: {ex.Message}";
+    }
+    finally
+    {
+      isUpdating = false;
+    }
+  }
+}
