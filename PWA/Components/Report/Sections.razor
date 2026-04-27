@@ -106,14 +106,14 @@ else
 	<p class="fs-3 text-danger text-center">Report Verses is null or empty  (◡︵◡)</p>
 }
 
-
 @if (@UserSettings.IsVerseScrollButtonsOn && CurrentAbrvChapterVerse is not null && Verses is not null)
 {
-	<VerseScrollButtons 
-		Verse="CurrentVerse" LastVerse="LastVerse" ScriptureId="CurrentScrollToScriptureId"
-		OnNavigate="ReturnedNavigate" OnSetFocus="ReturnedSetFocus"		 />
+	<VerseScrollButtons Verse="CurrentVerse"
+											LastVerse="CurrentAbrvChapterVerse.LastVerse"
+											ScriptureId="CurrentScrollToScriptureId"
+											OnNavigate="ReturnedNavigate" 
+											OnSetFocus="ReturnedSetFocus" />
 }
-
 
 @code {
 	[Parameter, EditorRequired] public List<ReportModel>? Verses { get; set; }
@@ -131,7 +131,6 @@ else
 	protected Home.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected int CurrentScrollToScriptureId;
 	protected int CurrentVerse;
-	protected int LastVerse;
 	protected bool _firstRendered = false;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -158,7 +157,6 @@ else
 
 		var currentVerseModel = Verses!.FirstOrDefault(f => f.ID == CurrentScrollToScriptureId);
 		CurrentVerse = currentVerseModel?.Verse ?? 0;
-		LastVerse = currentVerseModel?.LastVerse ?? 0;
 
 		if (_firstRendered && _module is not null)
 		{
@@ -166,9 +164,7 @@ else
 		}
 	}
 	#endregion
-
-	protected int DrilldownScriptureId;
-
+	
 	protected string GetBCV(string bcv)
 	{
 		return CalledBy == Enums.CalledBy.BookChapter ? bcv : "";
@@ -185,19 +181,18 @@ else
 		{
 			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{scriptureId}");
 		}
-
 	}
 
 	private void ReturnedNavigate(DirEnums dirEnums)
 	{
-		var(errMsg, verse, _scriptureId) = DirHelper.GetVerseAndScriptureId(
+		var (errMsg, verse, _scriptureId) = DirHelper.GetVerseAndScriptureId(
 			dirEnums, CurrentScrollToScriptureId, Verses!);
 
-		if (!String.IsNullOrEmpty(errMsg)) 
-		{ 
+		if (!String.IsNullOrEmpty(errMsg))
+		{
 			Toast!.ShowWarning(errMsg);
-			return; 
-		} 
+			return;
+		}
 		else
 		{
 			CurrentScrollToScriptureId = _scriptureId;
@@ -208,10 +203,10 @@ else
 
 	private async Task HandleKeyDown(KeyboardEventArgs e)
 	{
-		var(valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
+		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
 		if (!valid) { return; }
 
-		var (errMsg, verse, _scriptureId) = 
+		var (errMsg, verse, _scriptureId) =
 			DirHelper.GetVerseAndScriptureId(dirEnums!, CurrentScrollToScriptureId, Verses!);
 
 		if (!String.IsNullOrEmpty(errMsg))
@@ -239,6 +234,7 @@ else
 		}
 	}
 
+	protected int DrilldownScriptureId;
 	private void ReturnedVerse(int scriptureId)
 	{
 		DrilldownScriptureId = scriptureId;

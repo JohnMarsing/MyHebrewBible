@@ -1,16 +1,10 @@
-﻿namespace PWA.Features.Home;
+﻿using HomeHelper =  PWA.Features.Home.Helper;
+namespace PWA.Features.Home;
 
-/*
-Why doesn't this work???...
-//public static AbrvChapterVerse Default => new AbrvChapterVerse(GlobalEnums.BibleBook.Genesis.Name, 1, 1, 1); 
- 
- */
-
-
-public record AbrvChapterVerse(string Abrv, int Chapter, int Verse, bool VerseIsNotDefault, int ScriptureId)
+public record AbrvChapterVerse(string Abrv, int Chapter, int Verse, bool VerseIsNotDefault, int ScriptureId, int LastVerse)
 {
-	public static AbrvChapterVerse Default => new AbrvChapterVerse(RCL.Enums.BibleBook.Genesis.Name, 1, 1, false, 1);
-	//                                                                     Enums.BibleBook.Genesis.Name
+	public static AbrvChapterVerse Default => new(
+		RCL.Enums.BibleBook.Genesis.Name, 1, 1, false, 1, HomeHelper.LastVerseCount(RCL.Enums.BibleBook.Genesis, 1));
+	//                                                                    
 }
 
-// Ignore Spelling: Abrv 

@@ -1,4 +1,4 @@
-﻿namespace PWA.Components.Report;
+﻿namespace PWA.Features.ScrollSpy;
 
 public class ReportModel
 {
@@ -11,6 +11,7 @@ public class ReportModel
 	public string? DescD { get; init; }
 	public int BookID { get; init; }
 	public int Chapter { get; init; }
+	//public int LastVerse { get; init; } // This shouldn't be here
 	public List<WordPart> WordPartList { get; init; } = new();
 }
 
@@ -33,3 +34,5 @@ public record WordPart
 	public string? Transliteration { get; init; }
 	public int? FinalEnum { get; init; }          
 }
+
+// Ignore Spelling: BCV, Strongs, bigint

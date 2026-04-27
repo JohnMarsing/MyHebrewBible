@@ -64,4 +64,37 @@ public class VerticalDirectionHelper
 
 		}
 	}
+
+
+	public static (string, int, int) GetVerseAndScriptureIdSS(
+		VerticalDirection dir, int currentScriptureId, List<PWA.Features.ScrollSpy.ReportModel> verses)
+	{
+
+		int i = verses.FindIndex(v => v.ID == currentScriptureId);
+
+		if (dir == VerticalDirection.Down)
+		{
+			if (i < verses.Count - 1)
+			{
+				return ("", verses[i + 1].Verse, currentScriptureId + 1);
+			}
+			else
+			{
+				return (dir.ChapterBoundryMessage, 0, 0);
+			}
+		}
+		else
+		{
+			if (i > 0)
+			{
+				return ("", verses[i - 1].Verse, currentScriptureId - 1);
+			}
+			else
+			{
+				return (dir.ChapterBoundryMessage, 0, 0);
+			}
+
+		}
+	}
+
 }

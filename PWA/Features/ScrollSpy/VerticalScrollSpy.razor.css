@@ -1,0 +1,52 @@
+/* Horizontal nav at the bottom */
+.verse-nav {
+    position: fixed;
+    bottom: 10px; /* Added margin to the bottom */
+    left: 0;
+    width: 100%;
+    height: 50px; /* Reduced height for shorter nav */
+    overflow-x: auto; /* Horizontal scroll if too many items */
+    overflow-y: hidden;
+    background-color: var(--bs-info-bg-subtle); /* Changed to bg-info-subtle background */
+    border-top: 1px solid var(--bs-border-color);
+    z-index: 10;
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center the verses */
+    gap: 0.25rem; /* Reduced space between items for compactness */
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
+}
+
+    .verse-nav .list-group-item {
+        flex: 0 0 auto; /* Prevent shrinking */
+        padding: 0.125rem 0.25rem; /* Reduced padding for smaller buttons */
+        border: none;
+        white-space: nowrap; /* Prevent text wrapping */
+        text-align: center;
+        background: none;
+        color: var(--bs-link-color);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 0.75rem; /* Smaller font size */
+    }
+
+    .verse-nav .list-group-item:hover {
+        color: var(--bs-link-hover-color);
+    }
+
+    .verse-nav .active {
+        font-weight: bold;
+        background-color: var(--bs-primary);
+        color: white;
+        text-decoration: none;
+    }
+
+/* Mobile adjustments */
+ /*@media (max-width: 768px) {
+    .verse-nav {
+        height: 40px;*/ /* Smaller height on mobile */
+        /*font-size: 0.75rem;
+    }
+}*/

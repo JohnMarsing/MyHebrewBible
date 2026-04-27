@@ -1,5 +1,4 @@
-﻿
-using Ardalis.SmartEnum;
+﻿using Ardalis.SmartEnum;
 using BookChapterConstants = PWA.Features.Home.Constants;
 
 namespace PWA.Enums;
@@ -24,6 +23,8 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int Parasha = 3;
 		internal const int ParashaList = 4;
 		internal const int Hebrew = 5;
+		internal const int ScrollSpy = 6;
+
 		internal const int HealthCheckTableRowCount = 28;
 		/*
 		internal const int Donate = 4;
@@ -59,6 +60,7 @@ public abstract class Nav : SmartEnum<Nav>
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Parasha = new ParashaSE();
 	public static readonly Nav Hebrew = new HebrewSE();
+	public static readonly Nav ScrollSpy = new ScrollSpySE();
 	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
 	/*
 		public static readonly Nav Donate = new DonateSE();
@@ -127,12 +129,12 @@ public abstract class Nav : SmartEnum<Nav>
 	{
 		public HomeSE() : base($"{nameof(Id.Home)}", Id.Home) { }
 		public override string Index => "/";
-		public override string Title => "Book & Chapter";
+		public override string Title => "Bible"; // Book & Chapter
 		public override string Icon => "fa fa-book";
 		public override string HomeTitleSuffix => " mispar h4557";
 		public override string HomeFloatRightHebrew => "מִסְפָּר";
 		public override int Sort => Id.Home;
-		
+
 
 		/*
 		public override string Title => "Home";
@@ -205,6 +207,21 @@ public abstract class Nav : SmartEnum<Nav>
 	}
 
 
+	private sealed class ScrollSpySE : Nav
+	{
+		public ScrollSpySE() : base($"{nameof(Id.ScrollSpy)}", Id.ScrollSpy) { }
+		public override string Index => "/ScrollSpy";
+		public override string Title => "Scroll Spy POC";
+		public override string Icon => "fas fa-scroll";
+		public override int Sort => Id.ScrollSpy;
+		public override string HomeTitleSuffix => "";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+
 	private sealed class HealthCheckTableRowCountSE : Nav
 	{
 		public HealthCheckTableRowCountSE() : base($"{nameof(Id.HealthCheckTableRowCount)}", Id.HealthCheckTableRowCount) { }
@@ -215,7 +232,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public override string HomeTitleSuffix => " ";
 		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.HealthCheck;
-				public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
 
@@ -574,5 +591,4 @@ public abstract class Nav : SmartEnum<Nav>
 	}
 	 
 	 */
-
 }
