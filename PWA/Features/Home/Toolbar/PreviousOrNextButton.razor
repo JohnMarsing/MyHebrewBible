@@ -1,5 +1,6 @@
 ﻿@using RCL.Enums
 @using PWA.Components.Toolbar
+@using HomeHelper = PWA.Features.Home.Helper
 
 @if (BookAndChapter is not null)
 {
@@ -40,7 +41,7 @@ else
 		BibleBook.NavigationIcon.Previous
 		: BibleBook.NavigationIcon.Next;
 
-	private string Chapter => IsPrevious ? $"{Helper.HasNext}" : $"";
+	private string Chapter => IsPrevious ? $"{HomeHelper.HasNext}" : $"";
 	private string Title => IsPrevious ? "Previous" : "Next";
 
 	private bool IsOnEdge => IsPrevious

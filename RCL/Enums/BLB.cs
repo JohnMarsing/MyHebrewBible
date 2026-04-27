@@ -123,6 +123,7 @@ public abstract class BLB : SmartEnum<BLB>
 
 
 	//ToDo: do a range of verses https://www.blueletterbible.org/kjv/ecc/2/5-6/s_661005
+	//ToDo: no references
 	public MarkupString AnchorBCV(int book, int chapter, int verse)
 	{
 		BookChapterVerse? bcv = null;
@@ -145,6 +146,7 @@ public abstract class BLB : SmartEnum<BLB>
 		}
 	}
 
+	//ToDo: ref by RCL.CommonVerses.VerseModalTemplate
 	public MarkupString AnchorBCV(CommonVerses.Enums.VerseRange verseRange)
 	{
 		BookChapterVerse? bcv = null;

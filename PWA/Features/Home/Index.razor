@@ -11,6 +11,7 @@
 @using PWA.Features.Home.Toolbar.NumberPad
 @using PWA.Components.Toolbar
 @using PWA.Enums
+@using HomeHelper = PWA.Features.Home.Helper
 
 @inject ILogger<Index>? Logger
 @inject NavigationManager NavigationManager
@@ -192,7 +193,8 @@
 			RCL.Enums.BibleBook? bibleBook;
 			if (RCL.Enums.BibleBook.TryFromValue(_value, out bibleBook))
 			{
-				AbrvChapterVerse acv = new AbrvChapterVerse(bibleBook!.Abrv, chapter, verse, true, scriptureId); //
+				AbrvChapterVerse acv = new AbrvChapterVerse(
+					bibleBook!.Abrv, chapter, verse, true, scriptureId, HomeHelper.LastVerseCount(bibleBook, chapter)	);
 				return (acv, new BookAndChapter(bibleBook, chapter));
 			}
 		}
@@ -215,7 +217,8 @@
 	// Called inside <NavSkeleton> by <PreviousOrNextButton>
 	private async Task ReturnedBookAndChapter(BookAndChapter bookAndChapter)
 	{
-		AbrvChapterVerse rec = new AbrvChapterVerse(bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0);
+		AbrvChapterVerse rec = new AbrvChapterVerse(
+				bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0, HomeHelper.LastVerseCount(bookAndChapter.BibleBook, bookAndChapter.Chapter));
 		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
 		
 		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
@@ -230,7 +233,8 @@
 	// Called inside <NavSkeleton>, by <RecentListPicker>, <ParashotPicker> and <Picker>
 	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
 	{
-		AbrvChapterVerse rec = new AbrvChapterVerse(bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0);
+		AbrvChapterVerse rec = new AbrvChapterVerse(
+			bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0, HomeHelper.LastVerseCount(bcv.BibleBook, bcv.Chapter));
 		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
 
 		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");

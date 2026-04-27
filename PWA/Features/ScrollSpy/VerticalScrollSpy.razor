@@ -1,0 +1,27 @@
+﻿<nav class="verse-nav" id="verse-nav">
+	<div class="list-group list-group-horizontal">
+		@foreach (var v in Verses)
+		{
+			<button @onclick="() => ScrollToVerse(v.ScriptureId)" 
+				class="@(v.ScriptureId == SelectedVerseId ? "list-group-item active" : "list-group-item")">
+					@v.Verse
+				</button>
+		}
+	</div>
+</nav>
+
+@code {
+	[Parameter, EditorRequired] public List<(int Verse, int ScriptureId)> Verses { get; set; } = new();
+	[Parameter, EditorRequired] public int? SelectedVerseId { get; set; }
+	[Parameter, EditorRequired] public EventCallback<int> OnSetFocus { get; set; }
+
+	[Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+	private async Task ScrollToVerse(int scriptureId)
+	{
+		var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/ScrollSpy/VerticalScrollSpy.razor.js");
+		await module.InvokeVoidAsync("scrollToElement", $"verse-{scriptureId}");
+		await module.DisposeAsync();
+		await OnSetFocus.InvokeAsync(scriptureId);
+	}
+}

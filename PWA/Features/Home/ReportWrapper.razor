@@ -2,6 +2,8 @@
 @using ReportEnums = PWA.Components.Report.Enums
 @using Home = PWA.Features.Home
 @using PWA.Data.Endpoints
+@using HomeHelper = PWA.Features.Home.Helper
+
 
 @inject Data.IRepository? db;
 @inject ILogger<ReportWrapper>? Logger
@@ -45,11 +47,13 @@
 					if (AbrvChapterVerse.VerseIsNotDefault && AbrvChapterVerse.Verse != 1)
 					{
 						int scriptureId = verses.First().ID + AbrvChapterVerse.Verse - 1;
-						CurrentAbrvChapterVerse = AbrvChapterVerse! with { ScriptureId = scriptureId };
+						CurrentAbrvChapterVerse = AbrvChapterVerse! 
+							with { ScriptureId = scriptureId, LastVerse = HomeHelper.LastVerseCount(BookAndChapter!.BibleBook, BookAndChapter.Chapter) };
 					}
 					else
 					{
-						CurrentAbrvChapterVerse = AbrvChapterVerse! with { ScriptureId = verses.First().ID };
+						CurrentAbrvChapterVerse = AbrvChapterVerse! 
+							with { ScriptureId = verses.First().ID, LastVerse = HomeHelper.LastVerseCount(BookAndChapter!.BibleBook, BookAndChapter.Chapter) };
 					}
 					//Logger!.LogInformation("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(OnParametersSetAsync), AbrvChapterVerse);
 					await State!.AppState!.BookChapterState!.UpdateACV(CurrentAbrvChapterVerse!);
@@ -101,7 +105,6 @@
 			DescD = bc.DescD,
 			BookID = BookAndChapter!.BibleBook!.Value,
 			Chapter = BookAndChapter.Chapter,
-			LastVerse = RCL.Components.Helper.LastVerseCount(BookAndChapter.BibleBook, BookAndChapter.Chapter),
 			WordPartList = bc.WordPartList?
 			.Select(wp => new Components.Report.WordPart
 			{

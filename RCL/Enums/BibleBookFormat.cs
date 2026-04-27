@@ -10,7 +10,7 @@ public static class BibleBookFormat
 		return $"{(useAbrv ? bc!.BibleBook!.Abrv : bc!.BibleBook!.Title)} {bc!.Chapter}";
 	}
 
-
+	//ToDo: no references
 	public static string BCV(BookAndChapter? bc, int verse, bool useAbrv = true)
 	{
 		if (bc is null) return string.Empty;
@@ -30,6 +30,7 @@ public static class BibleBookFormat
 		return $"{(useAbrv ? bcv!.BookAndChapter.BibleBook!.Abrv : bcv!.BookAndChapter.BibleBook!.Title)} {bcv!.BookAndChapter.Chapter}:{bcv!.Verse}";
 	}
 
+	//ToDo: no references
 	public static string BLB_HrefSuffix(BookAndChapter? bc, int verse)
 	{
 		if (bc is null) return string.Empty;

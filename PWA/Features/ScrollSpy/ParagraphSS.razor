@@ -1,0 +1,25 @@
+﻿@if (Verse != null)
+{
+	<p id="@Verse.ID" class="fs-5 @textBG">
+		<sup class="text-primary" title="@Verse.ID"><b>@Verse.Verse</b></sup>
+
+		@if (Verse.VerseOffset != "NULL")
+		{
+			<sup class="text-black-50">&nbsp;@Verse.VerseOffset&nbsp;</sup>
+		}
+		else
+		{
+			<text>&nbsp;</text>
+		}
+		@((MarkupString)@Verse.KJV!)
+	</p>
+}
+
+@code {
+	[Parameter, EditorRequired] public ReportModel? Verse { get; set; }
+	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
+	[Parameter] public int ScrollToScriptureId { get; set; }
+
+	string textBG => ScrollToScriptureId == Verse!.ID ? " p-1 bg-info-subtle" : ""; 
+
+}
