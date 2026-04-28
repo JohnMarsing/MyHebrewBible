@@ -5,13 +5,13 @@ using Blazored.Toast;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 using PWA;
 using PWA.Data;
-using PWA.Features.Home.Data;
 using PWA.Features.Parasha.Data;
 using PWA.HealthChecks.Database.Data;
 using PWA.State;
 
 using Serilog;
 using Serilog.Core;
+using PWA.Features.Bible.Data;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

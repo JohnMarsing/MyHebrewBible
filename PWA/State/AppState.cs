@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using PWA.Features.Home;
 
 //using PWA.Features.Haggadah;
 //using PWA.State.BookChapter;
@@ -9,7 +8,7 @@ namespace PWA.State;
 
 public class AppState 
 {
-	public Features.Home.State? BookChapterState { get; }
+	public Features.Bible.State? BookChapterState { get; }
 	//public Features.Haggadah.State? HaggadahState { get; }	
 	public ParashaState? ParashaState { get; }
 	//public VerseList.VerseListState? VerseListState { get; }
@@ -22,7 +21,7 @@ public class AppState
 	{
 		Logger = logger;
 		this.localStorage = localStorage;
-		BookChapterState = new Features.Home.State(localStorage, logger);
+		BookChapterState = new Features.Bible.State(localStorage, logger);
 		//HaggadahState = new Features.Haggadah.State(localStorage, logger);	
 		ParashaState = new ParashaState(localStorage, logger);
 		//VerseListState = new VerseList.VerseListState(localStorage, logger);

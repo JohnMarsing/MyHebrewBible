@@ -1,5 +1,5 @@
 ﻿using Ardalis.SmartEnum;
-using BookChapterConstants = PWA.Features.Home.Constants;
+using BookChapterConstants = PWA.Features.Bible.Constants;
 
 namespace PWA.Enums;
 
@@ -19,12 +19,12 @@ public abstract class Nav : SmartEnum<Nav>
 	private static class Id
 	{
 		internal const int Home = 1;
-		internal const int Sitemap = 2;
-		internal const int Parasha = 3;
-		internal const int ParashaList = 4;
-		internal const int Hebrew = 5;
-		internal const int ScrollSpy = 6;
-
+		internal const int Bible = 2;
+		internal const int Sitemap = 3;
+		internal const int Parasha = 4;
+		internal const int ParashaList = 5;
+		internal const int Hebrew = 6;
+		internal const int ScrollSpy = 7;
 		internal const int HealthCheckTableRowCount = 28;
 		/*
 		internal const int Donate = 4;
@@ -56,6 +56,7 @@ public abstract class Nav : SmartEnum<Nav>
 
 	#region Declared Public Instances
 	public static readonly Nav Home = new HomeSE();
+	public static readonly Nav Bible = new BibleSE();
 	public static readonly Nav Sitemap = new SitemapSE();
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Parasha = new ParashaSE();
@@ -129,21 +130,26 @@ public abstract class Nav : SmartEnum<Nav>
 	{
 		public HomeSE() : base($"{nameof(Id.Home)}", Id.Home) { }
 		public override string Index => "/";
-		public override string Title => "Bible"; // Book & Chapter
-		public override string Icon => "fa fa-book";
-		public override string HomeTitleSuffix => " mispar h4557";
-		public override string HomeFloatRightHebrew => "מִסְפָּר";
-		public override int Sort => Id.Home;
-
-
-		/*
-		public override string Title => "Home";
+		public override string Title => "Home"; // Book & Chapter
 		public override string Icon => "fas fa-home";
 		public override string HomeTitleSuffix => " bayit H1004";
 		public override string HomeFloatRightHebrew => "בַּיִת";
-		*/
-
+		public override int Sort => Id.Home;
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+	private sealed class BibleSE : Nav
+	{
+		public BibleSE() : base($"{nameof(Id.Bible)}", Id.Bible) { }
+		public override string Index => $"/Bible";
+		//public override string Index => $"/{BibleConstants.BaseUrl}/{BibleConstants.DefaultRouteParameter}";
+		public override string Title => "Book Chapter";
+		public override string Icon => "fa fa-book";
+		public override int Sort => Id.Bible;
+		public override string HomeTitleSuffix => " mispar h4557";
+		public override string HomeFloatRightHebrew => "מִסְפָּר";
+		public override PageListType PageListType => PageListType.SitemapPage;
 		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
 		public override bool Disabled => false;
 	}
@@ -570,25 +576,4 @@ public abstract class Nav : SmartEnum<Nav>
 	}
 */
 	#endregion
-
-	/*
-	internal const int BookChapter = 2;
-	public static readonly Nav BookChapter = new BookChapterSE();
-
-
-	private sealed class BookChapterSE : Nav
-	{
-		public BookChapterSE() : base($"{nameof(Id.BookChapter)}", Id.BookChapter) { }
-		public override string Index => $"/{BookChapterConstants.BaseUrl}/{BookChapterConstants.DefaultRouteParameter}";
-		public override string Title => "Book Chapter";
-		public override string Icon => "fa fa-book";
-		public override int Sort => Id.BookChapter;
-		public override string HomeTitleSuffix => " mispar h4557";
-		public override string HomeFloatRightHebrew => "מִסְפָּר";
-		public override PageListType PageListType => PageListType.SitemapPage ;
-		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
-		public override bool Disabled => false;
-	}
-	 
-	 */
 }

@@ -1,0 +1,279 @@
+﻿@page "/bible/{Abrv}/{Chapter:int}/{Verse:int=1}/{ScriptureId:int=0}/"
+@page "/bible"
+
+@using PWA.Data
+
+@using PWA.Layout
+@using PWA.Features.Bible.Toolbar
+@using PWA.Features.Bible.UserSettingsEditor
+@using BookChapterConstants = PWA.Features.Bible.Constants
+@using NumberPad = PWA.Features.Bible.Toolbar.NumberPad
+@using PWA.Features.Bible.Toolbar.NumberPad
+@using PWA.Components.Toolbar
+@using PWA.Enums
+@using HomeHelper = PWA.Features.Bible.Helper
+
+@inject ILogger<Index>? Logger
+@inject NavigationManager NavigationManager
+@inject IToastService? Toast
+
+<header>
+	<NavSkeleton>
+		
+		<Sitemap><SitemapButton /></Sitemap>
+
+		<JustifyStart>
+			<div class="@MediaQuery.Xs.DivClass">
+				<HistoryDropdown BtnSize="btn-sm">
+					<Recent>
+						<RecentListPicker OnBCVSelected="ReturnedBCV" />
+					</Recent>
+					<Parashot>
+						<ParashotPicker OnBCVSelected="ReturnedBCV" />
+					</Parashot>
+				</HistoryDropdown>
+
+			</div>
+
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				
+				<HistoryDropdown>
+					<Recent>
+						<RecentListPicker OnBCVSelected="ReturnedBCV" />
+					</Recent>
+					<Parashot>
+						<ParashotPicker OnBCVSelected="ReturnedBCV" />
+					</Parashot>
+				</HistoryDropdown>
+
+			</div>
+
+
+		</JustifyStart>
+
+		<PrevButtonDiv>
+			@if (CurrentBookAndChapter is not null)
+			{
+				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
+															IsPrevious=true
+															OnBookAndChapterSelected="ReturnedBookAndChapter" />
+			}
+		</PrevButtonDiv>
+
+		<PickerDiv>
+			<div class="@MediaQuery.Xs.DivClass">
+				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="true" />
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="false" />
+			</div>
+		</PickerDiv>
+
+		<NextButtonDiv>
+			@if (CurrentBookAndChapter is not null)
+			{
+				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
+															IsPrevious=false
+															OnBookAndChapterSelected="ReturnedBookAndChapter" />
+			}
+		</NextButtonDiv>
+
+		<JustifyEnd>
+			<div class="@MediaQuery.Xs.DivClass">
+				<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemId" />
+			</div>
+			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
+			</div>
+		</JustifyEnd>
+
+	</NavSkeleton>
+</header>
+
+	
+@if (CurrentAbrvChapterVerse is not null && CurrentBookAndChapter is not null && UserSettings is not null)
+{
+	<section class="container-fluid px-1 px-sm-2 px-md-3">
+		<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
+									 UserSettings="UserSettings"
+									 BookAndChapter="CurrentBookAndChapter" />
+	</section>
+}
+
+<ModalSkeleton ShowMenuItem="CurrentModalToShow">
+	<InstructionsModal>
+		<PageInstructions OnClose="ReturnedCloseEvent" />
+	</InstructionsModal>
+	<UserConfigurationModal>
+		<EditModal OnUserSettingsSelected="ReturnUserSettingsDTO" OnClose="ReturnedCloseEvent" />
+	</UserConfigurationModal>
+</ModalSkeleton>
+
+<ScrollToTop />
+
+@code {
+
+	protected string PageTitle = string.Empty;
+
+	// Route parameters
+	[Parameter, EditorRequired] public string Abrv { get; set; } = string.Empty;
+	[Parameter, EditorRequired] public int Chapter { get; set; }
+	[Parameter] public int Verse { get; set; } = 1; // ToDo:
+	[Parameter] public int ScriptureId { get; set; }
+
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	public BookAndChapter? CurrentBookAndChapter { get; set; }     // parameter for ReportWrapper
+	public AbrvChapterVerse? CurrentAbrvChapterVerse { get; set; } // parameter for ReportWrapper
+	protected Enums.UserSettingsDTO? UserSettings { get; set; }
+	public BookChapterVerseRecord? CurrentBCV { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		//need to call here before OnParametersSet so that _currentPermutations can be used
+		await State!.AppState!.BookChapterState!.Initialize(); 
+	}
+
+	protected override void OnParametersSet()
+	{
+		Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
+		try
+		{
+			Enums.Permutation _currentPermutations = (Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+			UserSettings = new Enums.UserSettingsDTO(
+				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.StandaloneAlephTavDetailOn),
+				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.ParashaDividerDetailOn),
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn),
+				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(Enums.Permutation.VerseScrollButtonsOn));
+			
+			if (Abrv == Constants.Abrv.Value || string.IsNullOrEmpty(Abrv))
+			{
+				Logger!.LogDebug("{Method}, {Message}", nameof(OnParametersSet), "Abrv is default or empty");
+				AbrvChapterVerse? rec = State!.AppState!.BookChapterState!.GetACV();
+				NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+			}
+			else
+			{
+				Logger!.LogDebug("{Method}, CallingMethod: {CallingMethod}", nameof(OnParametersSet), nameof(GetAbrvChapterVerseViaRoutes));
+				var (abrvChapterVerse, bibleBook) = GetAbrvChapterVerseViaRoutes(Abrv, Chapter, Verse, ScriptureId);
+				if (abrvChapterVerse is not null && bibleBook is not null)
+				{
+					CurrentAbrvChapterVerse = abrvChapterVerse;
+					CurrentBookAndChapter = bibleBook;
+					CurrentBCV = new BookChapterVerseRecord(bibleBook.BibleBook, Chapter, Verse);
+					//Logger!.LogDebug("{Method}, CurrentAbrvChapterVerse: {CurrentAbrvChapterVerse}", nameof(OnParametersSet), CurrentAbrvChapterVerse);
+				}
+				else
+				{
+					Toast!.ShowWarning($"abrvChapterVerse and/or bibleBook is null (◡︵◡)");
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnParametersSet)}");
+		}
+	}
+
+	private (AbrvChapterVerse?, BookAndChapter?) GetAbrvChapterVerseViaRoutes(string abrv, int chapter, int verse, int scriptureId)
+	{
+		Logger!.LogDebug("{Method}, abrv/c/v/SID: {abrv}/{chapter}/{verse}/{scriptureId}"
+		, nameof(GetAbrvChapterVerseViaRoutes), abrv, chapter, verse, scriptureId);
+
+		if (string.IsNullOrEmpty(abrv))
+		{
+			//throw new ArgumentException("`abrv` cannot be null or empty.", nameof(abrv));
+		}
+
+		var (errMsg, _value) = RCL.Enums.BibleBookDictionary.GetId(abrv);
+
+		if (String.IsNullOrEmpty(errMsg))
+		{
+			RCL.Enums.BibleBook? bibleBook;
+			if (RCL.Enums.BibleBook.TryFromValue(_value, out bibleBook))
+			{
+				AbrvChapterVerse acv = new AbrvChapterVerse(
+					bibleBook!.Abrv, chapter, verse, true, scriptureId, HomeHelper.LastVerseCount(bibleBook, chapter)	);
+				return (acv, new BookAndChapter(bibleBook, chapter));
+			}
+		}
+		else
+		{
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(GetAbrvChapterVerseViaRoutes), errMsg);
+			Toast!.ShowWarning(errMsg);
+			//ToDo: change the url in the browser to the default book
+			return (AbrvChapterVerse.Default, new BookAndChapter(RCL.Enums.BibleBook.Genesis, chapter));
+		}
+		return (null, null);
+	}
+
+	private void ReturnUserSettingsDTO(Enums.UserSettingsDTO userSettingsDTO)
+	{
+		//Logger!.LogDebug("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
+		UserSettings = userSettingsDTO;
+	}
+
+	// Called inside <NavSkeleton> by <PreviousOrNextButton>
+	private async Task ReturnedBookAndChapter(BookAndChapter bookAndChapter)
+	{
+		AbrvChapterVerse rec = new AbrvChapterVerse(
+				bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0, HomeHelper.LastVerseCount(bookAndChapter.BibleBook, bookAndChapter.Chapter));
+		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
+		
+		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+
+		//
+		await State!.AppState!.BookChapterState!.UpdateACV(rec);
+		CurrentBookAndChapter = bookAndChapter!;
+		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
+		PageTitle = RCL.Enums.BibleBookFormat.BC(bookAndChapter);
+	}
+
+	// Called inside <NavSkeleton>, by <RecentListPicker>, <ParashotPicker> and <Picker>
+	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
+	{
+		AbrvChapterVerse rec = new AbrvChapterVerse(
+			bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0, HomeHelper.LastVerseCount(bcv.BibleBook, bcv.Chapter));
+		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
+
+		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+		
+		await State!.AppState!.BookChapterState!.UpdateACV(rec);
+		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
+		PageTitle = RCL.Enums.BibleBookFormat.BCV(bcv);
+	}
+
+	#region MenuTemplate and ModalSkeleton
+
+	private List<Dictionary<int, string?>> menuItems = Enums.MenuItem.List
+			.Select(item => new Dictionary<int, string?> { { item.Value, item.Title } })
+			.ToList();
+
+	protected Enums.MenuItem? CurrentModalToShow { get; set; }
+
+	private void ReturnedMenuItemId(int id)
+	{
+		//Logger!.LogDebug("{Method}, id: {Id}", nameof(ReturnedMenuItemId), id);
+		if (Enums.MenuItem.TryFromValue(id, out Enums.MenuItem? menuItem))
+		{
+			CurrentModalToShow = menuItem;
+		}
+		else
+		{
+			Logger!.LogWarning("{Method}, Invalid MenuItem: {Id}", nameof(ReturnedMenuItemId), id);
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(ReturnedMenuItemId)} {id}");
+		}
+	}
+
+	private void ReturnedCloseEvent()
+	{
+		CurrentModalToShow = null;
+		//Logger!.LogDebug("{Method}, CurrentModalToShow set to null", nameof(ReturnedCloseEvent));
+	}
+
+	#endregion
+
+	// Ignore Spelling: bc, rec
+
+}
