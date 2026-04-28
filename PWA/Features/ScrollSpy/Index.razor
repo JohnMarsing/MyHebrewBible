@@ -9,7 +9,7 @@
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 @using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
 
-@inject PWA.Features.Home.Data.IRepository? db;
+@inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
 @inject IJSRuntime? JSRuntime
 @inject IToastService? Toast
@@ -60,7 +60,7 @@
 		return new BookAndChapter(RCL.Enums.BibleBook.FromValue(bookId), chapter);
 	}
 
-	protected Home.AbrvChapterVerse CurrentAbrvChapterVerse = Home.AbrvChapterVerse.Default;
+	protected Bible.AbrvChapterVerse CurrentAbrvChapterVerse = Bible.AbrvChapterVerse.Default;
 	protected List<ReportModel>? Verses { get; set; }
 
 	protected bool TurnSpinnerOff = false;
