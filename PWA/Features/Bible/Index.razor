@@ -131,6 +131,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		//need to call here before OnParametersSet so that _currentPermutations can be used
+		//Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
 		await State!.AppState!.BookChapterState!.Initialize(); 
 	}
 
@@ -150,7 +151,7 @@
 			{
 				Logger!.LogDebug("{Method}, {Message}", nameof(OnParametersSet), "Abrv is default or empty");
 				AbrvChapterVerse? rec = State!.AppState!.BookChapterState!.GetACV();
-				NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+				NavigationManager!.NavigateTo(rec.NavigateToUrl());
 			}
 			else
 			{
@@ -221,7 +222,7 @@
 				bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0, HomeHelper.LastVerseCount(bookAndChapter.BibleBook, bookAndChapter.Chapter));
 		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
 		
-		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+		NavigationManager!.NavigateTo(rec.NavigateToUrl());
 
 		//
 		await State!.AppState!.BookChapterState!.UpdateACV(rec);
@@ -237,7 +238,7 @@
 			bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0, HomeHelper.LastVerseCount(bcv.BibleBook, bcv.Chapter));
 		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
 
-		NavigationManager!.NavigateTo($"/{rec.Abrv}/{rec.Chapter}/{rec.Verse}/{rec.ScriptureId}");
+		NavigationManager!.NavigateTo(rec.NavigateToUrl());
 		
 		await State!.AppState!.BookChapterState!.UpdateACV(rec);
 		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);

@@ -144,7 +144,7 @@ public abstract class Nav : SmartEnum<Nav>
 		public BibleSE() : base($"{nameof(Id.Bible)}", Id.Bible) { }
 		public override string Index => $"/Bible";
 		//public override string Index => $"/{BibleConstants.BaseUrl}/{BibleConstants.DefaultRouteParameter}";
-		public override string Title => "Book Chapter";
+		public override string Title => "Bible";
 		public override string Icon => "fa fa-book";
 		public override int Sort => Id.Bible;
 		public override string HomeTitleSuffix => " mispar h4557";
