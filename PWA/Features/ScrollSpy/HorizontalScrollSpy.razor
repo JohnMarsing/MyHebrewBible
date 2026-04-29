@@ -1,7 +1,7 @@
-@inject ILogger<VerticalScrollSpy> Logger
+﻿@inject ILogger<HorizontalScrollSpy> Logger
 
-<nav class="compact-verse-nav" id="verse-nav-vertical">
-	<div class="list-group list-group-flush">
+<nav class="verse-nav" id="verse-nav">
+	<div class="list-group list-group-horizontal">
 		@foreach (var v in Verses)
 		{
 			<button @onclick="() => ScrollToVerse(v.ScriptureId)" 
@@ -23,7 +23,7 @@
 	{
 		try
 		{
-			await using var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/ScrollSpy/VerticalScrollSpy.razor.js");
+			await using var module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/ScrollSpy/HorizontalScrollSpy.razor.js");
 			await module.InvokeVoidAsync("scrollToElement", $"verse-{scriptureId}");
 			await OnSetFocus.InvokeAsync(scriptureId);
 		}

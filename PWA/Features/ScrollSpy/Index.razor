@@ -3,7 +3,6 @@
 @using Dapper;
 @using PWA.Data;
 @using PWA.Components.Report
-@using ReportEnums = PWA.Components.Report.Enums
 @using PWA.Data.Endpoints
 
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
@@ -36,18 +35,26 @@
 			</div>
 		}
 	</section>
+	
 
-	<section class="px-0">
-
-		<nav class="navbar sticky-bottom bg-body-tertiary">
+		<nav class="navbar navbar-expand sticky-bottom bg-body-tertiary">
 			<div class="container-fluid">
+				<!--
+			<HorizontalScrollSpy Verses="Verses!.Select(v => (v.Verse, v.ID)).ToList()"
+													 SelectedVerseId="CurrentScrollToScriptureId"
+													 OnSetFocus="ReturnedSetFocus" />
+			-->
 				<VerticalScrollSpy Verses="Verses!.Select(v => (v.Verse, v.ID)).ToList()"
 													 SelectedVerseId="CurrentScrollToScriptureId"
 													 OnSetFocus="ReturnedSetFocus" />
 			</div>
+
 		</nav>
-	</section>
-	
+
+	<footer class="sticky-bottom">
+		<StickyBottomFooter />
+	</footer>
+
 </LoadingComponent>
 
 
@@ -218,4 +225,5 @@
 		}
 	}
 }
+
 

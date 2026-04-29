@@ -3,8 +3,6 @@
 @inject ILogger<TableRowCntTable>? Logger
 @inject IToastService? Toast
 
-<PageHeader PageEnum="Nav.HealthCheckTableRowCount" />
-
 <LoadingComponent IsLoading="tableRowCnts==null" TurnSpinnerOff="TurnSpinnerOff">
 
 	<TableTemplate Items="tableRowCnts!.OrderBy(o => o.Name).ToList()" HeaderCSS="table table-bordered border-warning table-sm table-hover">
