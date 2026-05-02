@@ -24,7 +24,7 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int Parasha = 4;
 		internal const int ParashaList = 5;
 		internal const int Hebrew = 6;
-		internal const int ScrollSpy = 7;
+		internal const int BibleBeta = 7;
 		internal const int HealthCheckTableRowCount = 28;
 		/*
 		internal const int Donate = 4;
@@ -61,7 +61,7 @@ public abstract class Nav : SmartEnum<Nav>
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Parasha = new ParashaSE();
 	public static readonly Nav Hebrew = new HebrewSE();
-	public static readonly Nav ScrollSpy = new ScrollSpySE();
+	public static readonly Nav BibleBeta = new BibleBetaSE();
 	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
 	/*
 		public static readonly Nav Donate = new DonateSE();
@@ -213,13 +213,13 @@ public abstract class Nav : SmartEnum<Nav>
 	}
 
 
-	private sealed class ScrollSpySE : Nav
+	private sealed class BibleBetaSE : Nav
 	{
-		public ScrollSpySE() : base($"{nameof(Id.ScrollSpy)}", Id.ScrollSpy) { }
-		public override string Index => "/ScrollSpy";
-		public override string Title => "Scroll Spy POC";
+		public BibleBetaSE() : base($"{nameof(Id.BibleBeta)}", Id.BibleBeta) { }
+		public override string Index => "/BibleBeta";
+		public override string Title => "Bible Beta";
 		public override string Icon => "fas fa-scroll";
-		public override int Sort => Id.ScrollSpy;
+		public override int Sort => Id.BibleBeta;
 		public override string HomeTitleSuffix => "";
 		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.SitemapPage | PageListType.TierOne;

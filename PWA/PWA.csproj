@@ -38,6 +38,8 @@
 
   <ItemGroup>
     <Folder Include="Features\Lists\MitzvahPage\" />
+    <Folder Include="Features\ScrollSpy\ComandComponents - Copy\" />
+    <Folder Include="Features\ScrollSpy\ComandComponents\" />
   </ItemGroup>
 
 </Project>

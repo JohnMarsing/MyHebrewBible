@@ -1,4 +1,4 @@
-﻿@page "/ScrollSpy"
+﻿@page "/BibleBeta"
 
 @using Dapper;
 @using PWA.Data;
@@ -7,6 +7,8 @@
 
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 @using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
+@using PWA.Features.ScrollSpy.ActionComponents.Find
+
 
 @inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
@@ -20,45 +22,123 @@
 	<Buttons />
 </header>
 
-
-<LoadingComponent IsLoading="Verses == null" TurnSpinnerOff="TurnSpinnerOff">
+<LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
 
 	<section class="px-1">
 
-		@foreach (var item in Verses!.OrderBy(o => o.ID))
+		@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
 		{
 			<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="" />
 			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDownSS">
 				<ParagraphSS BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 										 Verse="item"
-										 ScrollToScriptureId="CurrentScrollToScriptureId" />
+										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 HighlightText="@_highlightText" />
 			</div>
 		}
 	</section>
-	
-
-		<nav class="navbar navbar-expand sticky-bottom bg-body-tertiary">
-			<div class="container-fluid">
-				<!--
-			<HorizontalScrollSpy Verses="Verses!.Select(v => (v.Verse, v.ID)).ToList()"
-													 SelectedVerseId="CurrentScrollToScriptureId"
-													 OnSetFocus="ReturnedSetFocus" />
-			-->
-				<VerticalScrollSpy Verses="Verses!.Select(v => (v.Verse, v.ID)).ToList()"
-													 SelectedVerseId="CurrentScrollToScriptureId"
-													 OnSetFocus="ReturnedSetFocus" />
-			</div>
-
-		</nav>
 
 	<footer class="sticky-bottom">
-		<StickyBottomFooter />
+		<StickyFooter 
+			Title="@BookAndChapter?.Title" TitleSuffix="@TitleSuffix" 
+									OnActionSelected="ReturnedAction" OnClearClicked="ReturnedClearAction" />
 	</footer>
 
 </LoadingComponent>
 
+@if (currentAction is not null)
+{
+	@if (currentAction == Enums.Action.Toc)
+	{
+		@* <p>ToDo: Show Table of Contents</p> *@
+	}
+	else if (currentAction == Enums.Action.Find)
+	{
+		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+	}
+
+}
+
 
 @code {
+
+	#region Filter
+	
+
+	/*
+	ToDo: Consider a new feature; what if you persisted the last action
+	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
+		- if you could persist a list, then you could show a dropdown of recent searches/actions. next to the Find button not unlike the B/C History
+ */
+	private string? TitleSuffix;  
+	private string? _highlightText;
+
+	private void ReturnedFilterSelected(FilterRecord filter)
+	{
+		TitleSuffix = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
+
+		_highlightText = filter.SearchText;
+		ApplyFilter(filter);
+
+		currentAction = null;
+	}
+
+	private void ApplyFilter(FilterRecord filter)
+	{
+		var hasText = !string.IsNullOrWhiteSpace(filter.SearchText);
+
+		if (!hasText)
+		{
+			FilteredVerses = GetBookChapterVerses();
+			return;
+		}
+
+		FilteredVerses = GetBookChapterVerses()
+			.Where(v => v.KJV?.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase) ?? false)
+			.ToList();
+	}
+		
+	private void CloseModal()
+	{
+		currentAction = null;
+	}
+
+	private void ReturnedClearAction()
+	{
+		currentAction = null;
+		_highlightText = null;
+		TitleSuffix = null;
+		FilteredVerses = GetBookChapterVerses();
+	}
+	#endregion
+
+
+#region Non Filter
+	private void ReturnedOuline(int id)
+	{
+		//Toast!.ShowInfo($"Outline Selected: {id}");
+	}
+
+	private void ReturnedVerse(int id)
+	{
+		//Toast!.ShowInfo($"Verse Selected: {id}");
+	}
+
+	private void ReturnedBookChapterVerse(BookChapterVerseRecord bcv)
+	{
+		//Toast!.ShowInfo($"BookChapterVerse Selected: {bcv}");
+	}
+
+	protected Enums.Action? currentAction = null;
+	private void ReturnedAction(Enums.Action action)
+	{
+		currentAction = action;
+		//Toast!.ShowSuccess($"currentAction: {currentAction}, inside {nameof(ReturnedAction)}");
+	}
+
+#endregion
+
+
 	protected int CurrentScrollToScriptureId;
 	protected int CurrentVerse;
 
@@ -68,11 +148,12 @@
 	}
 
 	protected Bible.AbrvChapterVerse CurrentAbrvChapterVerse = Bible.AbrvChapterVerse.Default;
-	protected List<ReportModel>? Verses { get; set; }
 
 	protected bool TurnSpinnerOff = false;
 	private List<BookChapterWithAT>? verses = null;
 	private BookAndChapter? BookAndChapter { get; set; }
+
+	protected List<ReportModel>? FilteredVerses { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -81,7 +162,7 @@
 			verses = await db!.GetBookChapterWithAT(1, 1);
 			BookAndChapter = new BookAndChapter(RCL.Enums.BibleBook.FromValue(1), 1);
 			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
-			Verses = GetBookChapterVerses();
+			FilteredVerses = GetBookChapterVerses();
 		}
 		catch (Exception ex)
 		{
@@ -144,9 +225,9 @@
 		//Toast!.ShowWarning($"{nameof(HandleKeyDown)} called");
 		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
 		if (!valid) { return; }
-		
+
 		var (errMsg, verse, _scriptureId) =
-			DirHelper.GetVerseAndScriptureIdSS(dirEnums!, CurrentScrollToScriptureId, Verses!);
+			DirHelper.GetVerseAndScriptureIdSS(dirEnums!, CurrentScrollToScriptureId, FilteredVerses!);
 		// DirHelper.GetVerseAndScriptureId
 
 		if (!String.IsNullOrEmpty(errMsg))
