@@ -11,7 +11,7 @@
 		{
 			<text>&nbsp;</text>
 		}
-		@((MarkupString)@Verse.KJV!)
+		@((MarkupString)HighlightedKjv)
 	</p>
 }
 
@@ -19,7 +19,24 @@
 	[Parameter, EditorRequired] public ReportModel? Verse { get; set; }
 	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
 	[Parameter] public int ScrollToScriptureId { get; set; }
+	[Parameter] public string? HighlightText { get; set; }
 
-	string textBG => ScrollToScriptureId == Verse!.ID ? " p-1 bg-info-subtle" : ""; 
+	string textBG => ScrollToScriptureId == Verse!.ID ? " p-1 bg-info-subtle" : "";
 
+	string HighlightedKjv
+	{
+		get
+		{
+			var kjv = Verse?.KJV;
+			if (string.IsNullOrWhiteSpace(kjv) || string.IsNullOrWhiteSpace(HighlightText))
+				return kjv ?? string.Empty;
+
+			return System.Text.RegularExpressions.Regex.Replace(
+				kjv,
+				System.Text.RegularExpressions.Regex.Escape(HighlightText),
+				m => $"<mark>{m.Value.Trim()}</mark>",
+				System.Text.RegularExpressions.RegexOptions.IgnoreCase
+			);
+		}
+	}
 }
