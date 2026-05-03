@@ -23,3 +23,10 @@ public record FilterRecord(
     return new FilterRecord(vm.SearchText, strongs, vm.WhereLogicalOperator, description);
   }
 }
+
+/*
+### `From(TextOrStrongsFormVM)` 
+- is a static factory method named. 
+- This is a common naming convention in C# for static methods that create an instance of a type from something else. 
+- Called by PWA\Features\ScrollSpy\ActionComponents\Find\TextOrStrongsForm.razor
+*/

@@ -1,6 +1,6 @@
 {
-  "name": "PWA",
-  "short_name": "PWA",
+  "name": "My Hebrew Bible",
+  "short_name": "My Hebrew Bible",
   "id": "./",
   "start_url": "./",
   "display": "standalone",

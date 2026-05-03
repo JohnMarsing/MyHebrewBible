@@ -12,6 +12,7 @@ using PWA.State;
 using Serilog;
 using Serilog.Core;
 using PWA.Features.Bible.Data;
+using PWA.Features.ScrollSpy.Data;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -27,7 +28,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 // HttpClient is already registered by default in Blazor WASM
 
-builder.Services.AddHomeData(); 
+builder.Services.AddBibleData(); 
+builder.Services.AddScrollSpyData(); 
 builder.Services.AddParashaData(); 
 builder.Services.AddDatabaseHealthChecks(); 
 builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how

@@ -1,3 +1,4 @@
+
 export function setFocusToElement(elementId) {
   var element = document.getElementById(elementId);
   if (element) {
@@ -7,4 +8,11 @@ export function setFocusToElement(elementId) {
   //else {
   //  console.log(`Element with ID '${elementId}' was NOT found.`);
   //}
+}
+
+export function scrollToElement(id) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
 }
