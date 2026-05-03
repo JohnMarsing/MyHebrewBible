@@ -15,13 +15,14 @@ public interface IRepository
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
 }
 
-#region DI
 public class Repository : BaseRepositoryAsync, IRepository
 {
+#region DI
 	public Repository(SqliteDataService dataService, ILogger<Repository> logger)
 		: base(dataService, logger)
 	{
 	}
+#endregion
 
 	#region BibleVerse
 	public async Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter)
@@ -101,4 +102,4 @@ public class Repository : BaseRepositoryAsync, IRepository
 	}
 	#endregion
 }
-#endregion
+

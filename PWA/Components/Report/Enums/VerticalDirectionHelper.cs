@@ -67,7 +67,7 @@ public class VerticalDirectionHelper
 
 
 	public static (string, int, int) GetVerseAndScriptureIdSS(
-		VerticalDirection dir, int currentScriptureId, List<PWA.Features.ScrollSpy.ReportModel> verses)
+		VerticalDirection dir, int currentScriptureId, List<Features.ScrollSpy.Data.ReportModel> verses)
 	{
 
 		int i = verses.FindIndex(v => v.ID == currentScriptureId);

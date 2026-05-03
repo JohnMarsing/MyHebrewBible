@@ -1,0 +1,56 @@
+@using PWA.Features.ScrollSpy
+@using PWA.Features.ScrollSpy.Data
+@using RCL.Components
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="subtitleModalLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h5 class="modal-title text-center" id="subtitleModalLabel">Table of Contents</h5>
+				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
+			</div>
+
+			<div class="modal-body">
+				<TableTemplate Items="@Data"
+								HeaderCSS="table table-sm table-hover table-bordered"
+								TheadCSS="table-dark">
+					<TableHeader>
+						<th>Verse</th>
+						<th>Outline</th>
+					</TableHeader>
+					<RowTemplate>
+						<td class="text-center">
+							<button class="btn btn-link p-0" title="Go to verse @context.Verse (@context.ID)"
+								@onclick="() => OnSelected.InvokeAsync(new ReturnedRecord(context.Verse, context.ID))">
+								@context.Verse
+							</button>
+							@if (context.VerseOffset != "NULL")
+							{
+								<sup><span class="fst-italic fw-light">@context.VerseOffset</span></sup>
+							}
+						</td>
+						<td class="fst-italic">@context.Description</td>
+					</RowTemplate>
+				</TableTemplate>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-sm btn-secondary" @onclick="HandleCancel">Close</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+@code {
+	[Parameter, EditorRequired] public List<TableOfContentRecord>? Data { get; set; }
+	[Parameter, EditorRequired] public EventCallback<ReturnedRecord> OnSelected { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+	private async Task HandleCancel()
+	{
+		await OnCancel.InvokeAsync();
+	}
+}

@@ -1,22 +1,21 @@
 ﻿@page "/BibleBeta"
 
 @using Dapper;
-@using PWA.Data;
-@using PWA.Components.Report
-@using PWA.Data.Endpoints
+@using PWA.Features.ScrollSpy.Data
 
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 @using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
 @using PWA.Features.ScrollSpy.ActionComponents.Find
+@using PWA.Features.ScrollSpy.ActionComponents.ToC
 
 
-@inject PWA.Features.Bible.Data.IRepository? db;
+@inject PWA.Features.ScrollSpy.Data.IRepository? db;
 @inject ILogger<Index>? Logger
-@inject IJSRuntime? JSRuntime
 @inject IToastService? Toast
 
-@implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
 
 <header>
 	<Buttons />
@@ -28,8 +27,8 @@
 
 		@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
 		{
-			<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="" />
-			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDownSS">
+			<TitleSubtitleSS Title="@item.DescH" Subtitle="@item.DescD" BCV="" />
+			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
 				<ParagraphSS BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 										 Verse="item"
 										 ScrollToScriptureId="CurrentScrollToScriptureId"
@@ -39,8 +38,7 @@
 	</section>
 
 	<footer class="sticky-bottom">
-		<StickyFooter 
-			Title="@BookAndChapter?.Title" TitleSuffix="@TitleSuffix" 
+		<StickyFooter Title="@BookAndChapter?.Title" TitleSuffix="@TitleSuffix"
 									OnActionSelected="ReturnedAction" OnClearClicked="ReturnedClearAction" />
 	</footer>
 
@@ -50,9 +48,13 @@
 {
 	@if (currentAction == Enums.Action.Toc)
 	{
-		@* <p>ToDo: Show Table of Contents</p> *@
+		<SubtitleModal Data="FilteredVerses?.ToTableOfContentMapping().ToList()" OnSelected="ReturnedTOC" OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.Find)
+	{
+		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+	}
+	else if (currentAction == Enums.Action.ListVerses)
 	{
 		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
 	}
@@ -62,15 +64,23 @@
 
 @code {
 
+	private async Task ReturnedTOC(ReturnedRecord rec)
+	{
+		CurrentScrollToScriptureId = rec.ID;
+		CurrentVerse = rec.Verse;
+		await SetFocusToElement();
+		currentAction = null;
+	}
+
 	#region Filter
-	
+
 
 	/*
 	ToDo: Consider a new feature; what if you persisted the last action
 	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
 		- if you could persist a list, then you could show a dropdown of recent searches/actions. next to the Find button not unlike the B/C History
  */
-	private string? TitleSuffix;  
+	private string? TitleSuffix;
 	private string? _highlightText;
 
 	private void ReturnedFilterSelected(FilterRecord filter)
@@ -97,7 +107,7 @@
 			.Where(v => v.KJV?.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase) ?? false)
 			.ToList();
 	}
-		
+
 	private void CloseModal()
 	{
 		currentAction = null;
@@ -113,7 +123,7 @@
 	#endregion
 
 
-#region Non Filter
+	#region Non Filter
 	private void ReturnedOuline(int id)
 	{
 		//Toast!.ShowInfo($"Outline Selected: {id}");
@@ -128,15 +138,49 @@
 	{
 		//Toast!.ShowInfo($"BookChapterVerse Selected: {bcv}");
 	}
+	#endregion
 
 	protected Enums.Action? currentAction = null;
-	private void ReturnedAction(Enums.Action action)
+	private async Task ReturnedAction(Enums.Action action)
 	{
 		currentAction = action;
-		//Toast!.ShowSuccess($"currentAction: {currentAction}, inside {nameof(ReturnedAction)}");
+
+		if (currentAction == Enums.Action.PrevVerse || currentAction == Enums.Action.NextVerse)
+		{
+			SetScriptureIdAndVerse(currentAction == Enums.Action.PrevVerse ? DirEnums.Up : DirEnums.Down);
+			await SetFocusToElement();
+		}
+		/*
+		else if(currentAction == Enums.Action.ListVerses)
+		{
+			Toast!.ShowSuccess($"currentAction: {currentAction}, inside {nameof(ReturnedAction)}");
+			}
+		*/
 	}
 
-#endregion
+	private void SetScriptureIdAndVerse(DirEnums dirEnums)
+	{
+		var (errMsg, verse, _scriptureId) =
+			DirHelper.GetVerseAndScriptureIdSS(dirEnums, CurrentScrollToScriptureId, FilteredVerses!);
+
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Toast!.ShowWarning(errMsg);
+			return;
+		}
+		else
+		{
+			CurrentScrollToScriptureId = _scriptureId;
+			CurrentVerse = verse;
+		}
+
+		if (CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)
+		{
+			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
+				with
+			{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
+		}
+	}
 
 
 	protected int CurrentScrollToScriptureId;
@@ -178,89 +222,36 @@
 	{
 		return verses!
 				.OrderBy(o => o.ID)
-				.Select(Home => MapToReportModel(Home))
+				.Select(bc => bc.ToReportModel(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter))
 				.ToList();
 	}
 
-	private ReportModel MapToReportModel(BookChapterWithAT bc)
+	private async Task HandleKeyDown(KeyboardEventArgs e)
 	{
-		return new ReportModel
-		{
-			ID = bc.ID,
-			BCV = bc.BCV,
-			Verse = bc.Verse,
-			VerseOffset = bc.VerseOffset,
-			KJV = bc.KJV,
-			DescH = bc.DescH,
-			DescD = bc.DescD,
-			BookID = BookAndChapter!.BibleBook!.Value,
-			Chapter = BookAndChapter.Chapter,
-
-			WordPartList = bc.WordPartList?
-			.Select(wp => new WordPart
-			{
-				Id = wp.Id,
-				BCV = wp.BCV,
-				BookID = wp.BookID,
-				Chapter = wp.Chapter,
-				Verse = wp.Verse,
-				ScriptureID = wp.ScriptureID,
-				WordCount = wp.WordCount,
-				SegmentCount = wp.SegmentCount,
-				WordEnum = wp.WordEnum,
-				Hebrew1 = wp.Hebrew1,
-				Hebrew2 = wp.Hebrew2,
-				Hebrew3 = wp.Hebrew3,
-				KjvWord = wp.KjvWord,
-				Strongs = wp.Strongs,
-				Transliteration = wp.Transliteration,
-				FinalEnum = wp.FinalEnum
-			})
-			.ToList() ?? new()
-		};
-	}
-
-	private async Task HandleKeyDownSS(KeyboardEventArgs e)
-	{
-		//Toast!.ShowWarning($"{nameof(HandleKeyDown)} called");
+		//Toast!.ShowWarning($"{nameof(HandleKeyDownSS)} called");
 		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
 		if (!valid) { return; }
 
-		var (errMsg, verse, _scriptureId) =
-			DirHelper.GetVerseAndScriptureIdSS(dirEnums!, CurrentScrollToScriptureId, FilteredVerses!);
-		// DirHelper.GetVerseAndScriptureId
+		SetScriptureIdAndVerse(dirEnums!);
+		await SetFocusToElement(); //Do I Need this???
+	}
 
-		if (!String.IsNullOrEmpty(errMsg))
-		{
-			Toast!.ShowWarning(errMsg);
-			return;
-		}
-		else
-		{
-			CurrentScrollToScriptureId = _scriptureId;
-			CurrentVerse = verse;
-		}
-
-		//CalledBy == Enums.CalledBy.BookChapter &&
-		if (CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)
-		{
-			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
-				with
-			{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
-			//await State!.AppState!.BookChapterState!.UpdateACV(CurrentAbrvChapterVerse!);
-		}
-
-		//Do I Need this???
+	private async Task SetFocusToElement()
+	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+			await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 		}
-
-
 	}
+
+
+	#region JavaScript Setup
 
 	private IJSObjectReference? _module;
 	protected bool _firstRendered = false;
+	
+	const string JSFunctionScrollTo = "scrollToElement";
+	const string JSFunctionSetFocus = "setFocusToElement";
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -271,7 +262,8 @@
 				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/ScrollSpy/Index.razor.js");
 				if (_module != null)
 				{
-					await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JSFunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 				}
 			}
 			catch (Exception ex)
@@ -280,13 +272,8 @@
 			}
 			_firstRendered = true;
 		}
-
-		if (_module is not null)
-		{
-			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
-		}
-
 	}
+	#endregion
 
 	private async Task ReturnedSetFocus(int scriptureId)
 	{
@@ -306,5 +293,3 @@
 		}
 	}
 }
-
-

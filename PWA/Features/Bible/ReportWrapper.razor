@@ -7,8 +7,6 @@
 
 @inject Data.IRepository? db;
 @inject ILogger<ReportWrapper>? Logger
-@inject IJSRuntime? JSRuntime
-@* @inject IToastService? Toast *@
 
 <LoadingComponent IsLoading="verses == null || CurrentAbrvChapterVerse == null " TurnSpinnerOff="TurnSpinnerOff">
 	<Sections Verses="GetBookChapterVerses()"
