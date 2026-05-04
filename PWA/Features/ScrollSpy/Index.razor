@@ -5,6 +5,7 @@
 
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 @using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
+@using PWA.Features.ScrollSpy.ActionComponents.LookupBCV
 @using PWA.Features.ScrollSpy.ActionComponents.Find
 @using PWA.Features.ScrollSpy.ActionComponents.ToC
 
@@ -38,7 +39,7 @@
 	</section>
 
 	<footer class="sticky-bottom">
-		<StickyFooter Title="@BookAndChapter?.Title" TitleSuffix="@TitleSuffix"
+		<StickyFooter Title="@BCV?.Title" TitleSuffix="@TitleSuffix"
 									OnActionSelected="ReturnedAction" OnClearClicked="ReturnedClearAction" />
 	</footer>
 
@@ -48,7 +49,7 @@
 {
 	@if (currentAction == Enums.Action.Toc)
 	{
-		<SubtitleModal Data="FilteredVerses?.ToTableOfContentMapping().ToList()" OnSelected="ReturnedTOC" OnCancel="CloseModal" />
+		<SubtitleModal Title="@FilteredVerses?.GetTitle()" Data="FilteredVerses?.ToTableOfContentMapping().ToList()" OnSelected="ReturnedTOC" OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.Find)
 	{
@@ -57,6 +58,10 @@
 	else if (currentAction == Enums.Action.ListVerses)
 	{
 		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+	}
+	else if (currentAction == Enums.Action.BCV)
+	{
+		<BCVForm OnSelected="ReturnedBCVSelected" OnCancel="CloseModal" />
 	}
 
 }
@@ -72,13 +77,26 @@
 		currentAction = null;
 	}
 
+	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
+	{
+		BCV = bcv;
+		verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
+		FilteredVerses = GetBookChapterVerses();
+		CurrentScrollToScriptureId = bcv.ScriptureId;
+		CurrentVerse = bcv.Verse;
+
+		await SetFocusToElement();
+		currentAction = null;
+	}
+
 	#region Filter
 
 
 	/*
 	ToDo: Consider a new feature; what if you persisted the last action
 	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
-		- if you could persist a list, then you could show a dropdown of recent searches/actions. next to the Find button not unlike the B/C History
+		- if you could persist a list, then you could show a dropdown of recent searches/actions. 
+		next to the Find button not unlike the B/C History
  */
 	private string? TitleSuffix;
 	private string? _highlightText;
@@ -119,24 +137,6 @@
 		_highlightText = null;
 		TitleSuffix = null;
 		FilteredVerses = GetBookChapterVerses();
-	}
-	#endregion
-
-
-	#region Non Filter
-	private void ReturnedOuline(int id)
-	{
-		//Toast!.ShowInfo($"Outline Selected: {id}");
-	}
-
-	private void ReturnedVerse(int id)
-	{
-		//Toast!.ShowInfo($"Verse Selected: {id}");
-	}
-
-	private void ReturnedBookChapterVerse(BookChapterVerseRecord bcv)
-	{
-		//Toast!.ShowInfo($"BookChapterVerse Selected: {bcv}");
 	}
 	#endregion
 
@@ -195,7 +195,8 @@
 
 	protected bool TurnSpinnerOff = false;
 	private List<BookChapterWithAT>? verses = null;
-	private BookAndChapter? BookAndChapter { get; set; }
+
+	private BookChapterVerseRecord? BCV { get; set; }
 
 	protected List<ReportModel>? FilteredVerses { get; set; }
 
@@ -204,7 +205,7 @@
 		try
 		{
 			verses = await db!.GetBookChapterWithAT(1, 1);
-			BookAndChapter = new BookAndChapter(RCL.Enums.BibleBook.FromValue(1), 1);
+			BCV = new BookChapterVerseRecord(RCL.Enums.BibleBook.FromValue(1), 1, 1);
 			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
 			FilteredVerses = GetBookChapterVerses();
 		}
@@ -222,7 +223,7 @@
 	{
 		return verses!
 				.OrderBy(o => o.ID)
-				.Select(bc => bc.ToReportModel(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter))
+				.Select(bc => bc.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
 				.ToList();
 	}
 

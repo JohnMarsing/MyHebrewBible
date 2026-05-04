@@ -7,7 +7,7 @@
 		<div class="modal-content">
 
 			<div class="modal-header">
-				<h5 class="modal-title text-center" id="subtitleModalLabel">Table of Contents</h5>
+				<h5 class="modal-title text-center" id="subtitleModalLabel">@Title</h5>
 				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
 			</div>
 
@@ -16,7 +16,7 @@
 								HeaderCSS="table table-sm table-hover table-bordered"
 								TheadCSS="table-dark">
 					<TableHeader>
-						<th>Verse</th>
+						<th class="text-center">Verse</th>
 						<th>Outline</th>
 					</TableHeader>
 					<RowTemplate>
@@ -24,11 +24,11 @@
 							<button class="btn btn-link p-0" title="Go to verse @context.Verse (@context.ID)"
 								@onclick="() => OnSelected.InvokeAsync(new ReturnedRecord(context.Verse, context.ID))">
 								@context.Verse
+								@if (context.VerseOffset != "NULL")
+								{
+									<sup><span class="fst-italic fw-light">&nbsp;@context.VerseOffset</span></sup>
+								}
 							</button>
-							@if (context.VerseOffset != "NULL")
-							{
-								<sup><span class="fst-italic fw-light">@context.VerseOffset</span></sup>
-							}
 						</td>
 						<td class="fst-italic">@context.Description</td>
 					</RowTemplate>
@@ -45,6 +45,7 @@
 <div class="modal-backdrop fade show"></div>
 
 @code {
+	[Parameter, EditorRequired] public string Title { get; set; }
 	[Parameter, EditorRequired] public List<TableOfContentRecord>? Data { get; set; }
 	[Parameter, EditorRequired] public EventCallback<ReturnedRecord> OnSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
