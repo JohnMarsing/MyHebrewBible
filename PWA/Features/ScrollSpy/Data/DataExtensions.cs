@@ -47,4 +47,9 @@ public static class DataExtensions
 			.Select(v => new TableOfContentRecord(v.Verse, v.ID, v.DescD!, v.VerseOffset))
 			.ToList();
 	}
+
+	public static string? GetTitle(this IEnumerable<ReportModel> items)
+	{
+		return items.FirstOrDefault()?.DescH;
+	}
 }

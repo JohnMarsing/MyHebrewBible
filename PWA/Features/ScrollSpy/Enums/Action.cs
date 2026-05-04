@@ -21,7 +21,7 @@ namespace PWA.Features.ScrollSpy.Enums
 			internal const int ListVerses = 4;
 			internal const int NextVerse = 5;
 			internal const int History = 6;
-			internal const int BookChapter = 7;
+			internal const int BCV = 7; // Book Chapter Verse
 		}
 		#endregion
 
@@ -32,7 +32,7 @@ namespace PWA.Features.ScrollSpy.Enums
 		public static readonly Action ListVerses = new ListVersesSE();
 		public static readonly Action NextVerse = new NextVerseSE();
 		public static readonly Action History = new HistorySE();
-		public static readonly Action BookChapter = new BookChapterSE();
+		public static readonly Action BCV = new BCVSE(); // Book Chapter Verse
 		// SE=SmartEnum
 		#endregion
 
@@ -108,11 +108,11 @@ namespace PWA.Features.ScrollSpy.Enums
 			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;
 		}
 
-		private sealed class BookChapterSE : Action
+		private sealed class BCVSE : Action
 		{
-			public BookChapterSE() : base($"{nameof(Id.BookChapter)}", Id.BookChapter) { }
-			public override string Title => "Change book/chapter";
-			public override string Label => "B/C";
+			public BCVSE() : base($"{nameof(Id.BCV)}", Id.BCV) { }
+			public override string Title => "Change book/chapter/verse";
+			public override string Label => "B/C/V";
 			public override string Icon => "fa-solid fa-arrow-up";
 			public override string BtnColor => "btn-info";
 			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;

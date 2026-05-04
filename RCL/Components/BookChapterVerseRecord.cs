@@ -2,18 +2,8 @@
 
 namespace RCL.Components;
 
-public record BookChapterVerseRecord(BibleBook? BibleBook, int Chapter, int Verse);
-
-public static class BookChapterVerseHelper
+public record BookChapterVerseRecord(BibleBook? BibleBook, int Chapter, int Verse)
 {
-	public static string Dump(BookChapterVerseRecord? BCV)
-	{
-		return $"{BCV!.BibleBook!.Abrv} {BCV.Chapter}:{BCV.Verse}";
-	}
+	public string Title => BibleBook is not null ? $"{BibleBook.Title} {Chapter}" : string.Empty;
+	public int ScriptureId => BibleBook is not null ? BibleBookHelper.GetScriptureId(BibleBook, Chapter, Verse) : 0;
 }
-
-/*
-namespace MyHebrewBible.Client.Features.BookChapter.Toolbar.NumberPad; 
-- BookChapterVerseRecord was BookChapterVerse
-- BookChapterVerseRecord? BCV was BookChapterVerse? BCV
- */

@@ -1,0 +1,266 @@
+@using System.ComponentModel.DataAnnotations
+@using RCL.Enums
+@using RCL.Components
+
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@* Modal backdrop *@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="bookChapterModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="bookChapterModalLabel">Book Chapter Lookup</h5>
+        <button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
+      </div>
+
+      <div class="modal-body">
+        <EditForm Model="@VM" OnValidSubmit="HandleValidSubmit">
+          <DataAnnotationsValidator />
+
+          <div class="row mb-3 align-items-center">
+            <label for="bookSearch" class="col-sm-4 col-form-label">
+              Book
+              <button type="button" class="btn btn-sm btn-link p-0 ms-1" @onclick="ToggleSortOrder" title="@(_sortAlphabetically ? "Sort by book order" : "Sort alphabetically")">
+                @if (_sortAlphabetically)
+                {
+                  <i class="fa-solid fa-arrow-down-a-z"></i>
+                }
+                else
+                {
+                  <i class="fa-solid fa-arrow-down-1-9"></i>
+                }
+              </button>
+            </label>
+            <div class="col-sm-8">
+              <div class="position-relative">
+                <input type="text"
+                       id="bookSearch"
+                       class="form-control form-control-sm @(VM.SelectedBook is null && !string.IsNullOrWhiteSpace(VM.SearchText) ? "is-invalid" : "")"
+                       @bind="VM.SearchText"
+                       @bind:event="oninput"
+                       @onfocus="HandleSearchFocus"
+                       @onblur="HandleSearchBlur"
+                       @ref="_searchInput"
+                       autocomplete="off"
+                       placeholder="Type to search..." />
+
+                @if (_showDropdown && _filteredBooks.Any())
+                {
+                  <ul class="dropdown-menu show w-100" style="max-height: 250px; overflow-y: auto;" @ref="_dropdownRef">
+                    @foreach (var (book, index) in _filteredBooks.Select((b, i) => (b, i)))
+                    {
+                      <li>
+                        <a class="dropdown-item @(index == _selectedIndex ? "active" : "")"
+                           href="javascript:void(0)"
+                           @onclick="() => SelectBook(book)"
+                           @onclick:preventDefault="true">
+                          @book.Title
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                }
+
+                @if (VM.SelectedBook is not null)
+                {
+                  <div class="mt-2">
+                    <span class="badge bg-primary">@VM.SelectedBook.Title</span>
+                  </div>
+                }
+              </div>
+              <ValidationMessage For="() => VM.SelectedBook" />
+          </div>
+          </div>
+
+          <div class="row mb-2 align-items-center">
+            <label for="chapter" class="col-sm-4 col-form-label">Chapter</label>
+            <div class="col-sm-8">
+              <InputNumber id="chapter"
+                           class="form-control form-control-sm"
+                           @bind-Value="VM.Chapter"
+                           disabled="@(VM.SelectedBook is null)"
+                           placeholder="@(VM.SelectedBook is not null ? $"1 – {VM.SelectedBook.LastChapter}" : "Select book first")" />
+              <ValidationMessage For="() => VM.Chapter" />
+              @if (VM.Chapter.HasValue && VM.SelectedBook is not null && VM.Chapter > VM.SelectedBook.LastChapter)
+              {
+                <div class="invalid-feedback d-block">
+                  Chapter must be between 1 and @VM.SelectedBook.LastChapter
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="row mb-2 align-items-center">
+            <label for="verse" class="col-sm-4 col-form-label">Verse</label>
+            <div class="col-sm-8">
+              <InputNumber id="verse"
+                           class="form-control form-control-sm"
+                           @bind-Value="VM.Verse"
+                           disabled="@(VM.SelectedBook is null)"
+                           placeholder="@(VM.SelectedBook is not null ? $"1 – {VM.SelectedBook.MaxLastVerses()}" : "Select book first")" />
+              <ValidationMessage For="() => VM.Verse" />
+              @if (VM.Verse.HasValue && VM.SelectedBook is not null && VM.Verse > VM.SelectedBook.MaxLastVerses())
+              {
+                <div class="invalid-feedback d-block">
+                  Verse must be between 1 and @VM.SelectedBook.MaxLastVerses()
+                </div>
+              }
+            </div>
+          </div>
+
+          <ValidationSummary />
+
+          <div class="modal-footer px-0 pb-0">
+            <button type="submit" class="btn btn-sm btn-primary" disabled="@(!VM.IsValid())">Go <i class="fas fa-chevron-right"></i> </button>
+          </div>
+
+        </EditForm>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+@code {
+  [Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnSelected { get; set; }
+  [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+  private BCVFormVM VM = new();
+  private ElementReference _searchInput;
+  private ElementReference _dropdownRef;
+  private IJSObjectReference? _module;
+
+  private bool _showDropdown = false;
+  private int _selectedIndex = 0;
+  private List<BibleBook> _filteredBooks = new();
+  private bool _isBlurring = false;
+  private bool _sortAlphabetically = false;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import",
+        "./Features/ScrollSpy/ActionComponents/LookupBCV/BCVForm.razor.js");
+      await _module.InvokeVoidAsync("initializeTypeahead", _searchInput, DotNetObjectReference.Create(this));
+    }
+  }
+
+  private void HandleSearchFocus()
+  {
+    FilterBooks();
+    _showDropdown = _filteredBooks.Any();
+  }
+
+  private async Task HandleSearchBlur()
+  {
+    _isBlurring = true;
+    await Task.Delay(200); // Allow click event to fire first
+    if (_isBlurring)
+    {
+      _showDropdown = false;
+      _isBlurring = false;
+    }
+  }
+
+  private void ToggleSortOrder()
+  {
+    _sortAlphabetically = !_sortAlphabetically;
+    FilterBooks();
+    StateHasChanged();
+  }
+
+  private void FilterBooks()
+  {
+    var searchTerm = VM.SearchText?.Trim() ?? string.Empty;
+
+    if (string.IsNullOrWhiteSpace(searchTerm))
+    {
+      _filteredBooks = BibleBook.List.ToList();
+    }
+    else
+    {
+      _filteredBooks = BibleBook.List
+        .Where(b => b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    b.Abrv.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+    }
+
+    // Apply sorting
+    if (_sortAlphabetically)
+    {
+      _filteredBooks = _filteredBooks.OrderBy(b => b.Title).ToList();
+    }
+    else
+    {
+      _filteredBooks = _filteredBooks.OrderBy(b => b.Value).ToList();
+    }
+
+    _selectedIndex = 0;
+    _showDropdown = _filteredBooks.Any();
+  }
+
+  private void SelectBook(BibleBook book)
+  {
+    _isBlurring = false;
+    VM.SelectedBook = book;
+    VM.SearchText = book.Title;
+    _showDropdown = false;
+    VM.Chapter = null; // Reset chapter when book changes
+    VM.Verse = null; // Reset verse when book changes
+    StateHasChanged();
+  }
+
+  [JSInvokable]
+  public void HandleKeyDown(string key)
+  {
+    if (!_showDropdown || !_filteredBooks.Any())
+      return;
+
+    switch (key)
+    {
+      case "ArrowDown":
+        _selectedIndex = Math.Min(_selectedIndex + 1, _filteredBooks.Count - 1);
+        StateHasChanged();
+        break;
+      case "ArrowUp":
+        _selectedIndex = Math.Max(_selectedIndex - 1, 0);
+        StateHasChanged();
+        break;
+      case "Enter":
+        if (_selectedIndex >= 0 && _selectedIndex < _filteredBooks.Count)
+        {
+          SelectBook(_filteredBooks[_selectedIndex]);
+        }
+        break;
+      case "Escape":
+        _showDropdown = false;
+        StateHasChanged();
+        break;
+    }
+  }
+
+  private async Task HandleValidSubmit()
+  {
+    if (VM.IsValid() && VM.SelectedBook is not null && VM.Chapter.HasValue && VM.Verse.HasValue)
+    {
+      await OnSelected.InvokeAsync(new BookChapterVerseRecord(VM.SelectedBook, VM.Chapter.Value, VM.Verse.Value));
+    }
+  }
+
+  private async Task HandleCancel()
+  {
+    await OnCancel.InvokeAsync();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_module is not null)
+    {
+      await _module.DisposeAsync();
+    }
+  }
+}
