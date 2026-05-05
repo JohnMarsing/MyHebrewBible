@@ -12,33 +12,31 @@
 			</div>
 
 			<div class="modal-body">
-				<TableTemplate Items="@Data"
-								HeaderCSS="table table-sm table-hover table-bordered"
-								TheadCSS="table-dark">
-					<TableHeader>
-						<th class="text-center">Verse</th>
-						<th>Outline</th>
-					</TableHeader>
-					<RowTemplate>
-						<td class="text-center">
-							<button class="btn btn-link p-0" title="Go to verse @context.Verse (@context.ID)"
-								@onclick="() => OnSelected.InvokeAsync(new ReturnedRecord(context.Verse, context.ID))">
-								@context.Verse
-								@if (context.VerseOffset != "NULL")
-								{
-									<sup><span class="fst-italic fw-light">&nbsp;@context.VerseOffset</span></sup>
-								}
+
+				@if (Data == null || !Data.Any())
+				{
+					<div class="alert alert-info text-center" role="alert">
+						No data available.
+					</div>
+				}
+				else
+				{
+					<div class="list-group">
+						@foreach (var item in Data)
+						{
+							<button type="button" 
+											@onclick="() => OnSelected.InvokeAsync(new ReturnedRecord(item.Verse, item.ID))"
+											title="Go to verse @item.Verse ➡️"
+											class="list-group-item list-group-item-action list-group-item-warning " aria-current="true">
+								
+								<span class="badge text-bg-info rounded-pill link-underline-dark">@item.Verse</span>
+								@item.Description
 							</button>
-						</td>
-						<td class="fst-italic">@context.Description</td>
-					</RowTemplate>
-				</TableTemplate>
+						}
+					</div>
+					
+				}
 			</div>
-
-			<div class="modal-footer">
-				<button type="button" class="btn btn-sm btn-secondary" @onclick="HandleCancel">Close</button>
-			</div>
-
 		</div>
 	</div>
 </div>

@@ -20,7 +20,7 @@
           <DataAnnotationsValidator />
 
           <div class="row mb-3 align-items-center">
-            <label for="bookSearch" class="col-sm-4 col-form-label">
+            <label for="bookSearch" class="col-4 col-form-label">
               Book
               <button type="button" class="btn btn-sm btn-link p-0 ms-1" @onclick="ToggleSortOrder" title="@(_sortAlphabetically ? "Sort by book order" : "Sort alphabetically")">
                 @if (_sortAlphabetically)
@@ -33,7 +33,7 @@
                 }
               </button>
             </label>
-            <div class="col-sm-8">
+            <div class="col-8">
               <div class="position-relative">
                 <input type="text"
                        id="bookSearch"
@@ -75,8 +75,8 @@
           </div>
 
           <div class="row mb-2 align-items-center">
-            <label for="chapter" class="col-sm-4 col-form-label">Chapter</label>
-            <div class="col-sm-8">
+            <label for="chapter" class="col-4 col-form-label">Chapter</label>
+            <div class="col-8">
               <InputNumber id="chapter"
                            class="form-control form-control-sm"
                            @bind-Value="VM.Chapter"
@@ -93,8 +93,8 @@
           </div>
 
           <div class="row mb-2 align-items-center">
-            <label for="verse" class="col-sm-4 col-form-label">Verse</label>
-            <div class="col-sm-8">
+            <label for="verse" class="col-4 col-form-label">Verse</label>
+            <div class="col-8">
               <InputNumber id="verse"
                            class="form-control form-control-sm"
                            @bind-Value="VM.Verse"
@@ -127,6 +127,7 @@
 @code {
   [Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnSelected { get; set; }
   [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+  [CascadingParameter] public CascadingAppState? State { get; set; }
 
   private BCVFormVM VM = new();
   private ElementReference _searchInput;
@@ -247,6 +248,7 @@
   {
     if (VM.IsValid() && VM.SelectedBook is not null && VM.Chapter.HasValue && VM.Verse.HasValue)
     {
+      await State!.AppState!.BookChapterState!.AddStoredAcvToBcvList();
       await OnSelected.InvokeAsync(new BookChapterVerseRecord(VM.SelectedBook, VM.Chapter.Value, VM.Verse.Value));
     }
   }

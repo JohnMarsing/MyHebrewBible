@@ -8,7 +8,7 @@
 @using PWA.Features.ScrollSpy.ActionComponents.LookupBCV
 @using PWA.Features.ScrollSpy.ActionComponents.Find
 @using PWA.Features.ScrollSpy.ActionComponents.ToC
-
+@using RCL.Enums
 
 @inject PWA.Features.ScrollSpy.Data.IRepository? db;
 @inject ILogger<Index>? Logger
@@ -39,8 +39,9 @@
 	</section>
 
 	<footer class="sticky-bottom">
-		<StickyFooter Title="@BCV?.Title" TitleSuffix="@TitleSuffix"
-									OnActionSelected="ReturnedAction" OnClearClicked="ReturnedClearAction" />
+		<StickyFooter Title="@BCV?.Title" TextFilter="@TextFilter"
+									OnActionSelected="ReturnedAction"
+									OnClearClicked="ReturnedClearAction" />
 	</footer>
 
 </LoadingComponent>
@@ -53,11 +54,14 @@
 	}
 	else if (currentAction == Enums.Action.Find)
 	{
-		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+		@* ToDo: do I need to concerned if BCV or BibleBook is null *@
+		<TextOrStrongsForm IsHebrewBible="BCV!.BibleBook!.IsHebrewBible"
+		OnFilterSelected="ReturnedFilterSelected"
+		OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.ListVerses)
 	{
-		<TextOrStrongsForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+		<p>ToDo: Finish <code>Enums.Action.ListVerses</code></p>
 	}
 	else if (currentAction == Enums.Action.BCV)
 	{
@@ -66,48 +70,94 @@
 
 }
 
+@* else { <Alert>currentAction is null</Alert>	 } *@
 
 @code {
+	[CascadingParameter] public CascadingAppState? State { get; set; }
 
-	private async Task ReturnedTOC(ReturnedRecord rec)
+	protected int CurrentScrollToScriptureId;
+	protected int CurrentVerse;
+
+	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
 	{
-		CurrentScrollToScriptureId = rec.ID;
-		CurrentVerse = rec.Verse;
-		await SetFocusToElement();
-		currentAction = null;
+		return new BookAndChapter(BibleBook.FromValue(bookId), chapter);
 	}
 
-	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
-	{
-		BCV = bcv;
-		verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
-		FilteredVerses = GetBookChapterVerses();
-		CurrentScrollToScriptureId = bcv.ScriptureId;
-		CurrentVerse = bcv.Verse;
+	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
+	protected bool TurnSpinnerOff = false;
+	private List<BookChapterWithAT>? verses = null;
+	private BookChapterVerseRecord BCV { get; set; } = null!; 
+	protected List<ReportModel>? FilteredVerses { get; set; }
 
-		await SetFocusToElement();
-		currentAction = null;
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			SetScriptureIdAndBCV();
+			verses = await db!.GetBookChapterWithAT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+			FilteredVerses = GetBookChapterVerses();
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
 	}
 
-	#region Filter
+	// ToDo: can `SetScriptureIdAndBCV` this logic be pushed down to RCL.Enums i.e. `BibleBookHelper.cs`?
+	// - I would have to somehow pass in State
+	private void SetScriptureIdAndBCV()
+	{
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); // get from local storage, if not found use default (Gen 1:1)
+
+		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); // based on the lookup, convert the abrv to a BibleBook.Value
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			throw new InvalidOperationException(errMsg);
+		}
+
+		BibleBook? bibleBook;
+		if (BibleBook.TryFromValue(_value, out bibleBook))  // Lookup the SmartEnum based on the newly acquired BibleBook.Value
+		{
+			BCV = new BookChapterVerseRecord(bibleBook, CurrentAbrvChapterVerse.Chapter, CurrentAbrvChapterVerse.Verse);
+			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
+		}
+		else
+		{
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			throw new InvalidOperationException("BibleBook.TryFromValue fa");
+		}
+	}
+
+	protected List<ReportModel> GetBookChapterVerses()
+	{
+		return verses!
+				.OrderBy(o => o.ID)
+				.Select(bc => bc.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
+				.ToList();
+	}
 
 
+
+	#region EventCallback Return Logic
 	/*
 	ToDo: Consider a new feature; what if you persisted the last action
 	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
-		- if you could persist a list, then you could show a dropdown of recent searches/actions. 
+		- if you could persist a list, then you could show a dropdown of recent searches/actions.
 		next to the Find button not unlike the B/C History
  */
-	private string? TitleSuffix;
+	private string? TextFilter;
+	private string? StrongsFilter;
 	private string? _highlightText;
-
+	
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
-		TitleSuffix = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
-
-		_highlightText = filter.SearchText;
-		ApplyFilter(filter);
-
+		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
+		StrongsFilter = filter.Strongs; // ToDo: this doesn't do any thing
 		currentAction = null;
 	}
 
@@ -131,14 +181,48 @@
 		currentAction = null;
 	}
 
+	/*
+	 Called by StickFooter when Clear button the TextOrStrongsForm! clicked,
+	 ToDo:
+	 but also consider other scenarios where you want to clear the filter and return to the default state.
+	 */
 	private void ReturnedClearAction()
 	{
 		currentAction = null;
 		_highlightText = null;
-		TitleSuffix = null;
+		TextFilter = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
-	#endregion
+	
+	private async Task ReturnedTOC(ReturnedRecord rec)
+	{
+		CurrentScrollToScriptureId = rec.ID;
+		CurrentVerse = rec.Verse;
+		await SetFocusToElement();
+		currentAction = null;
+	}
+
+	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
+	{
+		currentAction = null;
+		BCV = bcv;
+		try
+		{
+			verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}, {Message}", nameof(ReturnedBCVSelected), $"Error occurred while calling {nameof(db.GetBookChapterWithAT)}");
+			Toast!.ShowError("Failed to load verses. Please try again.");
+			return;
+		}
+
+		FilteredVerses = GetBookChapterVerses();
+		CurrentScrollToScriptureId = bcv.ScriptureId;
+		CurrentVerse = bcv.Verse;
+		await SetFocusToElement();
+	}
+
 
 	protected Enums.Action? currentAction = null;
 	private async Task ReturnedAction(Enums.Action action)
@@ -157,6 +241,7 @@
 			}
 		*/
 	}
+
 
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{
@@ -182,50 +267,9 @@
 		}
 	}
 
+	#endregion
 
-	protected int CurrentScrollToScriptureId;
-	protected int CurrentVerse;
 
-	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
-	{
-		return new BookAndChapter(RCL.Enums.BibleBook.FromValue(bookId), chapter);
-	}
-
-	protected Bible.AbrvChapterVerse CurrentAbrvChapterVerse = Bible.AbrvChapterVerse.Default;
-
-	protected bool TurnSpinnerOff = false;
-	private List<BookChapterWithAT>? verses = null;
-
-	private BookChapterVerseRecord? BCV { get; set; }
-
-	protected List<ReportModel>? FilteredVerses { get; set; }
-
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			verses = await db!.GetBookChapterWithAT(1, 1);
-			BCV = new BookChapterVerseRecord(RCL.Enums.BibleBook.FromValue(1), 1, 1);
-			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
-			FilteredVerses = GetBookChapterVerses();
-		}
-		catch (Exception ex)
-		{
-			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
-		}
-		finally
-		{
-			TurnSpinnerOff = true;
-		}
-	}
-
-	protected List<ReportModel> GetBookChapterVerses()
-	{
-		return verses!
-				.OrderBy(o => o.ID)
-				.Select(bc => bc.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
-				.ToList();
-	}
 
 	private async Task HandleKeyDown(KeyboardEventArgs e)
 	{
@@ -246,7 +290,7 @@
 	}
 
 
-	#region JavaScript Setup
+	#region JavaScript Setup and Teardown
 
 	private IJSObjectReference? _module;
 	protected bool _firstRendered = false;
@@ -274,17 +318,6 @@
 			_firstRendered = true;
 		}
 	}
-	#endregion
-
-	private async Task ReturnedSetFocus(int scriptureId)
-	{
-		if (_module is not null)
-		{
-			//Toast!.ShowWarning($"{nameof(ReturnedSetFocus)} Id: {scriptureId}");
-			CurrentScrollToScriptureId = scriptureId;
-			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{scriptureId}");
-		}
-	}
 
 	public async ValueTask DisposeAsync()
 	{
@@ -293,4 +326,6 @@
 			await _module.DisposeAsync();
 		}
 	}
+
+	#endregion
 }

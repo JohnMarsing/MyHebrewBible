@@ -155,8 +155,8 @@ public class State
 	{
 		BookChapterVerseHistory? _BCVH = ConvertStoredAcvToBcv();
 
-		if (_BCVs is null) { return; }
 		//if (_BCVs is null) { Logger!.LogInformation("{Method}; BCVs is null; return", nameof(AddStoredAcvToBcvList)); return; }
+		if (_BCVs is null) { return; }
 
 		if (!IsVerseAlreadyInList(_BCVH!))
 		{
