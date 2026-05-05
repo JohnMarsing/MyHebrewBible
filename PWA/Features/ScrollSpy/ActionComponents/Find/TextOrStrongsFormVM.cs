@@ -10,7 +10,7 @@ public class TextOrStrongsFormVM : IValidatableObject
   /// <summary>
   /// True = Greek (G), False = Hebrew (H)
   /// </summary>
-  public bool IsGreek { get; set; } = false;
+  public bool IsGreek { get; set; }
 
   [Range(1, 9999, ErrorMessage = "Strong's number must be between 1 and 9999.")]
   public int? StrongsNumber { get; set; }

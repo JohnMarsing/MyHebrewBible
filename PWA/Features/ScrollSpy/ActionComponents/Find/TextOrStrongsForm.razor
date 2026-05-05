@@ -15,22 +15,22 @@
 					<DataAnnotationsValidator />
 
 					<div class="row mb-2 align-items-center">
-						<label for="searchText" class="col-sm-4 col-form-label">Word</label>
-						<div class="col-sm-8">
+						<label for="searchText" class="col-4 col-form-label">Word</label>
+						<div class="col-8">
 							<InputText id="searchText"
-										class="form-control form-control-sm"
-										maxlength="15"
-										@bind-Value="VM.SearchText"
-										@ref="_searchTextInput"
-										placeholder="Search text…" />
+												 class="form-control form-control-sm"
+												 maxlength="15"
+												 @bind-Value="VM.SearchText"
+												 @ref="_searchTextInput"
+												 placeholder="Search text…" />
 							<ValidationMessage For="() => VM.SearchText" />
 						</div>
 					</div>
 
 
 					<div class="row mb-2 align-items-center">
-						<label class="col-sm-4 col-form-label">Operator</label>
-						<div class="col-sm-8">
+						<label class="col-4 col-form-label">Operator</label>
+						<div class="col-8">
 							<InputRadioGroup @bind-Value="VM.WhereLogicalOperator">
 								<div class="form-check form-check-inline">
 									<InputRadio id="radioAnd" Value="WhereLogicalOperator.And" class="form-check-input" />
@@ -44,38 +44,20 @@
 						</div>
 					</div>
 
-
-					<fieldset class="border rounded px-3 pt-2 pb-1 mt-1 mb-2">
-						<legend class="float-none w-auto px-2 fs-6 text-muted">Strong's</legend>
-
-						<div class="row mb-2 align-items-center">
-							<label class="col-sm-4 col-form-label">Hebrew or Greek</label>
-							<div class="col-sm-8">
-								<InputRadioGroup @bind-Value="VM.IsGreek">
-									<div class="form-check form-check-inline">
-										<InputRadio id="radioH" Value="false" class="form-check-input" />
-										<label class="form-check-label" for="radioH">H</label>
-									</div>
-									<div class="form-check form-check-inline">
-										<InputRadio id="radioG" Value="true" class="form-check-input" />
-										<label class="form-check-label" for="radioG">G</label>
-									</div>
-								</InputRadioGroup>
-							</div>
-						</div>
-
-						<div class="row mb-2 align-items-center">
-							<label for="strongsNumber" class="col-sm-4 col-form-label">Number</label>
-							<div class="col-sm-8">
+					<div class="row mb-2 align-items-center">
+						<label for="strongsNumber" class="col-4 col-form-label">Number</label>
+						<div class="col-8">
+							<div class="input-group input-group-sm">
+								<span class="input-group-text">@(IsHebrewBible ? "H" : "G")</span>
 								<InputNumber id="strongsNumber"
-											class="form-control form-control-sm"
-											@bind-Value="VM.StrongsNumber"
-											placeholder="1 – 9999" />
-								<ValidationMessage For="() => VM.StrongsNumber" />
+												 class="form-control"
+												 @bind-Value="VM.StrongsNumber"
+												 placeholder="1 – 9999" />
 							</div>
+							<ValidationMessage For="() => VM.StrongsNumber" />
 						</div>
+					</div>
 
-					</fieldset>
 
 					<ValidationSummary />
 
@@ -92,11 +74,17 @@
 <div class="modal-backdrop fade show"></div>
 
 @code {
+	[Parameter, EditorRequired] public bool IsHebrewBible { get; set; }
 	[Parameter, EditorRequired] public EventCallback<FilterRecord> OnFilterSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
 	private TextOrStrongsFormVM VM = new();
 	private InputText? _searchTextInput;
+
+	protected override void OnInitialized()
+	{
+		VM.IsGreek = !IsHebrewBible;
+	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
