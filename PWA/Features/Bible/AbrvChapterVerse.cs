@@ -3,6 +3,7 @@ using PWA.Enums;
 
 namespace PWA.Features.Bible;
 
+// ToDo: When I abandon the  Picker/Buttons3by4 then `bool VerseIsNotDefault` becomes unnecessary (I think)
 public record AbrvChapterVerse(string Abrv, int Chapter, int Verse, bool VerseIsNotDefault, int ScriptureId, int LastVerse)
 {
 	public static AbrvChapterVerse Default => new(

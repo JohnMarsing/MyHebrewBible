@@ -1,5 +1,4 @@
 ﻿namespace PWA.Features.ScrollSpy.ActionComponents.ToC;
 
-public record ReturnedRecord(int Verse, int ID)
-{
-}
+// Same as ScrollSpy\ActionComponents\GoToVerse\VerseAndID.cs
+public record ReturnedRecord(int Verse, int ID);

@@ -1,0 +1,37 @@
+﻿
+<div class="btn-group " role="group" aria-label="Vertical button group">
+
+	<button type="button" class="btn btn-primary @BtnSize dropdown-toggle" 
+		data-bs-toggle="dropdown" aria-expanded="false" title="Recent history">
+		<i class="fa-solid fa-clock-rotate-left"></i>
+		<span class="visually-hidden">Toggle Dropdown</span>
+	</button>
+
+	<div class="btn-group-vertical btn-group" role="group" aria-label="Vertical button group">
+
+		<ul class="dropdown-menu">
+
+			<li class="fw-bold dropdown-header">Recent</li>
+			@Recent
+
+			<li><hr class="dropdown-divider"></li>
+
+			<li class="fw-bold dropdown-header">Parasha</li>
+
+			<li class="dropdown-item">
+				@Parashot
+			</li>
+		</ul>
+
+	</div>
+
+</div>
+
+
+@code {
+	[Parameter, EditorRequired] public RenderFragment? Recent { get; set; }
+	[Parameter, EditorRequired] public RenderFragment? Parashot { get; set; }
+	[Parameter] public string BtnSize { get; set; } = string.Empty;
+
+}
+

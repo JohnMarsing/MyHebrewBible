@@ -1,0 +1,107 @@
+﻿@using PWA.Features.ScrollSpy.ActionComponents.RecentBCV
+
+<div class="bg-info-subtle p-1">
+
+	<div class="d-flex justify-content-between">
+		
+		<div class="d-flex justify-content-start">
+			@if (TextFilter is null)
+			{
+				<ActionButtons ActionGroup="Enums.ActionGroupEnum.Left"
+											 OnActionSelected="ReturnedAction" />
+			}
+			else
+			{
+				<button type="button"
+								class="btn btn-danger btn-xs rounded rounded-3 me-1"
+								title="Clear filter"
+								@onclick="ClearButtonClicked">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+				<i>@TextFilter</i>
+			}
+
+		</div>
+
+		<div class="d-flex justify-content-center">
+
+			<div class="d-flex justify-content-center align-items-center m-0 pb-1">
+				<div class="@MediaQuery.Xs.DivClass">
+					<span class="fs-6 fw-bold text-success me-1 @_animationClass">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>
+				</div>
+
+				<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+					<span class="fs-6 fw-bold text-success me-1 @_animationClass">@BCV!.BibleBook!.Title @BCV.Chapter</span>
+				</div>
+			</div>
+
+			<ActionButtons ActionGroup="Enums.ActionGroupEnum.Center" OnActionSelected="ReturnedAction" />
+
+			<HistoryDropdown BtnSize="btn-xs rounded rounded-3">
+				<Recent>
+					<RecentListPicker OnBCVSelected="ReturnedBCV" />
+				</Recent>
+				<Parashot>
+					<ParashotPicker OnBCVSelected="ReturnedBCV" />
+				</Parashot>
+			</HistoryDropdown>
+ 
+		</div>
+
+		<div class="d-flex justify-content-end">
+			<ActionButtons ActionGroup="Enums.ActionGroupEnum.Right" OnActionSelected="ReturnedAction" />
+		</div>
+
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = null!;
+	[Parameter] public string? TextFilter { get; set; }
+	[Parameter, EditorRequired] public EventCallback<Enums.Action> OnActionSelected { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnClearClicked { get; set; }
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+	[Parameter] public bool TriggerAnimation { get; set; }
+
+	private string _animationClass = string.Empty;
+	private string _previousBcvKey = string.Empty;
+
+	protected override void OnParametersSet()
+	{
+		// Create a unique key for the current BCV
+		var currentBcvKey = $"{BCV?.BibleBook?.Value}-{BCV?.Chapter}";
+		
+		// Only animate if BCV actually changed and animation is triggered
+		if (TriggerAnimation && currentBcvKey != _previousBcvKey && !string.IsNullOrEmpty(_previousBcvKey))
+		{
+			_animationClass = "bcv-change"; // or "bcv-glow" for alternative effect
+			_previousBcvKey = currentBcvKey;
+			
+			// Remove class after animation completes
+			_ = Task.Delay(650).ContinueWith(_ => InvokeAsync(() =>
+			{
+				_animationClass = string.Empty;
+				StateHasChanged();
+			}));
+		}
+		else
+		{
+			_previousBcvKey = currentBcvKey;
+		}
+	}
+
+	private void ReturnedAction(Enums.Action action)
+	{
+		OnActionSelected.InvokeAsync(action);
+	}
+
+	private void ClearButtonClicked()
+	{
+		OnClearClicked.InvokeAsync();
+	}
+	
+	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
+	{
+		await OnBCVSelected.InvokeAsync(bcv);
+	}
+}

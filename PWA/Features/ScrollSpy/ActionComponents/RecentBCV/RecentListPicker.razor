@@ -1,0 +1,54 @@
+﻿
+@* After using `BCVHistory` this won't be needed' *@
+@using PWA.Features.Bible.Toolbar
+
+@inject ILogger<RecentListPicker>? Logger
+@* @inject IToastService? Toast *@
+
+@if (RecentList is not null)
+{
+	@foreach (var item in RecentList)
+	{
+		<li class="dropdown-item">
+			<a @onclick="@(e => ButtonClick(item))">
+				@RCL.Enums.BibleBook.FromValue(item.BibleBookId).Abrv @item.Chapter:@item.Verse
+			</a>
+		</li>
+	}
+}
+else
+{
+	<li class="dropdown-item">--No Items--</li>
+}
+
+@code {
+	[CascadingParameter] public CascadingAppState? State { get; set; } /* Can this be done in NavBar?*/
+	[Parameter] public EventCallback<RCL.Components.BookChapterVerseRecord> OnBCVSelected { get; set; }
+
+	
+	protected override async Task OnInitializedAsync()
+	{
+		//need to call here before OnParametersSet so that RecentList can be populated
+		await State!.AppState!.BookChapterState!.Initialize(); 
+	}
+	
+	protected List<BookChapterVerseHistory>? RecentList = new();  // BCVHistory
+	protected override void OnParametersSet()
+	{
+		try
+		{
+			RecentList = State!.AppState!.BookChapterState!.GetBCVs();
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
+			//Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnParametersSet)}");
+		}
+	}
+
+	private async Task ButtonClick(BookChapterVerseHistory bcv) //
+	{
+		await State!.AppState!.BookChapterState!.AddStoredAcvToBcvList();
+		await OnBCVSelected.InvokeAsync(new RCL.Components.BookChapterVerseRecord(RCL.Enums.BibleBook.FromValue(bcv.BibleBookId), bcv.Chapter, bcv.Verse));
+	}
+}
