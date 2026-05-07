@@ -248,10 +248,21 @@
   {
     if (VM.IsValid() && VM.SelectedBook is not null && VM.Chapter.HasValue && VM.Verse.HasValue)
     {
+      // (string Abrv, int Chapter, int Verse, bool VerseIsNotDefault, int ScriptureId, int LastVerse)
+      var acv = new Bible.AbrvChapterVerse(
+        VM.SelectedBook.Abrv,
+        VM.Chapter.Value,
+        VM.Verse.Value,
+        VM.Verse.Value != 1,  // bool VerseIsNotDefault
+        RCL.Enums.BibleBookHelper.GetScriptureId(VM.SelectedBook, VM.Chapter.Value, VM.Verse.Value),   
+        PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value)
+      );
+
+      await State!.AppState!.BookChapterState!.UpdateACV(acv);
       await State!.AppState!.BookChapterState!.AddStoredAcvToBcvList();
       await OnSelected.InvokeAsync(new BookChapterVerseRecord(VM.SelectedBook, VM.Chapter.Value, VM.Verse.Value));
     }
-  }
+  } 
 
   private async Task HandleCancel()
   {

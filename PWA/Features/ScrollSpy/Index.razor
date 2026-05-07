@@ -8,6 +8,7 @@
 @using PWA.Features.ScrollSpy.ActionComponents.LookupBCV
 @using PWA.Features.ScrollSpy.ActionComponents.Find
 @using PWA.Features.ScrollSpy.ActionComponents.ToC
+@using PWA.Features.ScrollSpy.ActionComponents.GoToVerse
 @using RCL.Enums
 
 @inject PWA.Features.ScrollSpy.Data.IRepository? db;
@@ -39,9 +40,11 @@
 	</section>
 
 	<footer class="sticky-bottom">
-		<StickyFooter Title="@BCV?.Title" TextFilter="@TextFilter"
-									OnActionSelected="ReturnedAction"
-									OnClearClicked="ReturnedClearAction" />
+		<Footer BCV="@BCV" TextFilter="@TextFilter"
+					OnActionSelected="ReturnedAction"
+					OnClearClicked="ReturnedClearAction"
+					OnBCVSelected="ReturnedBCVSelected"
+					TriggerAnimation="@_triggerBcvAnimation" />
 	</footer>
 
 </LoadingComponent>
@@ -50,18 +53,23 @@
 {
 	@if (currentAction == Enums.Action.Toc)
 	{
-		<SubtitleModal Title="@FilteredVerses?.GetTitle()" Data="FilteredVerses?.ToTableOfContentMapping().ToList()" OnSelected="ReturnedTOC" OnCancel="CloseModal" />
+		<SubtitleModal Title="@FilteredVerses?.GetTitle()"
+									 Data="FilteredVerses?.ToTableOfContentMapping().ToList()"
+									 OnSelected="ReturnedTOC"
+									 OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.Find)
 	{
 		@* ToDo: do I need to concerned if BCV or BibleBook is null *@
 		<TextOrStrongsForm IsHebrewBible="BCV!.BibleBook!.IsHebrewBible"
-		OnFilterSelected="ReturnedFilterSelected"
-		OnCancel="CloseModal" />
+											 OnFilterSelected="ReturnedFilterSelected"
+											 OnCancel="CloseModal" />
 	}
-	else if (currentAction == Enums.Action.ListVerses)
+	else if (currentAction == Enums.Action.GoToVerse)
 	{
-		<p>ToDo: Finish <code>Enums.Action.ListVerses</code></p>
+		<GoToVerseForm BCV="BCV"
+									 OnSelected="ReturnedGoToVerse"
+									 OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.BCV)
 	{
@@ -86,7 +94,7 @@
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
 	private List<BookChapterWithAT>? verses = null;
-	private BookChapterVerseRecord BCV { get; set; } = null!; 
+	private BookChapterVerseRecord BCV { get; set; } = null!;
 	protected List<ReportModel>? FilteredVerses { get; set; }
 
 	protected override async Task OnInitializedAsync()
@@ -153,7 +161,7 @@
 	private string? TextFilter;
 	private string? StrongsFilter;
 	private string? _highlightText;
-	
+
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
 		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
@@ -182,8 +190,8 @@
 	}
 
 	/*
-	 Called by StickFooter when Clear button the TextOrStrongsForm! clicked,
-	 ToDo:
+	Called by StickFooter when Clear button the TextOrStrongsForm! clicked,
+	ToDo:
 	 but also consider other scenarios where you want to clear the filter and return to the default state.
 	 */
 	private void ReturnedClearAction()
@@ -193,7 +201,7 @@
 		TextFilter = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
-	
+
 	private async Task ReturnedTOC(ReturnedRecord rec)
 	{
 		CurrentScrollToScriptureId = rec.ID;
@@ -202,10 +210,14 @@
 		currentAction = null;
 	}
 
+	private bool _triggerBcvAnimation = false;
+
 	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
 	{
 		currentAction = null;
 		BCV = bcv;
+		_triggerBcvAnimation = true; // Trigger animation
+		
 		try
 		{
 			verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
@@ -221,6 +233,10 @@
 		CurrentScrollToScriptureId = bcv.ScriptureId;
 		CurrentVerse = bcv.Verse;
 		await SetFocusToElement();
+		
+		// Reset animation trigger
+		await Task.Delay(10);
+		_triggerBcvAnimation = false;
 	}
 
 
@@ -234,14 +250,15 @@
 			SetScriptureIdAndVerse(currentAction == Enums.Action.PrevVerse ? DirEnums.Up : DirEnums.Down);
 			await SetFocusToElement();
 		}
-		/*
-		else if(currentAction == Enums.Action.ListVerses)
-		{
-			Toast!.ShowSuccess($"currentAction: {currentAction}, inside {nameof(ReturnedAction)}");
-			}
-		*/
 	}
 
+	private async Task ReturnedGoToVerse(VerseAndID verseAndID)
+	{
+		CurrentScrollToScriptureId = verseAndID.ID;
+		CurrentVerse = verseAndID.Verse;
+		await SetFocusToElement();
+		currentAction = null;
+	}
 
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{
