@@ -18,7 +18,7 @@
 
 					<div class="row mb-2 align-items-center">
 						<label for="verseNumber" class="col-4 col-form-label">Verse</label>
-						<div class="col-8">
+						<div class="col-5">
 							<input type="number" 
 							 id="verseNumber"
 							 class="form-control form-control-sm"
@@ -27,15 +27,14 @@
 							 placeholder="@($"1 – {VM.MaxVerse}")"
 							 min="1"
 							 max="@VM.MaxVerse" />
-							<ValidationMessage For="() => VM.VerseNumber" />
+						</div>
+						<div class="col-3">
+							<button type="submit" class="btn btn-sm btn-primary w-100" disabled="@(!VM.IsValid())">Go <i class="fas fa-chevron-right"></i></button>
 						</div>
 					</div>
 
+					<ValidationMessage For="() => VM.VerseNumber" />
 					<ValidationSummary />
-
-					<div class="modal-footer px-0 pb-0">
-						<button type="submit" class="btn btn-sm btn-primary" disabled="@(!VM.IsValid())">Go <i class="fas fa-chevron-right"></i></button>
-					</div>
 
 				</EditForm>
 			</div>

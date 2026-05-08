@@ -5,88 +5,54 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
-self.addEventListener('message', event => { if (event.data === 'SKIP_WAITING') self.skipWaiting(); });
+self.addEventListener('message', event => { 
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting(); 
+});
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
-const offlineAssetsInclude = [ /\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/, /\.webmanifest$/ ];
-const offlineAssetsExclude = [ /^service-worker\.js$/, /staticwebapp\.config\.json$/ ];
+const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/, /\.webmanifest$/];
+const offlineAssetsExclude = [/^service-worker\.js$/];
 
 // Replace with your base path if you are hosting on a subfolder. Ensure there is a trailing '/'.
 const base = "/";
 const baseUrl = new URL(base, self.origin);
-const indexHtmlUrl = new URL('index.html', baseUrl).href;
 const manifestUrlList = self.assetsManifest.assets.map(asset => new URL(asset.url, baseUrl).href);
 
-async function getCachedIndexHtml(cache) {
-    return (await cache.match(indexHtmlUrl, { ignoreSearch: true }))
-        || (await cache.match('index.html', { ignoreSearch: true }))
-        || (await cache.match('./index.html', { ignoreSearch: true }));
-}
-
 async function onInstall(event) {
-    console.info('Service worker: Install');
+  console.info('Service worker: Install');
 
-    // Fetch and cache all matching items from the assets manifest
-    const assetsRequests = self.assetsManifest.assets
-        .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
-        .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
-        .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
-    await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
+  // Fetch and cache all matching items from the assets manifest
+  const assetsRequests = self.assetsManifest.assets
+    .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
+    .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
+    .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
+  await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
 }
 
 async function onActivate(event) {
-    console.info('Service worker: Activate');
+  console.info('Service worker: Activate');
 
-    // Delete unused caches
-    const cacheKeys = await caches.keys();
-    await Promise.all(cacheKeys
-        .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
-        .map(key => caches.delete(key)));
-
-    // Take control of all clients immediately
-    await self.clients.claim();
+  // Delete unused caches
+  const cacheKeys = await caches.keys();
+  await Promise.all(cacheKeys
+    .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
+    .map(key => caches.delete(key)));
 }
 
 async function onFetch(event) {
-    let cachedResponse = null;
-    if (event.request.method === 'GET') {
-        // For all navigation requests, try to serve index.html from cache,
-        // unless that request is for an offline resource.
-        // If you need some URLs to be server-rendered, edit the following check to exclude those URLs
-        const shouldServeIndexHtml = event.request.mode === 'navigate'
-            && !manifestUrlList.some(url => url === event.request.url);
+  let cachedResponse = null;
+  if (event.request.method === 'GET') {
+    // For all navigation requests, try to serve index.html from cache,
+    // unless that request is for an offline resource.
+    // If you need some URLs to be server-rendered, edit the following check to exclude those URLs
+    const shouldServeIndexHtml = event.request.mode === 'navigate'
+      && !manifestUrlList.some(url => url === event.request.url);
 
-        const cache = await caches.open(cacheName);
-        cachedResponse = shouldServeIndexHtml
-            ? await getCachedIndexHtml(cache)
-            : await cache.match(event.request);
-    }
+    const request = shouldServeIndexHtml ? 'index.html' : event.request;
+    const cache = await caches.open(cacheName);
+    cachedResponse = await cache.match(request);
+  }
 
-    if (cachedResponse) {
-        return cachedResponse;
-    }
-
-    try {
-        const networkResponse = await fetch(event.request);
-        
-        // If this is a navigation request and we get a successful response,
-        // cache it for offline use
-        if (event.request.method === 'GET' && networkResponse.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(event.request, networkResponse.clone());
-        }
-        
-        return networkResponse;
-    } catch (error) {
-        // Network fetch failed, try to return index.html for navigation requests
-        if (event.request.mode === 'navigate') {
-            const cache = await caches.open(cacheName);
-            const fallbackResponse = await getCachedIndexHtml(cache);
-            if (fallbackResponse) {
-                return fallbackResponse;
-            }
-        }
-        throw error;
-    }
+  return cachedResponse || fetch(event.request);
 }

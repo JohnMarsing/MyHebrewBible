@@ -26,6 +26,6 @@ public class BCVFormVM
     if (Chapter > SelectedBook.LastChapter)
       return false;
 
-    return Verse <= SelectedBook.MaxLastVerses();
+    return Verse <= PWA.Features.Bible.Helper.LastVerseCount(SelectedBook, Chapter.Value);
   }
 }

@@ -27,11 +27,11 @@
 
 			<div class="d-flex justify-content-center align-items-center m-0 pb-1">
 				<div class="@MediaQuery.Xs.DivClass">
-					<span class="fs-6 fw-bold text-success me-1 @_animationClass">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>
+					<span class="fs-6 fw-bold @(_isBCVChanged ? "bcv-flash" : "text-success") me-1">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>
 				</div>
 
 				<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-					<span class="fs-6 fw-bold text-success me-1 @_animationClass">@BCV!.BibleBook!.Title @BCV.Chapter</span>
+					<span class="fs-6 fw-bold @(_isBCVChanged ? "bcv-flash" : "text-success") me-1">@BCV!.BibleBook!.Title @BCV.Chapter</span>
 				</div>
 			</div>
 
@@ -56,38 +56,26 @@
 </div>
 
 @code {
-	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = null!;
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; }
 	[Parameter] public string? TextFilter { get; set; }
 	[Parameter, EditorRequired] public EventCallback<Enums.Action> OnActionSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnClearClicked { get; set; }
 	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
-	[Parameter] public bool TriggerAnimation { get; set; }
 
-	private string _animationClass = string.Empty;
-	private string _previousBcvKey = string.Empty;
+	private BookChapterVerseRecord? _previousBCV;
+	private bool _isBCVChanged;
 
-	protected override void OnParametersSet()
+	protected override async Task OnParametersSetAsync()
 	{
-		// Create a unique key for the current BCV
-		var currentBcvKey = $"{BCV?.BibleBook?.Value}-{BCV?.Chapter}";
-		
-		// Only animate if BCV actually changed and animation is triggered
-		if (TriggerAnimation && currentBcvKey != _previousBcvKey && !string.IsNullOrEmpty(_previousBcvKey))
+		if (_previousBCV is not null && !_previousBCV.Equals(BCV))
 		{
-			_animationClass = "bcv-change"; // or "bcv-glow" for alternative effect
-			_previousBcvKey = currentBcvKey;
-			
-			// Remove class after animation completes
-			_ = Task.Delay(650).ContinueWith(_ => InvokeAsync(() =>
-			{
-				_animationClass = string.Empty;
-				StateHasChanged();
-			}));
+			_isBCVChanged = true;
+			StateHasChanged();
+			await Task.Delay(1000);
+			_isBCVChanged = false;
+			StateHasChanged();
 		}
-		else
-		{
-			_previousBcvKey = currentBcvKey;
-		}
+		_previousBCV = BCV;
 	}
 
 	private void ReturnedAction(Enums.Action action)
@@ -99,9 +87,9 @@
 	{
 		OnClearClicked.InvokeAsync();
 	}
-	
 	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
 	{
 		await OnBCVSelected.InvokeAsync(bcv);
 	}
+
 }

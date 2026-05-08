@@ -41,10 +41,9 @@
 
 	<footer class="sticky-bottom">
 		<Footer BCV="@BCV" TextFilter="@TextFilter"
-					OnActionSelected="ReturnedAction"
-					OnClearClicked="ReturnedClearAction"
-					OnBCVSelected="ReturnedBCVSelected"
-					TriggerAnimation="@_triggerBcvAnimation" />
+						OnActionSelected="ReturnedAction"
+						OnClearClicked="ReturnedClearAction"
+						OnBCVSelected="ReturnedBCVSelected" />
 	</footer>
 
 </LoadingComponent>
@@ -119,7 +118,7 @@
 	// - I would have to somehow pass in State
 	private void SetScriptureIdAndBCV()
 	{
-		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); // get from local storage, if not found use default (Gen 1:1)
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); // get from local storage, if not found use default (Gen 1:1); sometime Genesis is returned instead of Gen???
 
 		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); // based on the lookup, convert the abrv to a BibleBook.Value
 		if (!String.IsNullOrEmpty(errMsg))
@@ -165,7 +164,9 @@
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
 		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
-		StrongsFilter = filter.Strongs; // ToDo: this doesn't do any thing
+		StrongsFilter = filter.Strongs; 
+		_highlightText = filter.SearchText;
+		ApplyFilter(filter);
 		currentAction = null;
 	}
 
@@ -210,14 +211,10 @@
 		currentAction = null;
 	}
 
-	private bool _triggerBcvAnimation = false;
-
 	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
 	{
 		currentAction = null;
 		BCV = bcv;
-		_triggerBcvAnimation = true; // Trigger animation
-		
 		try
 		{
 			verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
@@ -233,10 +230,6 @@
 		CurrentScrollToScriptureId = bcv.ScriptureId;
 		CurrentVerse = bcv.Verse;
 		await SetFocusToElement();
-		
-		// Reset animation trigger
-		await Task.Delay(10);
-		_triggerBcvAnimation = false;
 	}
 
 
