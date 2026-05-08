@@ -1,35 +1,17 @@
-.bcv-change {
-	animation: bcv-pulse 0.6s ease-in-out;
-}
-
-@keyframes bcv-pulse {
+@keyframes bcvFlash {
 	0% {
-		transform: scale(1);
+		color: var(--bs-success);
 	}
 
 	50% {
-		transform: scale(1.25);
-		color: #0d6efd !important; /* Bootstrap primary blue - override text-success */
-		font-weight: 900 !important;
+		color: var(--bs-warning);
 	}
 
 	100% {
-		transform: scale(1);
+		color: var(--bs-success);
 	}
 }
 
-/* Alternative: Glow effect */
-.bcv-glow {
-	animation: bcv-glow 0.8s ease-in-out;
-}
-
-@keyframes bcv-glow {
-	0%, 100% {
-		text-shadow: none;
-	}
-
-	50% {
-		text-shadow: 0 0 20px #ffc107, 0 0 30px #ffc107, 0 0 40px #ffc107;
-		color: #ffc107 !important;
-	}
+.bcv-flash {
+	animation: bcvFlash 1s ease-in-out;
 }
