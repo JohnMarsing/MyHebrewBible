@@ -29,7 +29,10 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	public static readonly UserSetting StandaloneAlephTav = new StandaloneAlephTavSE();
 	public static readonly UserSetting ParashaDivider = new ParashaDividerSE();
 	public static readonly UserSetting HebrewWordNumbers = new HebrewWordNumbersSE();	
+
+	//ToDo: is this a thing???
 	public static readonly UserSetting VerseScrollButtons = new VerseScrollButtonsSE();	
+
 	//public static readonly UserSetting WordReplaceLevel = new WordReplaceLevelSE();
 	#endregion
 

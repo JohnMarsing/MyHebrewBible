@@ -5,7 +5,7 @@ namespace PWA.Features.ScrollSpy.Data;
 
 public interface IRepository
 {
-	Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter);
+	Task<List<BookChapterWithATSS>> GetBookChapterWithAT(int bookID, int chapter);
 }
 
 
@@ -19,7 +19,7 @@ public class Repository : BaseRepositoryAsync, IRepository
 	#endregion
 
 	#region BibleVerse
-	public async Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter)
+	public async Task<List<BookChapterWithATSS>> GetBookChapterWithAT(int bookID, int chapter)
 	{
 		Logger.LogDebug("Get B/C: {bookID}/{chapter}", bookID, chapter);
 		var parms = new DynamicParameters(new { BookId = bookID, Chapter = chapter });
@@ -48,12 +48,12 @@ ORDER BY Id
 
 			if (wordPart is not null && wordPart.Any())
 			{
-				var sciptureList = await connection.QueryAsync<BookChapterWithAT>(sql, parms);
+				var sciptureList = await connection.QueryAsync<BookChapterWithATSS>(sql, parms);
 				var query =
 					from s in sciptureList
 					join wp in wordPart
 					on s.ID equals wp.ScriptureID into wpGroup
-					select new BookChapterWithAT
+					select new BookChapterWithATSS
 					{
 						ID = s.ID,
 						BCV = s.BCV,
@@ -68,7 +68,7 @@ ORDER BY Id
 			}
 			else
 			{
-				var sciptureList = await connection.QueryAsync<BookChapterWithAT>(sql, parms);
+				var sciptureList = await connection.QueryAsync<BookChapterWithATSS>(sql, parms);
 				return sciptureList.ToList();
 			}
 		}, sql);

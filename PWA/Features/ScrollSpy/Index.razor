@@ -5,10 +5,17 @@
 
 @using DirEnums = PWA.Components.Report.Enums.VerticalDirection
 @using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
+
+@* @using ToolbarEnums = PWA.Features.ScrollSpy.Toolbar.Enums *@
+@using PWA.Features.Bible.Enums
+@using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
+@using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
+
 @using PWA.Features.ScrollSpy.ActionComponents.LookupBCV
 @using PWA.Features.ScrollSpy.ActionComponents.Find
 @using PWA.Features.ScrollSpy.ActionComponents.ToC
 @using PWA.Features.ScrollSpy.ActionComponents.GoToVerse
+@using PWA.Features.ScrollSpy.Toolbar
 @using RCL.Enums
 
 @inject PWA.Features.ScrollSpy.Data.IRepository? db;
@@ -20,23 +27,27 @@
 
 
 <header>
-	<Buttons />
+	<Buttons BCV="@BCV" OnMenuItemSelectedPassThrough="ReturnedMenuItemId" />
 </header>
+
+<ModalSkeleton ShowMenuItem="CurrentModalToShow">
+	<InstructionsModal>
+		<PageInstructions OnClose="ReturnedCloseEvent" />
+	</InstructionsModal>
+	<UserConfigurationModal>
+		<EditModal OnUserSettingsSelected="ReturnUserSettingsDTO" OnClose="ReturnedCloseEvent" />
+	</UserConfigurationModal>
+</ModalSkeleton>
 
 <LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
 
 	<section class="px-1">
 
-		@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
-		{
-			<TitleSubtitleSS Title="@item.DescH" Subtitle="@item.DescD" BCV="" />
-			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
-				<ParagraphSS BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-										 Verse="item"
-										 ScrollToScriptureId="CurrentScrollToScriptureId"
-										 HighlightText="@_highlightText" />
-			</div>
-		}
+		<SectionsSS FilteredVerses="FilteredVerses"
+								ParmScrollToScriptureId="CurrentScrollToScriptureId"
+								UserSettings="UserSettings" 
+								HighlightText="@HighlightText" />
+
 	</section>
 
 	<footer class="sticky-bottom">
@@ -82,17 +93,11 @@
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 
-	protected int CurrentScrollToScriptureId;
-	protected int CurrentVerse;
-
-	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
-	{
-		return new BookAndChapter(BibleBook.FromValue(bookId), chapter);
-	}
+	protected UserSettingsDTO? UserSettings { get; set; }
 
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
-	private List<BookChapterWithAT>? verses = null;
+	private List<Data.BookChapterWithATSS>? verses = null;
 	private BookChapterVerseRecord BCV { get; set; } = null!;
 	protected List<ReportModel>? FilteredVerses { get; set; }
 
@@ -111,6 +116,25 @@
 		finally
 		{
 			TurnSpinnerOff = true;
+		}
+	}
+
+	protected override void OnParametersSet()
+	{
+		//Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
+		try
+		{
+			PWA.Features.Bible.Enums.Permutation _currentPermutations = (PWA.Features.Bible.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+			UserSettings = new UserSettingsDTO(
+				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
+				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
+				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnParametersSet)}");
 		}
 	}
 
@@ -157,15 +181,16 @@
 		- if you could persist a list, then you could show a dropdown of recent searches/actions.
 		next to the Find button not unlike the B/C History
  */
+
 	private string? TextFilter;
-	private string? StrongsFilter;
-	private string? _highlightText;
+	//private string? StrongsFilter;
+	private string? HighlightText;
 
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
 		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
-		StrongsFilter = filter.Strongs; 
-		_highlightText = filter.SearchText;
+		//StrongsFilter = filter.Strongs;
+		HighlightText = filter.SearchText;
 		ApplyFilter(filter);
 		currentAction = null;
 	}
@@ -198,7 +223,7 @@
 	private void ReturnedClearAction()
 	{
 		currentAction = null;
-		_highlightText = null;
+		HighlightText = null;
 		TextFilter = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
@@ -253,6 +278,10 @@
 		currentAction = null;
 	}
 
+	protected int CurrentScrollToScriptureId;
+	protected int CurrentVerse;
+
+	
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{
 		var (errMsg, verse, _scriptureId) =
@@ -279,18 +308,7 @@
 
 	#endregion
 
-
-
-	private async Task HandleKeyDown(KeyboardEventArgs e)
-	{
-		//Toast!.ShowWarning($"{nameof(HandleKeyDownSS)} called");
-		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
-		if (!valid) { return; }
-
-		SetScriptureIdAndVerse(dirEnums!);
-		await SetFocusToElement(); //Do I Need this???
-	}
-
+	// Called by: ReturnedTOC, ReturnedBCVSelected, ReturnedAction & ReturnedGoToVerse
 	private async Task SetFocusToElement()
 	{
 		if (_module is not null)
@@ -299,6 +317,38 @@
 		}
 	}
 
+
+	#region EventCallback Return Toolbar Logic
+
+
+	private void ReturnUserSettingsDTO(UserSettingsDTO userSettingsDTO)
+	{
+		//Logger!.LogDebug("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
+		UserSettings = userSettingsDTO;
+	}
+
+	protected MenuItem? CurrentModalToShow { get; set; }
+	private void ReturnedMenuItemId(int id)
+	{
+		//Logger!.LogDebug("{Method}, id: {Id}", nameof(ReturnedMenuItemId), id);
+		if (MenuItemEnums.TryFromValue(id, out MenuItemEnums? menuItem))
+		{
+			CurrentModalToShow = menuItem;
+		}
+		else
+		{
+			Logger!.LogWarning("{Method}, Invalid MenuItem: {Id}", nameof(ReturnedMenuItemId), id);
+			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(ReturnedMenuItemId)} {id}");
+		}
+	}
+
+	private void ReturnedCloseEvent()
+	{
+		CurrentModalToShow = null;
+		//Logger!.LogDebug("{Method}, CurrentModalToShow set to null", nameof(ReturnedCloseEvent));
+	}
+
+	#endregion
 
 	#region JavaScript Setup and Teardown
 

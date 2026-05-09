@@ -1,0 +1,21 @@
+﻿@using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem 
+
+@if (ShowMenuItem is not null)
+{
+	@if (ShowMenuItem == MenuItemEnums.Instructions)
+	{
+		@InstructionsModal
+	}
+	else
+	{
+		@UserConfigurationModal
+	}
+}
+@* else { <p>no modal showing</p>	 } *@
+
+
+@code {
+	[Parameter, EditorRequired] public MenuItemEnums? ShowMenuItem { get; set; }
+	[Parameter] public RenderFragment? InstructionsModal { get; set; }
+	[Parameter] public RenderFragment? UserConfigurationModal { get; set; }
+}
