@@ -1,4 +1,7 @@
 ﻿@using PWA.Features.ScrollSpy.Data
+@using PWA.Components.Report.Summary
+
+@* @inject IToastService? Toast *@
 
 @if (Verse != null)
 {
@@ -14,14 +17,36 @@
 			<text>&nbsp;</text>
 		}
 		@((MarkupString)HighlightedKjv)
+
+	@if (ShowStandaloneAlephTavIcon)
+	{
+		<span><i class="fa fa-letter-aleph-tav text-danger ps-2"></i></span>
+	}
+	
+	@if (BookAndChapter!.BibleBook!.IsHebrewBible)
+		{
+			<DrillDownButton ScriptureId="Verse!.ID"
+											 OnVerseSelected="ReturnedVersePassThrough" />
+		}
+		<sup>
+			<BibleAnchor BookAndChapter="BookAndChapter"
+									 IconOnly="true"
+									 ScriptureId="Verse!.ID"
+									 Verse="Verse.Verse" />
+
+		</sup>
+
 	</p>
 }
 
 @code {
 	[Parameter, EditorRequired] public ReportModel? Verse { get; set; }
 	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
+	[Parameter, EditorRequired] public bool ShowStandaloneAlephTavIcon { get; set; }
 	[Parameter] public int ScrollToScriptureId { get; set; }
+	[Parameter] public EventCallback<int> OnVerseSelectedPassThrough { get; set; }
 	[Parameter] public string? HighlightText { get; set; }
+
 
 	string textBG => ScrollToScriptureId == Verse!.ID ? " p-1 bg-info-subtle" : "";
 
@@ -40,5 +65,11 @@
 				System.Text.RegularExpressions.RegexOptions.IgnoreCase
 			);
 		}
+	}
+
+	private void ReturnedVersePassThrough(int scriptureId)
+	{
+	//Toast!.ShowWarning($"ReturnedVersePassThrough {scriptureId}");
+		OnVerseSelectedPassThrough.InvokeAsync(scriptureId);
 	}
 }

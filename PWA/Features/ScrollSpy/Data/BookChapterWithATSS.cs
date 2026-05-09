@@ -1,6 +1,6 @@
 ﻿namespace PWA.Features.ScrollSpy.Data;
 
-public record BookChapterWithAT
+public record BookChapterWithATSS
 {
 	public int ID { get; init; }
 	public string? BCV { get; init; }

@@ -1,0 +1,240 @@
+﻿@using RCL.Enums
+
+@using PWA.Components.Report
+@using PWA.Components.Report.Detail
+@using PWA.Components.Report.Summary
+
+@using DirEnums = PWA.Components.Report.Enums.VerticalDirection
+@using DirHelper = PWA.Components.Report.Enums.VerticalDirectionHelper
+
+@using PWA.Features.Bible.Enums
+@using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
+
+@using PWA.Features.ScrollSpy.Data
+
+@inject ILogger<SectionsSS>? Logger 
+@inject IToastService? Toast
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (FilteredVerses! is not null && FilteredVerses.Count() != 0)
+{
+
+	@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
+	{
+		<TitleSubtitleSS Title="@item.DescH" Subtitle="@item.DescD" BCV="@item.BCV" />
+
+		if (DrilldownScriptureId == 0)
+		{
+			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
+				<ParagraphSS BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+										 Verse="item"
+										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
+										 HighlightText="@HighlightText"
+										 OnVerseSelectedPassThrough="ReturnedVerse" />
+			</div>
+			@if (item.WordPartList?.Count() > 0)
+			{
+				if (UserSettings.IsStandaloneAlephTavDetailsOn)
+				{
+					<SatAndSurroundingWordsSS SurroundingWords="item.WordPartList!.ToList()" />
+				}
+			}
+		}
+		else
+		{
+			if (item.ID == DrilldownScriptureId)
+			{
+				<div class="card border-primary mt-2 mb-4">
+					<div class="card-header">
+						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+												BCV="@item!.BCV"
+												VerseNumber="item!.Verse"
+												Filter="Filter"
+												OnFilter="ReturnedFilter"
+												OnClose="ReturnedCloseEvent" />
+					</div>
+
+					<div class="card-body">
+
+						<div class="@MediaQuery.Xs.DivClass">
+							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																				WordSelected="CurrentWordSelected"
+																				OnWordSelected="ReturnedWord" />
+							<hr />
+							<HebrewParagraph ScriptureId="DrilldownScriptureId"
+															 WordSelected="CurrentWordSelected"
+															 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+															 OnWordSelected="ReturnedWord" />
+						</div>
+
+						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+							<div class="d-flex justify-content-between">
+								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																					WordSelected="CurrentWordSelected"
+																					OnWordSelected="ReturnedWord" />
+
+								<HebrewParagraph ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected"
+																 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+																 OnWordSelected="ReturnedWord" />
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			}
+			else
+			{
+				<ParagraphSS BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
+										 Verse="item"
+										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
+										 HighlightText="@HighlightText"
+										 OnVerseSelectedPassThrough="ReturnedVerse" />
+			}
+		
+		}
+	}
+
+}
+else
+{
+	<p class="fs-3 text-danger text-center">FilteredVerses is null or empty  (◡︵◡)</p>
+}
+
+@code {
+	[Parameter, EditorRequired] public List<Data.ReportModel>? FilteredVerses { get; set; }
+	[Parameter, EditorRequired] public int ParmScrollToScriptureId { get; set; }
+	[Parameter, EditorRequired] public UserSettingsDTO UserSettings { get; set; }
+	[Parameter, EditorRequired] public string HighlightText { get; set; }
+
+	protected int CurrentScrollToScriptureId;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		CurrentScrollToScriptureId = ParmScrollToScriptureId;
+	}
+
+
+	protected bool ShowStandaloneAlephTavIcon(int count) => count > 0 && !UserSettings.IsStandaloneAlephTavDetailsOn;
+	
+
+	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
+	{
+		return new BookAndChapter(BibleBook.FromValue(bookId), chapter);
+	}
+	
+
+	protected int DrilldownScriptureId;
+	private void ReturnedVerse(int scriptureId)
+	{
+		DrilldownScriptureId = scriptureId;
+	}
+
+	//Called by @onkeydown on the div that wraps each ParagraphSS.  
+	private async Task HandleKeyDown(KeyboardEventArgs e)
+	{
+		//Toast!.ShowWarning($"{nameof(HandleKeyDownSS)} called");
+		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
+		if (!valid) { return; }
+
+		SetJustScriptureId(dirEnums!);
+		await SetFocusToElement(); //Do I Need this???
+	}
+
+
+	//Note: Code initially copied from SetScriptureIdAndVerse
+	private void SetJustScriptureId(DirEnums dirEnums)
+	{
+		var (errMsg, verse, _scriptureId) =
+			DirHelper.GetVerseAndScriptureIdSS(dirEnums, CurrentScrollToScriptureId, FilteredVerses!);
+
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Toast!.ShowWarning(errMsg);
+			return;
+		}
+		else
+		{
+			CurrentScrollToScriptureId = _scriptureId;
+		}
+	}
+
+
+	private async Task SetFocusToElement()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+	protected bool Filter = false;
+	private void ReturnedFilter(bool filter)
+	{
+		Filter = filter;
+	}
+		
+	private async Task ReturnedCloseEvent()
+	{
+		DrilldownScriptureId = 0;
+		await Task.Delay(5);
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync("setFocusToElement", $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+
+	#region JavaScript Setup and Teardown
+
+	private IJSObjectReference? _module;
+	protected bool _firstRendered = false;
+	
+	const string JSFunctionScrollTo = "scrollToElement";
+	const string JSFunctionSetFocus = "setFocusToElement";
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_firstRendered)
+		{
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/ScrollSpy/Index.razor.js");
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync(JSFunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger!.LogError(ex, "{Method} failed to load JS module or set focus", nameof(OnAfterRenderAsync));
+			}
+			_firstRendered = true;
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.DisposeAsync();
+		}
+	}
+
+	#endregion
+
+
+
+	WordSelected? CurrentWordSelected = new WordSelected(0, 0);
+	private void ReturnedWord(WordSelected wordSelected)
+	{
+		CurrentWordSelected = wordSelected;
+	}
+
+
+}

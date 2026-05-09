@@ -2,7 +2,7 @@ namespace PWA.Features.ScrollSpy.Data;
 
 public static class DataExtensions
 {
-	public static ReportModel ToReportModel(this BookChapterWithAT bc, int bookId, int chapter)
+	public static ReportModel ToReportModel(this BookChapterWithATSS bc, int bookId, int chapter)
 	{
 		return new ReportModel
 		{
