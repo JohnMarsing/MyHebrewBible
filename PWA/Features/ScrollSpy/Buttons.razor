@@ -1,4 +1,5 @@
-﻿@using PWA.Features.ScrollSpy
+﻿@using RCL.Enums
+@using PWA.Features.ScrollSpy
 @using PWA.Components.Toolbar
 
 @using PWA.Features.Bible.Enums
@@ -10,6 +11,7 @@
 
 <PageTitle>@Nav.BibleBeta.Title</PageTitle>
 
+
 <nav class="navbar navbar-expand bg-primary-subtle">
 
 	<div class="collapse navbar-collapse justify-content-start">
@@ -19,21 +21,12 @@
 		</div>
 	</div>
 
-	@if (BCV is not null)
-	{
 		<div class="@MediaQuery.Xs.DivClass">
-			<span class="fs-5 pt-1 fw-bold text-success">@BCV!.BibleBook!.Title @BCV.Chapter</span>
-			<span>&nbsp;&nbsp;&nbsp;</span>
-			<span class="hebrew30">@BCV.BibleBook.NameInHebrew</span>
-
+			@BibleBookHelper.GetTitleAndChapter(BCV.BibleBook!, BCV.Chapter, true)
 		</div>
 		<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-			<span class="fs-1 pt-2 fw-bold">@BCV!.BibleBook!.Title @BCV.Chapter</span>
-			<span>&nbsp;&nbsp;&nbsp;</span>
-			<span class="hebrew36">@BCV.BibleBook.NameInHebrew</span>
+			@BibleBookHelper.GetTitleAndChapter(BCV.BibleBook!, BCV.Chapter, false)
 		</div>
-	}
-
 
 	<div class="collapse navbar-collapse justify-content-end">
 		<div class="pe-1">
@@ -42,7 +35,7 @@
 				<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemPassThrough" />
 			</div>
 			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemPassThrough" />
+				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemPassThrough" /> 
 			</div>
 
 		</div>

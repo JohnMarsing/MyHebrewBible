@@ -4,10 +4,17 @@ namespace RCL.Enums;
 
 public class BibleAnchors
 {
+
+	public static MarkupString StrongsH_p_Xs(int strongs)
+	{
+		return (MarkupString)(LexiconAnchor("H", LongToInt(strongs), "", false));
+	}
+
 	public static MarkupString StrongsH_td_Xs(int strongs, int wordCount)
 	{
 		return (MarkupString)(LexiconAnchorXs("H", LongToInt(strongs), wordCount));
 	}
+
 	private static string LexiconAnchorXs(string HorG, int strongs, int wordCount)
 	{
 		const string a1 = "<a href='https://www.blueletterbible.org/lexicon/";

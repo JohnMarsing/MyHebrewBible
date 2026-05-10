@@ -1,7 +1,6 @@
-﻿@* @inject IToastService? Toast *@
-@inject PWA.Features.Bible.Data.IRepository? db;
+﻿@inject PWA.Features.Bible.Data.IRepository? db;
+@inject IToastService? Toast
 @inject ILogger<HebrewParagraph>? Logger
-
 
 <LoadingComponent IsLoading="hebrewWords == null" TurnSpinnerOff="TurnSpinnerOff">
 	<p dir="rtl" class=" mb-1">
@@ -67,7 +66,6 @@
 	protected int WordCount = 0;
 	private void ButtonWordClick(int strongs, int wordCount)
 	{
-		//Toast!.ShowInfo($"Strongs/WordCount: {strongs}/{wordCount}");
 		WordCount = wordCount;
 		OnWordSelected.InvokeAsync(new WordSelected(strongs, wordCount));
 	}

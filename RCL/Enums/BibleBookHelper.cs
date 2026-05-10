@@ -1,11 +1,26 @@
 ﻿using System.Text;
 using RCL.Helpers;
+using Microsoft.AspNetCore.Components;
 
 namespace RCL.Enums;
 
 public static class BibleBookHelper
 {
-  public static int GetScriptureId(BibleBook bibleBook, int chapter, int verse)
+
+	public static MarkupString GetTitleAndChapter(BibleBook bibleBook, int chapter, bool isXs = true)
+	{
+		string fontSize = (bibleBook.Title.Length > 8 && isXs) ? "fs-6" : isXs ? "fs-5" : "fs-1";
+		string fontSizeH = (bibleBook.Title.Length > 8 && isXs) ? "hebrew16" : isXs ? "hebrew30" : "hebrew36";
+
+		string englishSpan = $"<span class='fw-bold text-primary {fontSize}'>{bibleBook.Title} {chapter}</span>";
+		string hebrewSpan  = $"<span class='{fontSizeH}'>{bibleBook.NameInHebrew}</span>";
+		string html        = $"<div class=''>{englishSpan}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{hebrewSpan}</div>"; 
+
+		return (MarkupString)html;
+	}
+
+
+	public static int GetScriptureId(BibleBook bibleBook, int chapter, int verse)
   {
     return Enums.BibleBook.List
       .Where(w => w.Value < bibleBook.Value)
@@ -14,7 +29,7 @@ public static class BibleBookHelper
       + verse;                                       // Add the current verse
   }
 
-  public static string GetBCV(BibleBook bibleBook, int chapter, int verse, bool useTitle = true)
+	public static string GetBCV(BibleBook bibleBook, int chapter, int verse, bool useTitle = true)
   {
     return $"{(useTitle ? bibleBook.Name : bibleBook.Abrv)} {chapter}:{verse}";
   }
