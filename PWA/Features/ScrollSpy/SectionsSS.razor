@@ -85,6 +85,19 @@
 					</div>
 
 				</div>
+
+				@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
+				{
+					<div class="@MediaQuery.Xs.DivClass">
+						<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected" IsXs=true />
+					</div>
+					<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+						<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected" IsXs=false />
+					</div>
+				}
+
 			}
 			else
 			{
@@ -231,7 +244,7 @@ else
 
 
 	WordSelected? CurrentWordSelected = new WordSelected(0, 0);
-	private void ReturnedWord(WordSelected wordSelected)
+	private void ReturnedWord(WordSelected? wordSelected)
 	{
 		CurrentWordSelected = wordSelected;
 	}
