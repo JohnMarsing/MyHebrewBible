@@ -18,9 +18,6 @@ namespace PWA.Features.ScrollSpy.Enums
 			internal const int Find = 1;
 			internal const int BCV = 2; // Book Chapter Verse
 			internal const int ToC = 3;
-			internal const int PrevVerse = 4;
-			internal const int GoToVerse = 5;
-			internal const int NextVerse = 6;
 		}
 		#endregion
 
@@ -28,10 +25,6 @@ namespace PWA.Features.ScrollSpy.Enums
 		public static readonly Action Find = new FindSE();
 		public static readonly Action BCV = new BCVSE(); // Book Chapter Verse
 		public static readonly Action Toc = new TocSE();
-		public static readonly Action PrevVerse	= new PrevVerseSE();
-		public static readonly Action GoToVerse = new GoToVerseSE();
-		public static readonly Action NextVerse = new NextVerseSE();
-		// SE=SmartEnum
 		#endregion
 
 		private Action(string name, int value) : base(name, value) { } // Constructor
@@ -73,36 +66,6 @@ namespace PWA.Features.ScrollSpy.Enums
 			public override string Label => "TOC";
 			public override string Icon => "fa-solid fa-t";  // fa-solid fa-arrow-up
 			public override string BtnColor => "btn-info";
-			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;
-		}
-
-		private sealed class PrevVerseSE : Action
-		{
-			public PrevVerseSE() : base($"{nameof(Id.PrevVerse)}", Id.PrevVerse) { }
-			public override string Title => "Go to a previous verse";
-			public override string Label => "Prev";
-			public override string Icon => "fa-solid fa-arrow-left";
-			public override string BtnColor => "btn-primary";
-			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;
-		}
-
-		private sealed class GoToVerseSE : Action
-		{
-			public GoToVerseSE() : base($"{nameof(Id.GoToVerse)}", Id.GoToVerse) { }
-			public override string Title => "Go to a verse";
-			public override string Label => "List";
-			public override string Icon => "fa-solid fa-g";
-			public override string BtnColor => "btn-primary";
-			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;
-		}
-
-		private sealed class NextVerseSE : Action
-		{
-			public NextVerseSE() : base($"{nameof(Id.NextVerse)}", Id.NextVerse) { }
-			public override string Title => "Go to the next verse";
-			public override string Label => "Next";
-			public override string Icon => "fa-solid fa-arrow-right";
-			public override string BtnColor => "btn-primary";
 			public override ActionGroupEnum ActionGroupEnum => ActionGroupEnum.Right;
 		}
 		#endregion

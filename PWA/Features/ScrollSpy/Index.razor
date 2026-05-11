@@ -14,7 +14,6 @@
 @using PWA.Features.ScrollSpy.ActionComponents.LookupBCV
 @using PWA.Features.ScrollSpy.ActionComponents.Find
 @using PWA.Features.ScrollSpy.ActionComponents.ToC
-@using PWA.Features.ScrollSpy.ActionComponents.GoToVerse
 @using PWA.Features.ScrollSpy.Toolbar
 @using RCL.Enums
 
@@ -74,12 +73,6 @@
 		<TextOrStrongsForm IsHebrewBible="BCV!.BibleBook!.IsHebrewBible"
 											 OnFilterSelected="ReturnedFilterSelected"
 											 OnCancel="CloseModal" />
-	}
-	else if (currentAction == Enums.Action.GoToVerse)
-	{
-		<GoToVerseForm BCV="BCV"
-									 OnSelected="ReturnedGoToVerse"
-									 OnCancel="CloseModal" />
 	}
 	else if (currentAction == Enums.Action.BCV)
 	{
@@ -228,7 +221,7 @@
 		FilteredVerses = GetBookChapterVerses();
 	}
 
-	private async Task ReturnedTOC(ReturnedRecord rec)
+	private async Task ReturnedTOC(ActionComponents.VerseAndID rec)
 	{
 		CurrentScrollToScriptureId = rec.ID;
 		CurrentVerse = rec.Verse;
@@ -258,30 +251,16 @@
 	}
 
 
+	//
 	protected Enums.Action? currentAction = null;
 	private async Task ReturnedAction(Enums.Action action)
 	{
 		currentAction = action;
-
-		if (currentAction == Enums.Action.PrevVerse || currentAction == Enums.Action.NextVerse)
-		{
-			SetScriptureIdAndVerse(currentAction == Enums.Action.PrevVerse ? DirEnums.Up : DirEnums.Down);
-			await SetFocusToElement();
-		}
-	}
-
-	private async Task ReturnedGoToVerse(VerseAndID verseAndID)
-	{
-		CurrentScrollToScriptureId = verseAndID.ID;
-		CurrentVerse = verseAndID.Verse;
-		await SetFocusToElement();
-		currentAction = null;
 	}
 
 	protected int CurrentScrollToScriptureId;
 	protected int CurrentVerse;
 
-	
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{
 		var (errMsg, verse, _scriptureId) =
@@ -308,7 +287,7 @@
 
 	#endregion
 
-	// Called by: ReturnedTOC, ReturnedBCVSelected, ReturnedAction & ReturnedGoToVerse
+	// Called by: ReturnedTOC, ReturnedBCVSelected
 	private async Task SetFocusToElement()
 	{
 		if (_module is not null)

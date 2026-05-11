@@ -1,0 +1,194 @@
+@using RCL.Enums
+
+@* FAB toggle button — always visible, anchored bottom-right of the footer *@
+<div class="position-relative">
+
+	@* FAB panel — slides above the toggle when open *@
+	@if (_isOpen)
+	{
+		<div class="fab-panel position-absolute bottom-100 end-0 mb-2 d-flex flex-column align-items-center gap-1"
+				 style="z-index: 1050; min-width: 3rem; right:0">
+
+			@* Scroll to first verse of current chapter *@
+			<button type="button"
+							class="btn btn-info btn-sm rounded-circle"
+							title="@($"Go to Top")"
+							@onclick="ScrollToTopClicked">
+				<i class="fa-solid fa-t"></i>
+			</button>
+
+			@* Prev (⬆️) button *@
+			@if (_isPrevOnEdge)
+			{
+				<OnEdgeButton />
+			}
+			else
+			{
+				<button type="button"
+								class="btn btn-primary btn-sm rounded-circle"
+								title="@_prevLabel"
+								@onclick="PrevClicked">
+					<i class="fas fa-arrow-up"></i>
+				</button>
+			}
+
+			@* Inline verse input *@
+			<div class="d-flex flex-column align-items-center gap-1">
+				<input type="number"
+						 class="form-control form-control-sm bg-secondary-subtle text-center p-0 no-spinner"
+						 min="1"
+						 max="@_lastVerseOfChapter"
+						 @bind="_verseInput"
+						 @bind:event="oninput"
+						 title="@($"Verse 1–{_lastVerseOfChapter}")"
+						 @onkeydown="HandleVerseKeyDown" />
+				@if (_verseInputError)
+				{
+					<span class="badge bg-danger" style="font-size:0.6rem;">1–@_lastVerseOfChapter</span>
+				}
+			</div>
+
+			@* Next (⬇️) button *@
+			@if (_isNextOnEdge)
+			{
+				<OnEdgeButton />
+			}
+			else
+			{
+				<button type="button"
+								class="btn btn-primary btn-sm rounded-circle"
+								title="@_nextLabel"
+								@onclick="NextClicked">
+					<i class="fas fa-arrow-down"></i>
+				</button>
+			}
+
+			@* Scroll to last verse of current chapter *@
+			<button type="button"
+							class="btn btn-info btn-sm rounded-circle"
+							title="@($"Go to Bottom")"
+							@onclick="ScrollToBottomClicked">
+				<i class="fa-solid fa-b"></i>
+			</button>
+
+		</div>
+	}
+
+	@* Toggle button *@
+	<button type="button"
+					class="btn btn-primary btn-sm rounded rounded-4 me-1"
+					title="@(_isOpen ? "Close navigation" : "Open navigation")"
+					@onclick="ToggleFab">
+		<i class="fas fa-chevron-up fab-toggle-icon @(_isOpen ? "is-open" : "")"></i>
+	</button>
+
+</div>
+
+@code {
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = default!;
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+
+	private bool _isOpen;
+	private bool _isPrevOnEdge;
+	private bool _isNextOnEdge;
+	private string _prevLabel = string.Empty;
+	private string _nextLabel = string.Empty;
+	private BibleBookPrevNext? _prevNav;
+	private BibleBookPrevNext? _nextNav;
+	private int _lastVerseOfChapter;
+	private int _verseInput;
+	private bool _verseInputError;
+
+	protected override void OnParametersSet()
+	{
+		if (BCV?.BibleBook is null) return;
+
+		_lastVerseOfChapter = BCV.BibleBook.LastVerses[BCV.Chapter - 1];
+		_verseInput = BCV.Verse;
+		_verseInputError = false;
+
+		bool isFirstVerse = BCV.Verse == 1;
+		bool isLastVerse = BCV.Verse == _lastVerseOfChapter;
+
+		// Prev
+		if (isFirstVerse)
+		{
+			_prevNav = BCV.BibleBook.NavigationPrevious(BCV.Chapter);
+			_isPrevOnEdge = _prevNav.BibleBook is null;
+			_prevLabel = _isPrevOnEdge ? string.Empty : _prevNav.ButtonText;
+		}
+		else
+		{
+			_isPrevOnEdge = false;
+			_prevNav = new BibleBookPrevNext(BCV.BibleBook, BCV.Chapter, (BCV.Verse - 1).ToString());
+			_prevLabel = $"{BCV.BibleBook.Abrv} {BCV.Chapter}:{BCV.Verse - 1}";
+		}
+
+		// Next
+		if (isLastVerse)
+		{
+			_nextNav = BCV.BibleBook.NavigationNext(BCV.Chapter);
+			_isNextOnEdge = _nextNav.BibleBook is null;
+			_nextLabel = _isNextOnEdge ? string.Empty : _nextNav.ButtonText;
+		}
+		else
+		{
+			_isNextOnEdge = false;
+			_nextNav = new BibleBookPrevNext(BCV.BibleBook, BCV.Chapter, (BCV.Verse + 1).ToString());
+			_nextLabel = $"{BCV.BibleBook.Abrv} {BCV.Chapter}:{BCV.Verse + 1}";
+		}
+	}
+
+	private void ToggleFab() => _isOpen = !_isOpen;
+
+	private async Task HandleVerseKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key != "Enter") return;
+		await GoToVerse();
+	}
+
+	private async Task GoToVerse()
+	{
+		if (BCV?.BibleBook is null) return;
+
+		if (_verseInput < 1 || _verseInput > _lastVerseOfChapter)
+		{
+			_verseInputError = true;
+			return;
+		}
+
+		_verseInputError = false;
+		var scriptureId = BibleBookHelper.GetScriptureId(BCV.BibleBook, BCV.Chapter, _verseInput);
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, _verseInput));
+	}
+
+	private async Task ScrollToTopClicked()
+	{
+		if (BCV?.BibleBook is null) return;
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, 1));
+	}
+
+	private async Task ScrollToBottomClicked()
+	{
+		if (BCV?.BibleBook is null) return;
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, _lastVerseOfChapter));
+	}
+
+	private async Task PrevClicked()
+	{
+		if (_prevNav?.BibleBook is null) return;
+		BookChapterVerseRecord target = BCV.Verse == 1
+			? new BookChapterVerseRecord(_prevNav.BibleBook, _prevNav.Chapter, 1)
+			: new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, BCV.Verse - 1);
+		await OnBCVSelected.InvokeAsync(target);
+	}
+
+	private async Task NextClicked()
+	{
+		if (_nextNav?.BibleBook is null) return;
+		BookChapterVerseRecord target = BCV.Verse == _lastVerseOfChapter
+			? new BookChapterVerseRecord(_nextNav.BibleBook, _nextNav.Chapter, 1)
+			: new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, BCV.Verse + 1);
+		await OnBCVSelected.InvokeAsync(target);
+	}
+}

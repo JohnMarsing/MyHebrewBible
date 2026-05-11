@@ -25,7 +25,7 @@
 						@foreach (var item in Data)
 						{
 							<button type="button" 
-											@onclick="() => OnSelected.InvokeAsync(new ReturnedRecord(item.Verse, item.ID))"
+											@onclick="() => OnSelected.InvokeAsync(new ActionComponents.VerseAndID(item.Verse, item.ID))"
 											title="Go to verse @item.Verse ➡️"
 											class="list-group-item list-group-item-action list-group-item-warning " aria-current="true">
 								
@@ -45,7 +45,7 @@
 @code {
 	[Parameter, EditorRequired] public string Title { get; set; }
 	[Parameter, EditorRequired] public List<TableOfContentRecord>? Data { get; set; }
-	[Parameter, EditorRequired] public EventCallback<ReturnedRecord> OnSelected { get; set; }
+	[Parameter, EditorRequired] public EventCallback<ActionComponents.VerseAndID> OnSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
 	private async Task HandleCancel()
