@@ -1,0 +1,31 @@
+/* Hide number input spin buttons */
+input.no-spinner::-webkit-outer-spin-button,
+input.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input.no-spinner[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* FAB panel — semi-transparent frosted background */
+.fab-panel {
+    background-color: rgba(80, 85, 90, 0.35);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Toggle arrow icon — smooth 180° rotation */
+.fab-toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.fab-toggle-icon.is-open {
+    transform: rotate(180deg);
+}

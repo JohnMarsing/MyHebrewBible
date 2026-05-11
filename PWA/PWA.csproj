@@ -12,10 +12,6 @@
     <RunAOTCompilation>true</RunAOTCompilation>
   </PropertyGroup>
 
-	<ItemGroup>
-	  <Content Include="Features\ScrollSpy\ActionComponents\GoToVerse\GoToVerseForm.razor.js" />
-	</ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
 		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
@@ -45,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Features\ScrollSpy\ActionComponents\GoToVerse\VerseAndID.cs" />
+    <None Include="Features\ScrollSpy\ActionComponents\VerseAndID.cs" />
   </ItemGroup>
 
 </Project>
