@@ -1,9 +1,5 @@
 ﻿using Dapper;
 using PWA.Data;
-using PWA.Data.Constants;
-using PWA.Data.Endpoints;
-using PWA.Data.Endpoints.CommonDtos;
-using PWA.Data.Enums;
 
 namespace PWA.Features.Bible.Data;
 
@@ -11,9 +7,10 @@ public interface IRepository
 {
 	Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter);
 	Task<List<WordPartByScriptureId>> GetWordPartByScriptureId(int scriptureId);
-	Task<List<WordPartByStrongs>> GetWordPartsByStrongs(int scriptureId, int strongs);
+	Task<List<WordPartByScripureIdAndStrongs>>  GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs);
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
 }
+
 
 public class Repository : BaseRepositoryAsync, IRepository
 {
@@ -22,18 +19,35 @@ public class Repository : BaseRepositoryAsync, IRepository
 		: base(dataService, logger)
 	{
 	}
-#endregion
+	#endregion
 
 	#region BibleVerse
 	public async Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter)
 	{
 		Logger.LogDebug("Get B/C: {bookID}/{chapter}", bookID, chapter);
 		var parms = new DynamicParameters(new { BookId = bookID, Chapter = chapter });
-		var sql = Api.BookChapterWithAT.Sql;
+		string sql = @"
+SELECT ID, BCV, Verse, VerseOffset, KJV, DescH, DescD  
+FROM Scripture
+WHERE BookID=@BookId and Chapter=@Chapter
+ORDER BY ID
+		";
+
+		string sqlDetail = @"
+SELECT Id, BCV, BookID, Chapter, Verse
+, ScriptureID, WordCount, SegmentCount, WordEnum
+, Hebrew1, Hebrew2, Hebrew3
+, KjvWord, Strongs, Transliteration, FinalEnum
+--, HasTwo
+FROM vwAlephTavBookChapterWordPart
+--WHERE BookID=@BookId and Chapter=@Chapter
+ORDER BY Id	
+		";
 
 		return await WithConnectionAsync(async connection =>
 		{
-			var wordPart = await connection.QueryAsync<WordPart>(Api.BookChapterWithAT.SqlDetail, parms);
+
+			var wordPart = await connection.QueryAsync<WordPart>(sqlDetail, parms);
 
 			if (wordPart is not null && wordPart.Any())
 			{
@@ -65,10 +79,17 @@ public class Repository : BaseRepositoryAsync, IRepository
 	#endregion
 
 	#region WordPart
+	//GetWordPartKjv
 	public async Task<List<WordPartByScriptureId>> GetWordPartByScriptureId(int scriptureId)
 	{
 		var parms = new DynamicParameters(new { ScriptureID = scriptureId });
-		var sql = Api.WordPartByScriptureId.Sql;
+
+		string sql = @"
+SELECT ScriptureID, WordCount, SegmentCount, WordEnum, Hebrew1, Hebrew2, Hebrew3, KjvWord, Strongs, Transliteration, FinalEnum
+FROM WordPart 
+WHERE ScriptureID=@ScriptureID
+ORDER BY WordCount
+";
 
 		return await WithConnectionAsync(async connection =>
 		{
@@ -77,14 +98,20 @@ public class Repository : BaseRepositoryAsync, IRepository
 		}, sql);
 	}
 
-	public async Task<List<WordPartByStrongs>> GetWordPartsByStrongs(int scriptureId, int strongs)
+	public async Task<List<WordPartByScripureIdAndStrongs>> GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs)
 	{
 		var parms = new DynamicParameters(new { ScriptureID = scriptureId, Strongs = strongs });
-		var sql = Api.WordPartByStrongs.Sql;
+
+		string sql = @"
+SELECT ScriptureID, WordCount, SegmentCount, WordEnum, Hebrew1, Hebrew2, Hebrew3, KjvWord, Strongs, Transliteration, FinalEnum
+FROM WordPart 
+WHERE ScriptureID=@ScriptureID and Strongs=@Strongs
+ORDER BY WordCount, SegmentCount
+";
 
 		return await WithConnectionAsync(async connection =>
 		{
-			var rows = await connection.QueryAsync<WordPartByStrongs>(sql, parms);
+			var rows = await connection.QueryAsync<WordPartByScripureIdAndStrongs>(sql, parms);
 			return rows.ToList();
 		}, sql);
 	}
@@ -92,7 +119,12 @@ public class Repository : BaseRepositoryAsync, IRepository
 	public async Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId)
 	{
 		var parms = new DynamicParameters(new { ScriptureID = scriptureId });
-		var sql = Api.WordPartKjv.Sql;
+		string sql = @"
+SELECT ScriptureID, WordCount, ifnull(Strongs,0) AS Strongs, Word
+FROM WordPartKjv
+WHERE ScriptureID=@ScriptureID
+ORDER BY WordCount
+";
 
 		return await WithConnectionAsync(async connection =>
 		{
@@ -100,6 +132,8 @@ public class Repository : BaseRepositoryAsync, IRepository
 			return rows.ToList();
 		}, sql);
 	}
+
 	#endregion
 }
 
+// Ignore Spelling: Descr, bookid, Mitzvah, mitzvot, wordpart, wordpartkjv, scriptureid, bookchapterwithat, verselist, begverse endverse Nav, triennialid, alephtavkjvverse, alephtavhebrewverse, alephtavbookchapterwordpartcontext, alephtavtriennialwordpartcontext, Strongs, ifnull

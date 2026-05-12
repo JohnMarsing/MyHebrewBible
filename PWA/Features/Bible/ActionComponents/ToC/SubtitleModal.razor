@@ -1,0 +1,55 @@
+@using PWA.Features.Bible
+@using PWA.Features.Bible.Data
+@using RCL.Components
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="subtitleModalLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+
+			<div class="modal-header">
+				<h5 class="modal-title text-center" id="subtitleModalLabel">@Title</h5>
+				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
+			</div>
+
+			<div class="modal-body">
+
+				@if (Data == null || !Data.Any())
+				{
+					<div class="alert alert-info text-center" role="alert">
+						No data available.
+					</div>
+				}
+				else
+				{
+					<div class="list-group">
+						@foreach (var item in Data)
+						{
+							<button type="button" 
+											@onclick="() => OnSelected.InvokeAsync(new ActionComponents.VerseAndID(item.Verse, item.ID))"
+											title="Go to verse @item.Verse ➡️"
+											class="list-group-item list-group-item-action list-group-item-warning " aria-current="true">
+								
+								<span class="badge text-bg-info rounded-pill link-underline-dark">@item.Verse</span>
+								@item.Description
+							</button>
+						}
+					</div>
+					
+				}
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+@code {
+	[Parameter, EditorRequired] public string Title { get; set; }
+	[Parameter, EditorRequired] public List<TableOfContentRecord>? Data { get; set; }
+	[Parameter, EditorRequired] public EventCallback<ActionComponents.VerseAndID> OnSelected { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+	private async Task HandleCancel()
+	{
+		await OnCancel.InvokeAsync();
+	}
+}

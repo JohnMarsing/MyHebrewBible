@@ -1,104 +1,33 @@
-﻿@page "/bible/{Abrv}/{Chapter:int}/{Verse:int=1}/{ScriptureId:int=0}/"
-@page "/bible"
+﻿@page "/Bible"
 
-@using PWA.Data
+@using Dapper;
+@using PWA.Features.Bible.Data
 
-@using PWA.Layout
+@using DirEnums = Enums.VerticalDirection
+@using DirHelper = Enums.VerticalDirectionHelper
+
+@* @using ToolbarEnums = PWA.Features.Bible.Toolbar.Enums *@
+@using PWA.Features.Bible.Enums
+@using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
+@using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
+
+@using PWA.Features.Bible.ActionComponents.LookupBCV
+@using PWA.Features.Bible.ActionComponents.Find
+@using PWA.Features.Bible.ActionComponents.ToC
 @using PWA.Features.Bible.Toolbar
-@using PWA.Features.Bible.UserSettingsEditor
-@using BookChapterConstants = PWA.Features.Bible.Constants
-@using NumberPad = PWA.Features.Bible.Toolbar.NumberPad
-@using PWA.Features.Bible.Toolbar.NumberPad
-@using PWA.Components.Toolbar
-@using PWA.Enums
-@using HomeHelper = PWA.Features.Bible.Helper
+@using RCL.Enums
 
+@inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
-@inject NavigationManager NavigationManager
 @inject IToastService? Toast
 
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+
 <header>
-	<NavSkeleton>
-		
-		<Sitemap><SitemapButton /></Sitemap>
-
-		<JustifyStart>
-			<div class="@MediaQuery.Xs.DivClass">
-				<HistoryDropdown BtnSize="btn-sm">
-					<Recent>
-						<RecentListPicker OnBCVSelected="ReturnedBCV" />
-					</Recent>
-					<Parashot>
-						<ParashotPicker OnBCVSelected="ReturnedBCV" />
-					</Parashot>
-				</HistoryDropdown>
-
-			</div>
-
-			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-				
-				<HistoryDropdown>
-					<Recent>
-						<RecentListPicker OnBCVSelected="ReturnedBCV" />
-					</Recent>
-					<Parashot>
-						<ParashotPicker OnBCVSelected="ReturnedBCV" />
-					</Parashot>
-				</HistoryDropdown>
-
-			</div>
-
-
-		</JustifyStart>
-
-		<PrevButtonDiv>
-			@if (CurrentBookAndChapter is not null)
-			{
-				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
-															IsPrevious=true
-															OnBookAndChapterSelected="ReturnedBookAndChapter" />
-			}
-		</PrevButtonDiv>
-
-		<PickerDiv>
-			<div class="@MediaQuery.Xs.DivClass">
-				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="true" />
-			</div>
-			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-				<Picker CurrentBCV="CurrentBCV" OnBCVSelected="ReturnedBCV" IsXs="false" />
-			</div>
-		</PickerDiv>
-
-		<NextButtonDiv>
-			@if (CurrentBookAndChapter is not null)
-			{
-				<PreviousOrNextButton BookAndChapter="CurrentBookAndChapter"
-															IsPrevious=false
-															OnBookAndChapterSelected="ReturnedBookAndChapter" />
-			}
-		</NextButtonDiv>
-
-		<JustifyEnd>
-			<div class="@MediaQuery.Xs.DivClass">
-				<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemId" />
-			</div>
-			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemId" />
-			</div>
-		</JustifyEnd>
-
-	</NavSkeleton>
+	<Buttons BCV="@BCV" OnMenuItemSelectedPassThrough="ReturnedMenuItemId" />
 </header>
-
-	
-@if (CurrentAbrvChapterVerse is not null && CurrentBookAndChapter is not null && UserSettings is not null)
-{
-	<section class="container-fluid px-1 px-sm-2 px-md-3">
-		<ReportWrapper AbrvChapterVerse="CurrentAbrvChapterVerse"
-									 UserSettings="UserSettings"
-									 BookAndChapter="CurrentBookAndChapter" />
-	</section>
-}
 
 <ModalSkeleton ShowMenuItem="CurrentModalToShow">
 	<InstructionsModal>
@@ -109,66 +38,91 @@
 	</UserConfigurationModal>
 </ModalSkeleton>
 
-<ScrollToTop />
+<LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<section class="px-1">
+
+		<Sections FilteredVerses="FilteredVerses"
+								ParmScrollToScriptureId="CurrentScrollToScriptureId"
+								UserSettings="UserSettings" 
+								HighlightText="@HighlightText" />
+
+	</section>
+
+	<footer class="sticky-bottom">
+		<Footer BCV="@BCV" TextFilter="@TextFilter"
+						OnActionSelected="ReturnedAction"
+						OnClearClicked="ReturnedClearAction"
+						OnBCVSelected="ReturnedBCVSelected" />
+	</footer>
+
+</LoadingComponent>
+
+@if (currentAction is not null)
+{
+	@if (currentAction == Enums.Action.Toc)
+	{
+		<SubtitleModal Title="@FilteredVerses?.GetTitle()"
+									 Data="FilteredVerses?.ToTableOfContentMapping().ToList()"
+									 OnSelected="ReturnedTOC"
+									 OnCancel="CloseModal" />
+	}
+	else if (currentAction == Enums.Action.Find)
+	{
+		@* ToDo: do I need to concerned if BCV or BibleBook is null *@
+		<TextOrStrongsForm IsHebrewBible="BCV!.BibleBook!.IsHebrewBible"
+											 OnFilterSelected="ReturnedFilterSelected"
+											 OnCancel="CloseModal" />
+	}
+	else if (currentAction == Enums.Action.BCV)
+	{
+		<BCVForm OnSelected="ReturnedBCVSelected" OnCancel="CloseModal" />
+	}
+
+}
+
+@* else { <Alert>currentAction is null</Alert>	 } *@
 
 @code {
-
-	protected string PageTitle = string.Empty;
-
-	// Route parameters
-	[Parameter, EditorRequired] public string Abrv { get; set; } = string.Empty;
-	[Parameter, EditorRequired] public int Chapter { get; set; }
-	[Parameter] public int Verse { get; set; } = 1; // ToDo:
-	[Parameter] public int ScriptureId { get; set; }
-
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 
-	public BookAndChapter? CurrentBookAndChapter { get; set; }     // parameter for ReportWrapper
-	public AbrvChapterVerse? CurrentAbrvChapterVerse { get; set; } // parameter for ReportWrapper
-	protected Enums.UserSettingsDTO? UserSettings { get; set; }
-	public BookChapterVerseRecord? CurrentBCV { get; set; }
+	protected UserSettingsDTO? UserSettings { get; set; }
+
+	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
+	protected bool TurnSpinnerOff = false;
+	private List<Data.BookChapterWithAT>? verses = null;
+	private BookChapterVerseRecord BCV { get; set; } = null!;
+	protected List<ReportModel>? FilteredVerses { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
-		//need to call here before OnParametersSet so that _currentPermutations can be used
-		//Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
-		await State!.AppState!.BookChapterState!.Initialize(); 
+		try
+		{
+			SetScriptureIdAndBCV();
+			verses = await db!.GetBookChapterWithAT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+			FilteredVerses = GetBookChapterVerses();
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
 	}
 
 	protected override void OnParametersSet()
 	{
-		Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
+		//Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
 		try
 		{
-			Enums.Permutation _currentPermutations = (Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
-			UserSettings = new Enums.UserSettingsDTO(
-				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.StandaloneAlephTavDetailOn),
-				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(Enums.Permutation.ParashaDividerDetailOn),
-				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(Enums.Permutation.HebrewWordNumbersOn),
-				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(Enums.Permutation.VerseScrollButtonsOn));
-			
-			if (Abrv == Constants.Abrv.Value || string.IsNullOrEmpty(Abrv))
-			{
-				Logger!.LogDebug("{Method}, {Message}", nameof(OnParametersSet), "Abrv is default or empty");
-				AbrvChapterVerse? rec = State!.AppState!.BookChapterState!.GetACV();
-				NavigationManager!.NavigateTo(rec.NavigateToUrl());
-			}
-			else
-			{
-				Logger!.LogDebug("{Method}, CallingMethod: {CallingMethod}", nameof(OnParametersSet), nameof(GetAbrvChapterVerseViaRoutes));
-				var (abrvChapterVerse, bibleBook) = GetAbrvChapterVerseViaRoutes(Abrv, Chapter, Verse, ScriptureId);
-				if (abrvChapterVerse is not null && bibleBook is not null)
-				{
-					CurrentAbrvChapterVerse = abrvChapterVerse;
-					CurrentBookAndChapter = bibleBook;
-					CurrentBCV = new BookChapterVerseRecord(bibleBook.BibleBook, Chapter, Verse);
-					//Logger!.LogDebug("{Method}, CurrentAbrvChapterVerse: {CurrentAbrvChapterVerse}", nameof(OnParametersSet), CurrentAbrvChapterVerse);
-				}
-				else
-				{
-					Toast!.ShowWarning($"abrvChapterVerse and/or bibleBook is null (◡︵◡)");
-				}
-			}
+			PWA.Features.Bible.Enums.Permutation _currentPermutations = (PWA.Features.Bible.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+			UserSettings = new UserSettingsDTO(
+				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
+				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
+				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
+				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
 		}
 		catch (Exception ex)
 		{
@@ -177,86 +131,186 @@
 		}
 	}
 
-	private (AbrvChapterVerse?, BookAndChapter?) GetAbrvChapterVerseViaRoutes(string abrv, int chapter, int verse, int scriptureId)
+	// ToDo: can `SetScriptureIdAndBCV` this logic be pushed down to RCL.Enums i.e. `BibleBookHelper.cs`?
+	// - I would have to somehow pass in State
+	private void SetScriptureIdAndBCV()
 	{
-		Logger!.LogDebug("{Method}, abrv/c/v/SID: {abrv}/{chapter}/{verse}/{scriptureId}"
-		, nameof(GetAbrvChapterVerseViaRoutes), abrv, chapter, verse, scriptureId);
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); // get from local storage, if not found use default (Gen 1:1); sometime Genesis is returned instead of Gen???
 
-		if (string.IsNullOrEmpty(abrv))
+		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); // based on the lookup, convert the abrv to a BibleBook.Value
+		if (!String.IsNullOrEmpty(errMsg))
 		{
-			//throw new ArgumentException("`abrv` cannot be null or empty.", nameof(abrv));
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			throw new InvalidOperationException(errMsg);
 		}
 
-		var (errMsg, _value) = RCL.Enums.BibleBookDictionary.GetId(abrv);
-
-		if (String.IsNullOrEmpty(errMsg))
+		BibleBook? bibleBook;
+		if (BibleBook.TryFromValue(_value, out bibleBook))  // Lookup the SmartEnum based on the newly acquired BibleBook.Value
 		{
-			RCL.Enums.BibleBook? bibleBook;
-			if (RCL.Enums.BibleBook.TryFromValue(_value, out bibleBook))
-			{
-				AbrvChapterVerse acv = new AbrvChapterVerse(
-					bibleBook!.Abrv, chapter, verse, true, scriptureId, HomeHelper.LastVerseCount(bibleBook, chapter)	);
-				return (acv, new BookAndChapter(bibleBook, chapter));
-			}
+			BCV = new BookChapterVerseRecord(bibleBook, CurrentAbrvChapterVerse.Chapter, CurrentAbrvChapterVerse.Verse);
+			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
 		}
 		else
 		{
-			Logger!.LogWarning("{Method}, {errMsg}", nameof(GetAbrvChapterVerseViaRoutes), errMsg);
-			Toast!.ShowWarning(errMsg);
-			//ToDo: change the url in the browser to the default book
-			return (AbrvChapterVerse.Default, new BookAndChapter(RCL.Enums.BibleBook.Genesis, chapter));
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			throw new InvalidOperationException("BibleBook.TryFromValue fa");
 		}
-		return (null, null);
 	}
 
-	private void ReturnUserSettingsDTO(Enums.UserSettingsDTO userSettingsDTO)
+	protected List<ReportModel> GetBookChapterVerses()
+	{
+		return verses!
+				.OrderBy(o => o.ID)
+				.Select(bc => bc.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
+				.ToList();
+	}
+
+
+
+	#region EventCallback Return Logic
+	/*
+	ToDo: Consider a new feature; what if you persisted the last action
+	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
+		- if you could persist a list, then you could show a dropdown of recent searches/actions.
+		next to the Find button not unlike the B/C History
+ */
+
+	private string? TextFilter;
+	//private string? StrongsFilter;
+	private string? HighlightText;
+
+	private void ReturnedFilterSelected(FilterRecord filter)
+	{
+		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
+		//StrongsFilter = filter.Strongs;
+		HighlightText = filter.SearchText;
+		ApplyFilter(filter);
+		currentAction = null;
+	}
+
+	private void ApplyFilter(FilterRecord filter)
+	{
+		var hasText = !string.IsNullOrWhiteSpace(filter.SearchText);
+
+		if (!hasText)
+		{
+			FilteredVerses = GetBookChapterVerses();
+			return;
+		}
+
+		FilteredVerses = GetBookChapterVerses()
+			.Where(v => v.KJV?.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase) ?? false)
+			.ToList();
+	}
+
+	private void CloseModal()
+	{
+		currentAction = null;
+	}
+
+	/*
+	Called by StickFooter when Clear button the TextOrStrongsForm! clicked,
+	ToDo:
+	 but also consider other scenarios where you want to clear the filter and return to the default state.
+	 */
+	private void ReturnedClearAction()
+	{
+		currentAction = null;
+		HighlightText = null;
+		TextFilter = null;
+		FilteredVerses = GetBookChapterVerses();
+	}
+
+	private async Task ReturnedTOC(ActionComponents.VerseAndID rec)
+	{
+		CurrentScrollToScriptureId = rec.ID;
+		CurrentVerse = rec.Verse;
+		await SetFocusToElement();
+		currentAction = null;
+	}
+
+	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
+	{
+		currentAction = null;
+		BCV = bcv;
+		try
+		{
+			verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
+		}
+		catch (Exception ex)
+		{
+			Logger!.LogError(ex, "{Method}, {Message}", nameof(ReturnedBCVSelected), $"Error occurred while calling {nameof(db.GetBookChapterWithAT)}");
+			Toast!.ShowError("Failed to load verses. Please try again.");
+			return;
+		}
+
+		FilteredVerses = GetBookChapterVerses();
+		CurrentScrollToScriptureId = bcv.ScriptureId;
+		CurrentVerse = bcv.Verse;
+		await SetFocusToElement();
+	}
+
+
+	//
+	protected Enums.Action? currentAction = null;
+	private async Task ReturnedAction(Enums.Action action)
+	{
+		currentAction = action;
+	}
+
+	protected int CurrentScrollToScriptureId;
+	protected int CurrentVerse;
+
+	private void SetScriptureIdAndVerse(DirEnums dirEnums)
+	{
+		var (errMsg, verse, _scriptureId) =
+			DirHelper.GetVerseAndScriptureId(dirEnums, CurrentScrollToScriptureId, FilteredVerses!);
+
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Toast!.ShowWarning(errMsg);
+			return;
+		}
+		else
+		{
+			CurrentScrollToScriptureId = _scriptureId;
+			CurrentVerse = verse;
+		}
+
+		if (CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)
+		{
+			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
+				with
+			{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
+		}
+	}
+
+	#endregion
+
+	// Called by: ReturnedTOC, ReturnedBCVSelected
+	private async Task SetFocusToElement()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+
+	#region EventCallback Return Toolbar Logic
+
+
+	private void ReturnUserSettingsDTO(UserSettingsDTO userSettingsDTO)
 	{
 		//Logger!.LogDebug("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
 		UserSettings = userSettingsDTO;
 	}
 
-	// Called inside <NavSkeleton> by <PreviousOrNextButton>
-	private async Task ReturnedBookAndChapter(BookAndChapter bookAndChapter)
-	{
-		AbrvChapterVerse rec = new AbrvChapterVerse(
-				bookAndChapter.BibleBook!.Abrv, bookAndChapter.Chapter, 1, true, 0, HomeHelper.LastVerseCount(bookAndChapter.BibleBook, bookAndChapter.Chapter));
-		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBookAndChapter), rec);
-		
-		NavigationManager!.NavigateTo(rec.NavigateToUrl());
-
-		//
-		await State!.AppState!.BookChapterState!.UpdateACV(rec);
-		CurrentBookAndChapter = bookAndChapter!;
-		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
-		PageTitle = RCL.Enums.BibleBookFormat.BC(bookAndChapter);
-	}
-
-	// Called inside <NavSkeleton>, by <RecentListPicker>, <ParashotPicker> and <Picker>
-	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
-	{
-		AbrvChapterVerse rec = new AbrvChapterVerse(
-			bcv.BibleBook!.Abrv, bcv.Chapter, bcv.Verse, false, 0, HomeHelper.LastVerseCount(bcv.BibleBook, bcv.Chapter));
-		//Logger!.LogDebug("{Method}, AbrvChapterVerse: {AbrvChapterVerse}", nameof(ReturnedBCV), rec);
-
-		NavigationManager!.NavigateTo(rec.NavigateToUrl());
-		
-		await State!.AppState!.BookChapterState!.UpdateACV(rec);
-		//Logger!.LogDebug("{Method}, CurrentBookAndChapter: {CurrentBookAndChapter}", nameof(ReturnedBookAndChapter), CurrentBookAndChapter);
-		PageTitle = RCL.Enums.BibleBookFormat.BCV(bcv);
-	}
-
-	#region MenuTemplate and ModalSkeleton
-
-	private List<Dictionary<int, string?>> menuItems = Enums.MenuItem.List
-			.Select(item => new Dictionary<int, string?> { { item.Value, item.Title } })
-			.ToList();
-
-	protected Enums.MenuItem? CurrentModalToShow { get; set; }
-
+	protected MenuItem? CurrentModalToShow { get; set; }
 	private void ReturnedMenuItemId(int id)
 	{
 		//Logger!.LogDebug("{Method}, id: {Id}", nameof(ReturnedMenuItemId), id);
-		if (Enums.MenuItem.TryFromValue(id, out Enums.MenuItem? menuItem))
+		if (MenuItemEnums.TryFromValue(id, out MenuItemEnums? menuItem))
 		{
 			CurrentModalToShow = menuItem;
 		}
@@ -275,6 +329,42 @@
 
 	#endregion
 
-	// Ignore Spelling: bc, rec
+	#region JavaScript Setup and Teardown
 
+	private IJSObjectReference? _module;
+	protected bool _firstRendered = false;
+	
+	const string JSFunctionScrollTo = "scrollToElement";
+	const string JSFunctionSetFocus = "setFocusToElement";
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_firstRendered)
+		{
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/Bible/Index.razor.js");
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync(JSFunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger!.LogError(ex, "{Method} failed to load JS module or set focus", nameof(OnAfterRenderAsync));
+			}
+			_firstRendered = true;
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.DisposeAsync();
+		}
+	}
+
+	#endregion
 }
