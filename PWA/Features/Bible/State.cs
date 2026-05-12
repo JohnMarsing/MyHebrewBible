@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using PWA.State;
 using PWA.Features.Bible.Toolbar;
-using PWA.Features.Bible.Enums;
+using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting;
 
 namespace PWA.Features.Bible;
 
@@ -62,14 +62,14 @@ public class State
 			if (us is null)
 			{
 				//Logger!.LogWarning("... us is null, using {Default}, calling {UserSetting}", UserSetting.Default, nameof(UserSetting));
-				await UpdateUserSetting(UserSetting.Default);
+				await UpdateUserSetting(PWA.Features.Bible.Enums.UserSetting.Default);
 			}
 			else
 			{
 				bool _success = int.TryParse(us, out _UserSetting);
 				if (!_success)
 				{
-					await UpdateUserSetting(UserSetting.Default);
+					await UpdateUserSetting(PWA.Features.Bible.Enums.UserSetting.Default);
 				}
 			}
 
@@ -109,7 +109,7 @@ public class State
 		return _UserSetting;
 	}
 
-	public async Task UpdateUserSetting(Permutation permutation)
+	public async Task UpdateUserSetting(PWA.Features.Bible.Enums.Permutation permutation)
 	{
 		await localStorage!.SetItemAsync(KeyUserSetting, (int)permutation);
 		_UserSetting = (int)permutation;

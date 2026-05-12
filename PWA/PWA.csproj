@@ -38,10 +38,11 @@
 
   <ItemGroup>
     <Folder Include="Features\Lists\MitzvahPage\" />
+    <Folder Include="Features\ScrollSpy\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Features\ScrollSpy\ActionComponents\VerseAndID.cs" />
+    <None Include="Features\Bible\ActionComponents\VerseAndID.cs" />
   </ItemGroup>
 
 </Project>
