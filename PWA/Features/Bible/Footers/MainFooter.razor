@@ -1,28 +1,18 @@
 ﻿@using PWA.Features.Bible.ActionComponents.RecentBCV
 @using PWA.Features.Bible.ActionComponents
 
-<div class="bg-info-subtle p-1">
+<div class="bg-info-subtle p-1 border-top border-primary border-2">
 
 	<div class="d-flex justify-content-between">
 		
 		<div class="d-flex justify-content-start">
-			@if (TextFilter is null)
-			{
-				<ActionButtons ActionGroup="Enums.ActionGroupEnum.Left"
-											 OnActionSelected="ReturnedAction" />
-			}
-			else
-			{
-				<button type="button"
-								class="btn btn-danger btn-xs rounded rounded-3 me-1"
-								title="Clear filter"
-								@onclick="ClearButtonClicked">
-					<i class="fa-solid fa-xmark"></i>
-				</button>
-				<i>@TextFilter</i>
-			}
+			<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+							@onclick="() => ReturnedButton(ButtonType.Find)"
+							title="Find text">
+				<i class="fa-solid fa-magnifying-glass"></i>
+			</button>
 		</div>
-
+		
 		<div class="d-flex justify-content-center">
 
 			<div class="d-flex justify-content-center align-items-center m-0 pb-1">
@@ -35,7 +25,12 @@
 				</div>
 			</div>
 
-			<ActionButtons ActionGroup="Enums.ActionGroupEnum.Center" OnActionSelected="ReturnedAction" />
+			<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+							@onclick="() => ReturnedButton(ButtonType.BCV)"
+							title="Change book/chapter/verse">
+				<i class="fa-solid fa-arrow-up"></i>
+			</button>
+
 
 			<HistoryDropdown BtnSize="btn-xs rounded rounded-3">
 				<Recent>
@@ -49,7 +44,11 @@
 		</div>
 
 		<div class="d-flex justify-content-end align-items-end gap-1 me-2">
-			<ActionButtons ActionGroup="Enums.ActionGroupEnum.Right" OnActionSelected="ReturnedAction" />
+			<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+							@onclick="() => ReturnedButton(ButtonType.ToC)"
+							title="Table of Content">
+				<i class="fa-solid fa-t"></i>
+			</button>
 			<NavigationFAB BCV="BCV" OnBCVSelected="ReturnedBCV" />
 		</div>
 
@@ -59,8 +58,7 @@
 @code {
 	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; }
 	[Parameter] public string? TextFilter { get; set; }
-	[Parameter, EditorRequired] public EventCallback<Enums.Action> OnActionSelected { get; set; }
-	[Parameter, EditorRequired] public EventCallback OnClearClicked { get; set; }
+	[Parameter, EditorRequired] public EventCallback<ButtonType> OnButtonSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
 
 	private BookChapterVerseRecord? _previousBCV;
@@ -79,14 +77,9 @@
 		_previousBCV = BCV;
 	}
 
-	private void ReturnedAction(Enums.Action action)
+	private void ReturnedButton(ButtonType buttonType)
 	{
-		OnActionSelected.InvokeAsync(action);
-	}
-
-	private void ClearButtonClicked()
-	{
-		OnClearClicked.InvokeAsync();
+		OnButtonSelected.InvokeAsync(buttonType);
 	}
 
 	private async Task ReturnedBCV(BookChapterVerseRecord bcv)

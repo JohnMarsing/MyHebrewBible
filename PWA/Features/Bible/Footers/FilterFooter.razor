@@ -1,0 +1,27 @@
+﻿<div class="bg-info-subtle p-1 border-top border-warning border-2">
+	<div class="d-flex justify-content-between">
+		
+		<div class="d-flex justify-content-start">
+
+			<button type="button"
+							class="btn btn-danger btn-xs rounded rounded-3 me-1"
+							title="Clear filter"
+							@onclick="ClearButtonClicked">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+			<i>@TextFilter</i>
+
+		</div>
+
+	</div>
+</div>
+
+@code {
+	[Parameter] public string? TextFilter { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnClearClicked { get; set; }
+
+	private void ClearButtonClicked()
+	{
+		OnClearClicked.InvokeAsync();
+	}
+}
