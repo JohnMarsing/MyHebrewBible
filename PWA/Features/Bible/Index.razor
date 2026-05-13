@@ -15,6 +15,7 @@
 @using PWA.Features.Bible.ActionComponents.Find
 @using PWA.Features.Bible.ActionComponents.ToC
 @using PWA.Features.Bible.Toolbar
+@using PWA.Features.Bible.Footers
 @using RCL.Enums
 
 @inject PWA.Features.Bible.Data.IRepository? db;
@@ -43,38 +44,48 @@
 	<section class="px-1">
 
 		<Sections FilteredVerses="FilteredVerses"
-								ParmScrollToScriptureId="CurrentScrollToScriptureId"
-								UserSettings="UserSettings" 
-								HighlightText="@HighlightText" />
+							ParmScrollToScriptureId="CurrentScrollToScriptureId"
+							UserSettings="UserSettings"
+							HighlightText="@HighlightText" />
 
 	</section>
 
 	<footer class="sticky-bottom">
-		<Footer BCV="@BCV" TextFilter="@TextFilter"
-						OnActionSelected="ReturnedAction"
-						OnClearClicked="ReturnedClearAction"
-						OnBCVSelected="ReturnedBCVSelected" />
+		
+		@if (currentAction == Footers.ButtonType.Find)
+		{
+			if (String.IsNullOrEmpty(TextFilter))
+			{
+				<FindForm OnFilterSelected="ReturnedFilterSelected"
+									OnCancel="CloseModal" />
+
+			}
+			else
+			{
+				<FilterFooter TextFilter="@TextFilter" OnClearClicked="ReturnedClearAction" />
+			}
+
+		}
+		else
+		{
+			<MainFooter BCV="@BCV" TextFilter="@TextFilter"
+									OnButtonSelected="ReturnedButtonType"
+									OnBCVSelected="ReturnedBCVSelected" />
+		}
 	</footer>
 
 </LoadingComponent>
 
 @if (currentAction is not null)
 {
-	@if (currentAction == Enums.Action.Toc)
+	@if (currentAction == Footers.ButtonType.ToC)
 	{
 		<SubtitleModal Title="@FilteredVerses?.GetTitle()"
 									 Data="FilteredVerses?.ToTableOfContentMapping().ToList()"
 									 OnSelected="ReturnedTOC"
 									 OnCancel="CloseModal" />
 	}
-	else if (currentAction == Enums.Action.Find)
-	{
-		@* ToDo: do I need to concerned if BCV or BibleBook is null *@
-		<TextOrStrongsForm IsHebrewBible="BCV!.BibleBook!.IsHebrewBible"
-											 OnFilterSelected="ReturnedFilterSelected"
-											 OnCancel="CloseModal" />
-	}
-	else if (currentAction == Enums.Action.BCV)
+	else if (currentAction == Footers.ButtonType.BCV)
 	{
 		<BCVForm OnSelected="ReturnedBCVSelected" OnCancel="CloseModal" />
 	}
@@ -182,10 +193,9 @@
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
 		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
-		//StrongsFilter = filter.Strongs;
 		HighlightText = filter.SearchText;
 		ApplyFilter(filter);
-		currentAction = null;
+		// Don't reset currentAction here — keep it as Find so FilterFooter stays visible
 	}
 
 	private void ApplyFilter(FilterRecord filter)
@@ -207,12 +217,7 @@
 	{
 		currentAction = null;
 	}
-
-	/*
-	Called by StickFooter when Clear button the TextOrStrongsForm! clicked,
-	ToDo:
-	 but also consider other scenarios where you want to clear the filter and return to the default state.
-	 */
+	 
 	private void ReturnedClearAction()
 	{
 		currentAction = null;
@@ -251,9 +256,8 @@
 	}
 
 
-	//
-	protected Enums.Action? currentAction = null;
-	private async Task ReturnedAction(Enums.Action action)
+	protected Footers.ButtonType? currentAction = null;
+	private async Task ReturnedButtonType(Footers.ButtonType action)
 	{
 		currentAction = action;
 	}
