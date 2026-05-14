@@ -2,6 +2,7 @@
 
 namespace PWA.Enums;
 
+//ToDo: see MediaQuery-Blunt-Analysis.md
 public abstract class MediaQuery : SmartEnum<MediaQuery>
 {
 	#region Id's
@@ -43,6 +44,7 @@ public abstract class MediaQuery : SmartEnum<MediaQuery>
 
 	#region Extra Fields
 	public abstract string DivClass { get; }
+	public abstract string InlineClass { get; }
 	/*
 	public abstract string Breakpoint { get; }
 	public abstract string ClassInfix { get; }
@@ -65,36 +67,42 @@ public abstract class MediaQuery : SmartEnum<MediaQuery>
 	{
 		public XsSE() : base($"{nameof(Id.Xs)}", Id.Xs) { }
 		public override string DivClass => "d-sm-none";
+		public override string InlineClass => "d-sm-none";  // already inline-safe
 	}
 	
 	private sealed class XsOrSmOrMdSE : MediaQuery
 	{
 		public XsOrSmOrMdSE() : base($"{nameof(Id.XsOrSmOrMd)}", Id.XsOrSmOrMd) { }
 		public override string DivClass => "d-lg-none";
+		public override string InlineClass => "d-lg-none";
 	}
 
 	private sealed class SmSE : MediaQuery
 	{
 		public SmSE() : base($"{nameof(Id.Sm)}", Id.Sm) { }
 		public override string DivClass => "d-none d-sm-block d-md-none d-lg-none d-xl-none";
+		public override string InlineClass => "d-none d-sm-inline d-md-none d-lg-none d-xl-none";
 	}
 
 	private sealed class MdSE : MediaQuery
 	{
 		public MdSE() : base($"{nameof(Id.Md)}", Id.Md) { }
 		public override string DivClass => "d-none d-md-block d-lg-none d-xl-none";
+		public override string InlineClass => "d-none d-md-inline d-lg-none d-xl-none";
 	}
 
 	private sealed class LgSE : MediaQuery
 	{
 		public LgSE() : base($"{nameof(Id.Lg)}", Id.Lg) { }
 		public override string DivClass => "d-none d-lg-block d-xl-none";
+		public override string InlineClass => "d-none d-lg-inline d-xl-none";
 	}
 
 	private sealed class XlSE : MediaQuery
 	{
 		public XlSE() : base($"{nameof(Id.Xl)}", Id.Xl) { }
 		public override string DivClass => "d-none d-xl-block";
+		public override string InlineClass => "d-none d-xl-inline";  
 	}
 
 	// Combination
@@ -102,24 +110,28 @@ public abstract class MediaQuery : SmartEnum<MediaQuery>
 	{
 		public XsOrSmSE() : base($"{nameof(Id.XsOrSm)}", Id.XsOrSm) { }
 		public override string DivClass => "d-md-none";
+		public override string InlineClass => "d-md-none";  
 	}
 
 	private sealed class SmOrMdOrLgOrXlSE : MediaQuery
 	{
 		public SmOrMdOrLgOrXlSE() : base($"{nameof(Id.SmOrMdOrLgOrXl)}", Id.SmOrMdOrLgOrXl) { }
 		public override string DivClass => "d-none d-sm-block";
+		public override string InlineClass => "d-none d-sm-inline";  
 	}
 
 	private sealed class MdOrLgOrXlSE : MediaQuery
 	{
 		public MdOrLgOrXlSE() : base($"{nameof(Id.MdOrLgOrXl)}", Id.MdOrLgOrXl) { }
 		public override string DivClass => "d-none d-md-block";
+		public override string InlineClass => "d-none d-md-inline";
 	}
 
 	private sealed class LgOrXlSE : MediaQuery
 	{
 		public LgOrXlSE() : base($"{nameof(Id.LgOrXl)}", Id.LgOrXl) { }
 		public override string DivClass => "d-none d-lg-block";
+		public override string InlineClass => "d-none d-lg-inline";
 	}
 
 	/*	NOT WOWRKING

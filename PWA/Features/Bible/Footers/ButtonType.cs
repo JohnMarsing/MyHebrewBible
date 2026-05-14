@@ -3,6 +3,7 @@
 public enum ButtonType
 {
 	Find = 1,
-	BCV = 2,
-	ToC = 3
+	Parasha = 2,
+	BCV = 3,
+	ToC = 4
 }
