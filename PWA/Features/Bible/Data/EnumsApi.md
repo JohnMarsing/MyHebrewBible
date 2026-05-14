@@ -1,4 +1,6 @@
-﻿using Ardalis.SmartEnum;
+
+```cssharp
+using Ardalis.SmartEnum;
 
 namespace PWA.Data.Enums;
 
@@ -268,3 +270,5 @@ FROM vwTableRowCount
 }
 
 // Ignore Spelling: Descr, bookid, Mitzvah, mitzvot, wordpart, wordpartkjv, scriptureid, bookchapterwithat, verselist, begverse endverse Nav, triennialid, alephtavkjvverse, alephtavhebrewverse, alephtavbookchapterwordpartcontext, alephtavtriennialwordpartcontext, Strongs, ifnull
+
+```

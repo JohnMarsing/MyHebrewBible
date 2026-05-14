@@ -8,6 +8,7 @@
 
 @* @using ToolbarEnums = PWA.Features.Bible.Toolbar.Enums *@
 @using PWA.Features.Bible.Enums
+@using PWA.Features.Bible.Parasha
 @using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
 
@@ -17,6 +18,7 @@
 @using PWA.Features.Bible.Toolbar
 @using PWA.Features.Bible.Footers
 @using RCL.Enums
+@using RCL.Features.Parasha.Enums
 
 @inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
@@ -43,10 +45,21 @@
 
 	<section class="px-1">
 
-		<Sections FilteredVerses="FilteredVerses"
-							ParmScrollToScriptureId="CurrentScrollToScriptureId"
-							UserSettings="UserSettings"
-							HighlightText="@HighlightText" />
+		@if (currentAction == Footers.ButtonType.Parasha)
+		{
+			
+			<Sections FilteredVerses="@ParashaVerses"
+								ParmScrollToScriptureId="CurrentScrollToScriptureId"
+								UserSettings="UserSettings"
+								HighlightText="@HighlightText" />
+		}
+		else
+		{
+			<Sections FilteredVerses="FilteredVerses"
+								ParmScrollToScriptureId="CurrentScrollToScriptureId"
+								UserSettings="UserSettings"
+								HighlightText="@HighlightText" />
+		}
 
 	</section>
 
@@ -56,21 +69,26 @@
 		{
 			if (String.IsNullOrEmpty(TextFilter))
 			{
-				<FindForm OnFilterSelected="ReturnedFilterSelected"
-									OnCancel="CloseModal" />
-
+				<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
 			}
 			else
 			{
 				<FilterFooter TextFilter="@TextFilter" OnClearClicked="ReturnedClearAction" />
 			}
-
 		}
 		else
 		{
-			<MainFooter BCV="@BCV" TextFilter="@TextFilter"
-									OnButtonSelected="ReturnedButtonType"
-									OnBCVSelected="ReturnedBCVSelected" />
+			@if (currentAction == Footers.ButtonType.Parasha)
+			{
+				@* <GetData OnDataGotten="ReturnedParashaData" /> *@
+				<ParashaFooter OnParashaClosed="ReturnedParashaClosed" />
+			}
+			else
+			{
+				<MainFooter BCV="@BCV" TextFilter="@TextFilter"
+										OnButtonSelected="ReturnedButtonType"
+										OnBCVSelected="ReturnedBCVSelected" />
+			}
 		}
 	</footer>
 
@@ -217,6 +235,42 @@
 	{
 		currentAction = null;
 	}
+
+	//private async Task ButtonClick(BookChapterVerseHistory bcv) //
+	//public Triennial? CurrentReading = null;
+	private async Task<List<ReportModel>> GetParashaVerses()
+	{
+		Triennial? triennial = RCL.Features.Parasha.Helpers.GetCurrentReading(); // Triennial.List.Where(w => w.Value == id).SingleOrDefault();
+
+		//List<BookChapterWithAT>? data = null;
+
+		if (triennial is not null)
+		{
+			try
+			{
+				verses = await db!.GetParashaWithAT(triennial.Value);
+
+			}
+			catch (Exception ex)
+			{
+				Logger!.LogError(ex, "{Method}", nameof(GetParashaVerses));
+				Toast!.ShowError($"{Global.ToastShowError} {nameof(GetData)}!{nameof(GetParashaVerses)}");
+			}
+		}
+		//return data;
+		return verses!
+				.OrderBy(o => o.ID)
+				.Select(p => p.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
+				.ToList();
+	}
+
+
+	private void ReturnedParashaClosed()
+	{
+		currentAction = null;
+		ParashaVerses = null;
+		FilteredVerses = GetBookChapterVerses();
+	}
 	 
 	private void ReturnedClearAction()
 	{
@@ -257,14 +311,19 @@
 
 
 	protected Footers.ButtonType? currentAction = null;
+	private List<ReportModel>? ParashaVerses { get; set; }
+
 	private async Task ReturnedButtonType(Footers.ButtonType action)
 	{
 		currentAction = action;
+		if (action == Footers.ButtonType.Parasha)
+		{
+			ParashaVerses = await GetParashaVerses();
+		}
 	}
 
 	protected int CurrentScrollToScriptureId;
 	protected int CurrentVerse;
-
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{
 		var (errMsg, verse, _scriptureId) =

@@ -9,6 +9,8 @@ public interface IRepository
 	Task<List<WordPartByScriptureId>> GetWordPartByScriptureId(int scriptureId);
 	Task<List<WordPartByScripureIdAndStrongs>>  GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs);
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
+	//Task<List<ParashaWithAT>> GetParashaWithAT(int id);
+	Task<List<BookChapterWithAT>> GetParashaWithAT(int id);
 }
 
 
@@ -108,6 +110,20 @@ FROM WordPart
 WHERE ScriptureID=@ScriptureID and Strongs=@Strongs
 ORDER BY WordCount, SegmentCount
 ";
+	/*
+		string SqlOrderBy = "";
+
+		string SqlDetail = @"
+SELECT Id, BCV, BookID, Chapter, Verse
+, ScriptureID, WordCount, SegmentCount, WordEnum
+, Hebrew1, Hebrew2, Hebrew3
+, KjvWord, Strongs, Transliteration, FinalEnum
+--, HasTwo
+FROM vwAlephTavTriennialWordPart
+--WHERE TriennialId=@TriennialId
+ORDER BY Id	
+		";
+		*/
 
 		return await WithConnectionAsync(async connection =>
 		{
@@ -134,6 +150,31 @@ ORDER BY WordCount
 	}
 
 	#endregion
+
+	#region Parasha
+
+	//	public async Task<List<ParashaWithAT>> GetParashaWithAT(int triennialId)
+
+	public async Task<List<BookChapterWithAT>> GetParashaWithAT(int triennialId)
+	{
+		var parms = new DynamicParameters(new { TriennialId = triennialId });
+		string sql = @"
+SELECT s.ID, t.SectionId, t.GroupCount, t.ScriptureID_Beg, t.VerseRange
+, s.BCV, s.BookID, s.Chapter, s.Verse, s.VerseOffset, s.KJV, s.DescH, s.DescD
+FROM  Scripture s
+CROSS JOIN vwParashaTableOfContents t 
+wHERE t.Id = @TriennialId AND s.ID BETWEEN ScriptureID_Beg AND ScriptureID_End
+ORDER BY s.ID
+";
+		return await WithConnectionAsync(async connection =>
+		{
+			//var rows = await connection.QueryAsync<ParashaWithAT>(sql, parms);
+			var rows = await connection.QueryAsync<BookChapterWithAT>(sql, parms);
+			return rows.ToList();
+		}, sql);
+	}
+	#endregion
+
 }
 
 // Ignore Spelling: Descr, bookid, Mitzvah, mitzvot, wordpart, wordpartkjv, scriptureid, bookchapterwithat, verselist, begverse endverse Nav, triennialid, alephtavkjvverse, alephtavhebrewverse, alephtavbookchapterwordpartcontext, alephtavtriennialwordpartcontext, Strongs, ifnull

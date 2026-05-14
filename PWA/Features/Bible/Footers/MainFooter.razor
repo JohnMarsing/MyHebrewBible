@@ -6,29 +6,29 @@
 	<div class="d-flex justify-content-between">
 		
 		<div class="d-flex justify-content-start">
-			<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+			<button class="btn btn-warning btn-sm rounded rounded-4 me-1"
 							@onclick="() => ReturnedButton(ButtonType.Find)"
 							title="Find text">
 				<i class="fa-solid fa-magnifying-glass"></i>
 			</button>
+			<button class="btn btn-success btn-sm rounded rounded-4 me-1"
+							@onclick="() => ReturnedButton(ButtonType.Parasha)"
+							title="Parasha verses">
+				<i class="fa-solid fa-p"></i>
+			</button>
+
 		</div>
 		
 		<div class="d-flex justify-content-center">
 
-			<div class="d-flex justify-content-center align-items-center m-0 pb-1">
-				<div class="@MediaQuery.Xs.DivClass">
-					<span class="fs-6 fw-bold @(_isBCVChanged ? "bcv-flash" : "text-success") me-1">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>
-				</div>
-
-				<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-					<span class="fs-6 fw-bold @(_isBCVChanged ? "bcv-flash" : "text-success") me-1">@BCV!.BibleBook!.Title @BCV.Chapter</span>
-				</div>
-			</div>
-
-			<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+			<button class="btn btn-primary btn-sm rounded rounded-1 me-1"
 							@onclick="() => ReturnedButton(ButtonType.BCV)"
 							title="Change book/chapter/verse">
-				<i class="fa-solid fa-arrow-up"></i>
+				<span class="fs-6 fw-bold text-white me-1">
+					<span class="@MediaQuery.Xs.InlineClass">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>           
+					<span class="@MediaQuery.SmOrMdOrLgOrXl.InlineClass">@BCV!.BibleBook!.Title @BCV.Chapter</span> 
+				</span>
+				<i class="fas fa-angle-down"></i>
 			</button>
 
 
@@ -40,7 +40,7 @@
 					<ParashotPicker OnBCVSelected="ReturnedBCV" />
 				</Parashot>
 			</HistoryDropdown>
- 
+
 		</div>
 
 		<div class="d-flex justify-content-end align-items-end gap-1 me-2">

@@ -1,26 +1,25 @@
-﻿<div class="bg-warning-subtle p-1 border-top border-warning border-2">
+﻿<div class="bg-success-subtle p-1 border-top border-success border-2">
 	<div class="d-flex justify-content-between">
 		
 		<div class="d-flex justify-content-start">
 
 			<button type="button"
 							class="btn btn-danger btn-sm rounded rounded-3 me-1"
-							title="Clear filter"
+							title="Close Parasha"
 							@onclick="ButtonClicked">
 				<i class="fas fa-chevron-left"></i>
 			</button>
-			&nbsp;<i>@TextFilter</i>
+			&nbsp;<i>ToDo: Add Parasha TOC</i>
 		</div>
 
 	</div>
 </div>
 
 @code {
-	[Parameter] public string? TextFilter { get; set; }
-	[Parameter, EditorRequired] public EventCallback OnClearClicked { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnParashaClosed { get; set; }
 
 	private void ButtonClicked()
 	{
-		OnClearClicked.InvokeAsync();
+		OnParashaClosed.InvokeAsync();
 	}
 }
