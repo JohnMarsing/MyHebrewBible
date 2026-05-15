@@ -1,0 +1,42 @@
+﻿@using ParashaEnums = RCL.Features.Parasha.Enums
+@using ParashaHelpers = RCL.Features.Parasha.Helpers
+
+<div class="card-body my-2 pb-0">
+	<TableTemplate TItem="ParashaEnums.Triennial" Items="@(new[] { Triennial! })"
+								 HeaderCSS="table table-bordered table-sm text-center"
+								 TheadCSS="table-success">
+		<TableHeader>
+			<th>Torah</th>
+			<th>Next Shabbat</th>
+
+			@if (IsMdOrLgOrXl)
+			{
+				<th>Name</th>
+				<th>Meaning</th>
+			}
+			<th>Ahavta</th>
+		</TableHeader>
+
+		<RowTemplate Context="reading">
+			<td><b>@reading.TorahAbrv</b></td>
+			<td><b>@ParashaHelpers.GetNextShabbatDate().ToString(DateFormat.YYYY_MM_DD)</b></td>
+
+			@if (IsMdOrLgOrXl)
+			{
+				<td><b>@reading.ParashaName</b></td>
+				<td><b>@reading.Meaning</b></td>
+			}
+			<td>
+				<a href="@reading.AhavtaURL"
+					 title="@reading.AhavtaURL [@reading.Value]" target="_blank">
+					<i class="fas fa-external-link-alt"></i>
+				</a>
+			</td>
+		</RowTemplate>
+	</TableTemplate>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public ParashaEnums.Triennial? Triennial { get; set; } // CurrentReading
+	[Parameter, EditorRequired] public bool IsMdOrLgOrXl { get; set; }
+}

@@ -9,10 +9,8 @@ public interface IRepository
 	Task<List<WordPartByScriptureId>> GetWordPartByScriptureId(int scriptureId);
 	Task<List<WordPartByScripureIdAndStrongs>>  GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs);
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
-	//Task<List<ParashaWithAT>> GetParashaWithAT(int id);
-	Task<List<BookChapterWithAT>> GetParashaWithAT(int id);
+	Task<List<ParashaWithAT>> GetParashaWithAT(int id);
 }
-
 
 public class Repository : BaseRepositoryAsync, IRepository
 {
@@ -153,9 +151,7 @@ ORDER BY WordCount
 
 	#region Parasha
 
-	//	public async Task<List<ParashaWithAT>> GetParashaWithAT(int triennialId)
-
-	public async Task<List<BookChapterWithAT>> GetParashaWithAT(int triennialId)
+	public async Task<List<ParashaWithAT>> GetParashaWithAT(int triennialId)
 	{
 		var parms = new DynamicParameters(new { TriennialId = triennialId });
 		string sql = @"
@@ -168,8 +164,7 @@ ORDER BY s.ID
 ";
 		return await WithConnectionAsync(async connection =>
 		{
-			//var rows = await connection.QueryAsync<ParashaWithAT>(sql, parms);
-			var rows = await connection.QueryAsync<BookChapterWithAT>(sql, parms);
+			var rows = await connection.QueryAsync<ParashaWithAT>(sql, parms);
 			return rows.ToList();
 		}, sql);
 	}

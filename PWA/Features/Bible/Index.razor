@@ -8,17 +8,21 @@
 
 @* @using ToolbarEnums = PWA.Features.Bible.Toolbar.Enums *@
 @using PWA.Features.Bible.Enums
+
 @using PWA.Features.Bible.Parasha
+@using PWA.Features.Bible.Parasha.TableOfContents
+@using RCL.Features.Parasha.Enums
+
 @using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
 
 @using PWA.Features.Bible.ActionComponents.LookupBCV
 @using PWA.Features.Bible.ActionComponents.Find
 @using PWA.Features.Bible.ActionComponents.ToC
+@using PWA.Features.Bible.Headers
 @using PWA.Features.Bible.Toolbar
 @using PWA.Features.Bible.Footers
 @using RCL.Enums
-@using RCL.Features.Parasha.Enums
 
 @inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
@@ -29,7 +33,21 @@
 
 
 <header>
-	<Buttons BCV="@BCV" OnMenuItemSelectedPassThrough="ReturnedMenuItemId" />
+	@if (currentAction == Footers.ButtonType.Parasha)
+	{
+		<ParashaButtons Title="Parasha" />
+		<div class="@MediaQuery.XsOrSm.DivClass">
+			<ParashaTable Triennial="@triennial" IsMdOrLgOrXl="false" />
+		</div>
+		<div class="@MediaQuery.MdOrLgOrXl.DivClass">
+			<ParashaTable Triennial="@triennial" IsMdOrLgOrXl="true" />
+		</div>
+	}
+	else
+	{
+		<MainButtons BCV="@BCV" OnMenuItemSelectedPassThrough="ReturnedMenuItemId" />
+	}
+
 </header>
 
 <ModalSkeleton ShowMenuItem="CurrentModalToShow">
@@ -47,11 +65,8 @@
 
 		@if (currentAction == Footers.ButtonType.Parasha)
 		{
-			
-			<Sections FilteredVerses="@ParashaVerses"
-								ParmScrollToScriptureId="CurrentScrollToScriptureId"
-								UserSettings="UserSettings"
-								HighlightText="@HighlightText" />
+
+			<SectionWrapper Triennial="@triennial" VM="VM" parashaVerses="parashaVerses" UserSettings="UserSettings" />
 		}
 		else
 		{
@@ -190,7 +205,7 @@
 	{
 		return verses!
 				.OrderBy(o => o.ID)
-				.Select(bc => bc.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
+				.Select(bc => bc.MapFromBookChapter(BCV!.BibleBook!.Value, BCV.Chapter))
 				.ToList();
 	}
 
@@ -236,39 +251,45 @@
 		currentAction = null;
 	}
 
-	//private async Task ButtonClick(BookChapterVerseHistory bcv) //
-	//public Triennial? CurrentReading = null;
-	private async Task<List<ReportModel>> GetParashaVerses()
+	private TOC_VM? VM;
+	private List<Data.ParashaWithAT>? parashaVerses = null;
+	private Triennial? triennial = RCL.Features.Parasha.Helpers.GetCurrentReading(); // Triennial.List.Where(w => w.Value == id).SingleOrDefault();
+	private async Task SetParashaVerses()
 	{
-		Triennial? triennial = RCL.Features.Parasha.Helpers.GetCurrentReading(); // Triennial.List.Where(w => w.Value == id).SingleOrDefault();
-
-		//List<BookChapterWithAT>? data = null;
-
 		if (triennial is not null)
 		{
 			try
 			{
-				verses = await db!.GetParashaWithAT(triennial.Value);
+				parashaVerses = await db!.GetParashaWithAT(triennial.Value);
+				List<TocRecord>? _tableOfContentList = parashaVerses
+					.GroupBy(d => new { d.SectionId, d.GroupCount, d.ScriptureID_Beg, d.VerseRange })
+					.Select(g => new TocRecord(
+							g.Key.SectionId,
+							g.Key.GroupCount,
+							g.Key.ScriptureID_Beg,
+							g.Key.VerseRange,
+							g.Count()
+					))
+					.ToList();
 
+				if (parashaVerses.Count > 0)
+				{
+					VM = new TOC_VM();
+					VM!.TableOfContentList = _tableOfContentList;
+				}
 			}
 			catch (Exception ex)
 			{
-				Logger!.LogError(ex, "{Method}", nameof(GetParashaVerses));
-				Toast!.ShowError($"{Global.ToastShowError} {nameof(GetData)}!{nameof(GetParashaVerses)}");
+				Logger!.LogError(ex, "{Method}", nameof(SetParashaVerses));
+				Toast!.ShowError($"{Global.ToastShowError} {nameof(SetParashaVerses)}!{nameof(SetParashaVerses)}");
 			}
 		}
-		//return data;
-		return verses!
-				.OrderBy(o => o.ID)
-				.Select(p => p.ToReportModel(BCV!.BibleBook!.Value, BCV.Chapter))
-				.ToList();
 	}
-
 
 	private void ReturnedParashaClosed()
 	{
 		currentAction = null;
-		ParashaVerses = null;
+		parashaVerses = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
 	 
@@ -318,7 +339,7 @@
 		currentAction = action;
 		if (action == Footers.ButtonType.Parasha)
 		{
-			ParashaVerses = await GetParashaVerses();
+			await SetParashaVerses();
 		}
 	}
 
