@@ -1,0 +1,37 @@
+﻿@using ParashaEnums = RCL.Features.Parasha.Enums
+@using ParashaHelpers = RCL.Features.Parasha.Helpers
+
+<div class="card border-primary mb-0 my-2 mx-1">
+	<div class="card-body pb-0">
+		<div class="d-flex justify-content-center">
+			<span class="pe-3 text-center"><b>Torah</b><br /><b>@Triennial!.TorahAbrv</b></span>
+			<span class="pe-3 text-center"><b>Next Shabbat</b><br /><b>@ParashaHelpers.GetNextShabbatDate().ToString(DateFormat.YYYY_MM_DD)</b></span>
+
+			<div class="@MediaQuery.MdOrLgOrXl.InlineClass">
+				<span class="pe-3 text-center"><b>Name</b><br /><i>@Triennial!.ParashaName</i></span>
+				<span class="pe-3 text-center"><b>Meaning</b><br />@Triennial!.Meaning</span>
+			</div>
+
+			
+@* 			@if (MediaQuery == GlobalEnums.MediaQuery.MdOrLgOrXl)
+			{
+				<div class="pe-3 text-center"><b>Name</b><br /><i>@CurrentReading!.ParashaName</i></div>
+				<div class="pe-3 text-center"><b>Meaning</b><br />@CurrentReading!.Meaning</div>
+			} *@
+
+			<div class="pe-3 text-center">
+				<b>Ahavta</b><br />
+				<a href="@Triennial.AhavtaURL"
+					 title="@Triennial!.AhavtaURL [@Triennial.Value] " target="_blank">
+					<i class="fas fa-external-link-alt"></i>
+				</a>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public ParashaEnums.Triennial? Triennial { get; set; } // CurrentReading
+	//[Parameter, EditorRequired] public MediaQuery? MediaQuery { get; set; }
+}

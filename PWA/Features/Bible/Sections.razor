@@ -19,7 +19,7 @@
 
 	@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
 	{
-		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" BCV="@item.BCV" />
+		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" /> 	@* BCV = "@item.BCV" *@
 
 		if (DrilldownScriptureId == 0)
 		{

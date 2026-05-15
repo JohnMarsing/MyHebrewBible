@@ -4,7 +4,7 @@ namespace PWA.Features.Bible.Data;
 
 public static class DataExtensions
 {
-	public static ReportModel ToReportModel(this BookChapterWithAT bc, int bookId, int chapter)
+	public static ReportModel MapFromBookChapter(this BookChapterWithAT bc, int bookId, int chapter)
 	{
 		return new ReportModel
 		{
@@ -40,6 +40,44 @@ public static class DataExtensions
 						.ToList() ?? new()
 		};
 	}
+	 
+	public static ReportModel MapFromParasha(ParashaWithAT parasha)  
+	{
+		return new ReportModel
+		{
+			ID = parasha.ID,
+			BCV = parasha.BCV,
+			Verse = parasha.Verse,
+			VerseOffset = parasha.VerseOffset,
+			KJV = parasha.KJV,
+			DescH = parasha.DescH,
+			DescD = parasha.DescD,
+			BookID = parasha.BookID,
+			Chapter = parasha.Chapter,
+			WordPartList = parasha.WordPartList?
+				.Select(wp => new WordPart
+				{
+					Id = wp.Id,
+					BCV = wp.BCV,
+					BookID = wp.BookID,
+					Chapter = wp.Chapter,
+					Verse = wp.Verse,
+					ScriptureID = wp.ScriptureID,
+					WordCount = wp.WordCount,
+					SegmentCount = wp.SegmentCount,
+					WordEnum = wp.WordEnum,
+					Hebrew1 = wp.Hebrew1,
+					Hebrew2 = wp.Hebrew2,
+					Hebrew3 = wp.Hebrew3,
+					KjvWord = wp.KjvWord,
+					Strongs = wp.Strongs,
+					Transliteration = wp.Transliteration,
+					FinalEnum = wp.FinalEnum
+				})
+				.ToList() ?? new()
+		};
+	}
+
 
 	public static IReadOnlyList<TableOfContentRecord> ToTableOfContentMapping(this IEnumerable<ReportModel> items)
 	{

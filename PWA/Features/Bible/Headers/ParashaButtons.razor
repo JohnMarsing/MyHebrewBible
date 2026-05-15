@@ -1,0 +1,26 @@
+﻿<nav class="navbar navbar-expand bg-primary-subtle">
+
+	<div class="collapse navbar-collapse justify-content-start">
+
+		<div class="ps-1">
+			&nbsp;
+			@* <SitemapButton /> *@
+		</div>
+	</div>
+		
+	<div class=''>
+		<span class='fw-bold text-primary fs-3'><i class="far fa-bookmark"></i> @Title</span>";
+	</div>
+		
+	<div class="collapse navbar-collapse justify-content-end">
+		<div class="pe-1">
+			&nbsp;
+			@* <MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemPassThrough" /> *@
+		</div>
+	</div>
+		
+</nav>
+
+@code {
+	[Parameter, EditorRequired] public string Title { get; set; }
+}

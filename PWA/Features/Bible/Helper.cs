@@ -8,7 +8,9 @@ public static class Helper
 {
 	public static int LastVerseCount(BibleBook? BibleBook, int chapter)
 	{
-		return BibleBook!.LastVerses[chapter - 1];
+		if (BibleBook is null) return 0;
+		if (chapter < 1 || chapter > BibleBook.LastVerses.Count) return 0;
+		return BibleBook.LastVerses[chapter - 1];
 	}
 
 	public static bool HasNext(BibleBook bibleBook)

@@ -1,0 +1,100 @@
+﻿@using PWA.Features.Bible.Enums
+@using BibleParashaEnums = PWA.Features.Bible.Parasha.Enums
+@using ParashaEnums = RCL.Features.Parasha.Enums
+@using ParashaHelpers = RCL.Features.Parasha.Helpers
+@using PWA.Features.Bible.Data
+@using PWA.Features.Bible.Parasha.TableOfContents
+
+@foreach (var showSection in BibleParashaEnums.ShowSection.List.OrderBy(o => o.Value))
+{
+	@if (showSection == BibleParashaEnums.ShowSection.Torah)
+	{
+		<div class="card-body">
+			<h5 class="text-center">@Triennial!.BCV</h5>
+			<Sections FilteredVerses="GetParashaTorahVerses(BibleParashaEnums.ShowSection.Torah.Value)"
+								ParmScrollToScriptureId="CurrentScrollToScriptureId"
+								UserSettings="UserSettings"
+								HighlightText="" />
+		</div>
+		<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
+	}
+
+				
+	@if (showSection == BibleParashaEnums.ShowSection.Haftorah)
+	{
+		if (VM! is not null && VM!.TableOfContentList is not null)
+		{
+			@foreach (var haftorah in VM!.TableOfContentList!
+					.Where(w => w.SectionId == BibleParashaEnums.ShowSection.Haftorah.Value)
+			.OrderBy(o => o.GroupCount))
+			{
+				<div class="card-body">
+					@* @(haftorah.GroupCount > 1 ? <hr> : "")"  *@
+					<h5 class="text-center">@haftorah.VerseRange</h5>
+					<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(BibleParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
+										ParmScrollToScriptureId="CurrentScrollToScriptureId"
+										UserSettings="UserSettings"
+										HighlightText="" />
+				</div>
+			}
+		}
+		else
+		{
+			<p class="fs-3 text-danger text-center">Haftorah Verses is null  (◡︵◡) </p>
+		}
+		<div class="text-center bg-warning-subtle text-warning-emphasis mb-4 py-2">End of Haftorah</div>
+	}
+
+	@if (showSection == BibleParashaEnums.ShowSection.Brit)
+	{
+		if (VM! is not null && VM!.TableOfContentList is not null)
+		{
+			@foreach (var brit in VM!.TableOfContentList!
+				.Where(w => w.SectionId == BibleParashaEnums.ShowSection.Brit.Value)
+				.OrderBy(o => o.GroupCount))
+			{
+				<div class="card-body">
+					<h5 class="text-center">@brit.VerseRange</h5>
+					<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(BibleParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
+										ParmScrollToScriptureId="CurrentScrollToScriptureId"
+										UserSettings="UserSettings"
+										HighlightText="" />
+				</div>
+			}
+		}
+		else
+		{
+			<p class="fs-3 text-danger text-center">Brit Verses is null  (◡︵◡) </p>
+		}
+		<div class="text-center bg-danger-subtle text-danger-emphasis mb-4 py-2">End of Brit</div>
+	}
+
+}
+
+@code {
+	[Parameter, EditorRequired] public ParashaEnums.Triennial? Triennial { get; set; } // CurrentReading
+	[Parameter, EditorRequired] public TOC_VM? VM { get; set; }
+	[Parameter, EditorRequired] public List<Data.ParashaWithAT>? parashaVerses { get; set; }
+	[Parameter, EditorRequired] public UserSettingsDTO UserSettings { get; set; }
+
+	protected int CurrentScrollToScriptureId = 0;
+
+	protected List<ReportModel> GetParashaTorahVerses(int showSection)
+	{
+		return parashaVerses!
+		.Where(w => w.SectionId == showSection)
+		.OrderBy(o => o.ID)
+		.Select(parasha => DataExtensions.MapFromParasha(parasha))
+		.ToList();
+	}
+
+	protected List<ReportModel> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
+	{
+		return parashaVerses!
+			.Where(w => w.SectionId == showSection)
+			.Where(w => w.GroupCount == groupCount)
+			.Select(parasha => DataExtensions.MapFromParasha(parasha))
+			.OrderBy(o => o.ID).ToList();
+	}
+
+}

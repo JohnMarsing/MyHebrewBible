@@ -1,10 +1,5 @@
 ﻿@if (Title != "NULL")
 {
-	@if (!String.IsNullOrEmpty(BCV))
-	{
-		<p class="text-black-50 text-center " style="font-size:11px; margin-top: -1rem !important; margin-bottom: -.05rem !important;">@BCV</p>
-	}
-
 	<p class="text-danger text-center fs-4 mt-1 mb-2">
 		@Title
 	</p>
@@ -18,5 +13,4 @@
 @code {
 	[Parameter, EditorRequired] public string? Title { get; set; }
 	[Parameter, EditorRequired] public string? Subtitle { get; set; }
-	[Parameter] public string? BCV { get; set; }
 }
