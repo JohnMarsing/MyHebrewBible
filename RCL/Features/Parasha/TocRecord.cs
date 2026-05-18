@@ -1,4 +1,4 @@
-﻿namespace PWA.Features.Bible.Parasha.TableOfContents;
+﻿namespace RCL.Features.Parasha;
 
 public record TocRecord(int SectionId, int GroupCount, int ScriptureID_Beg, string? VerseRange, int VerseCount);
 

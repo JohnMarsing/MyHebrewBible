@@ -1,83 +1,177 @@
-﻿@using PWA.Features.Bible.Enums
-@using BibleParashaEnums = PWA.Features.Bible.Parasha.Enums
+﻿@using BibleEnums = PWA.Features.Bible.Enums
+
 @using ParashaEnums = RCL.Features.Parasha.Enums
-@using ParashaHelpers = RCL.Features.Parasha.Helpers
+@using ParashaHelper = RCL.Features.Parasha.Helpers
+@using TriennialEnums = RCL.Features.Parasha.Enums.Triennial
+@using PWA.Features.Bible.Footers
+
 @using PWA.Features.Bible.Data
-@using PWA.Features.Bible.Parasha.TableOfContents
 
-@foreach (var showSection in BibleParashaEnums.ShowSection.List.OrderBy(o => o.Value))
+@inject PWA.Features.Bible.Data.IRepository? db
+@inject ILogger<SectionWrapper>? Logger
+@inject IToastService? Toast
+@inject IJSRuntime JSRuntime
+
+<LoadingComponent IsLoading="parashaVerses == null" TurnSpinnerOff="TurnSpinnerOff">
+
+	@if (triennial is not null && parashaVerses is not null)
+	{
+		@foreach (var showSection in ParashaEnums.ShowSection.List.OrderBy(o => o.Value))
+		{
+			<div class="card-header mb-3">
+				<div class="d-flex justify-content-between">
+					<div>@((MarkupString)showSection.CardHeader)</div>
+				</div>
+			</div>
+
+			@if (showSection == ParashaEnums.ShowSection.Torah)
+			{
+				<div class="card-body px-1">
+					<Sections FilteredVerses="GetParashaTorahVerses(ParashaEnums.ShowSection.Torah.Value)"
+										ParmScrollToScriptureId="CurrentScrollToScriptureId"
+										UserSettings="UserSettings"
+										HighlightText="" />
+				</div>
+				<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
+			}
+
+			@if (showSection == ParashaEnums.ShowSection.Haftorah)
+			{
+				if (TableOfContentList is not null)
+				{
+					@foreach (var haftorah in TableOfContentList!
+							.Where(w => w.SectionId == ParashaEnums.ShowSection.Haftorah.Value)
+							.OrderBy(o => o.GroupCount))
+					{
+						<div class="card-body px-1">
+							<h5 class="text-center">@haftorah.VerseRange</h5>
+							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
+												ParmScrollToScriptureId="CurrentScrollToScriptureId"
+												UserSettings="UserSettings"
+												HighlightText="" />
+						</div>
+					}
+				}
+				else
+				{
+					<p class="fs-3 text-danger text-center">Haftorah Verses is null  (◡︵◡) </p>
+				}
+				<div class="text-center bg-warning-subtle text-warning-emphasis mb-4 py-2">End of Haftorah</div>
+			}
+
+			@if (showSection == ParashaEnums.ShowSection.Brit)
+			{
+				if (TableOfContentList is not null)
+				{
+					@foreach (var brit in TableOfContentList!
+						.Where(w => w.SectionId == ParashaEnums.ShowSection.Brit.Value)
+						.OrderBy(o => o.GroupCount))
+					{
+						<div class="card-body px-1">
+							<h5 class="text-center">@brit.VerseRange</h5>
+							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
+												ParmScrollToScriptureId="CurrentScrollToScriptureId"
+												UserSettings="UserSettings"
+												HighlightText="" />
+						</div>
+					}
+				}
+				else
+				{
+					<p class="fs-3 text-danger text-center">Brit Verses is null  (◡︵◡) </p>
+				}
+				<div class="text-center bg-danger-subtle text-danger-emphasis mb-4 py-2">End of Brit</div>
+			}
+		}
+	
+		<footer class="sticky-bottom">
+			<ParashaFooter OnModalClosed="ParashaClosedPassThrough"
+										 OnModalOpen="OpenModal"
+										 TableOfContentList="TableOfContentList" />
+		</footer>
+	
+	}
+</LoadingComponent>
+
+@if (ShowModal && TableOfContentList is not null)
 {
-	@if (showSection == BibleParashaEnums.ShowSection.Torah)
-	{
-		<div class="card-body">
-			<h5 class="text-center">@Triennial!.BCV</h5>
-			<Sections FilteredVerses="GetParashaTorahVerses(BibleParashaEnums.ShowSection.Torah.Value)"
-								ParmScrollToScriptureId="CurrentScrollToScriptureId"
-								UserSettings="UserSettings"
-								HighlightText="" />
-		</div>
-		<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
-	}
+	<TableOfContentModal Title="Parasha Outline"
+											 Data="TableOfContentList"
+											 OnSelected="ReturnedScriptureId"
+											 OnCancel="CloseModal" />
 
-				
-	@if (showSection == BibleParashaEnums.ShowSection.Haftorah)
-	{
-		if (VM! is not null && VM!.TableOfContentList is not null)
-		{
-			@foreach (var haftorah in VM!.TableOfContentList!
-					.Where(w => w.SectionId == BibleParashaEnums.ShowSection.Haftorah.Value)
-			.OrderBy(o => o.GroupCount))
-			{
-				<div class="card-body">
-					@* @(haftorah.GroupCount > 1 ? <hr> : "")"  *@
-					<h5 class="text-center">@haftorah.VerseRange</h5>
-					<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(BibleParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
-										ParmScrollToScriptureId="CurrentScrollToScriptureId"
-										UserSettings="UserSettings"
-										HighlightText="" />
-				</div>
-			}
-		}
-		else
-		{
-			<p class="fs-3 text-danger text-center">Haftorah Verses is null  (◡︵◡) </p>
-		}
-		<div class="text-center bg-warning-subtle text-warning-emphasis mb-4 py-2">End of Haftorah</div>
-	}
-
-	@if (showSection == BibleParashaEnums.ShowSection.Brit)
-	{
-		if (VM! is not null && VM!.TableOfContentList is not null)
-		{
-			@foreach (var brit in VM!.TableOfContentList!
-				.Where(w => w.SectionId == BibleParashaEnums.ShowSection.Brit.Value)
-				.OrderBy(o => o.GroupCount))
-			{
-				<div class="card-body">
-					<h5 class="text-center">@brit.VerseRange</h5>
-					<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(BibleParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
-										ParmScrollToScriptureId="CurrentScrollToScriptureId"
-										UserSettings="UserSettings"
-										HighlightText="" />
-				</div>
-			}
-		}
-		else
-		{
-			<p class="fs-3 text-danger text-center">Brit Verses is null  (◡︵◡) </p>
-		}
-		<div class="text-center bg-danger-subtle text-danger-emphasis mb-4 py-2">End of Brit</div>
-	}
-
+	@* OnSelected = "ReturnedTOC" *@
 }
 
 @code {
-	[Parameter, EditorRequired] public ParashaEnums.Triennial? Triennial { get; set; } // CurrentReading
-	[Parameter, EditorRequired] public TOC_VM? VM { get; set; }
-	[Parameter, EditorRequired] public List<Data.ParashaWithAT>? parashaVerses { get; set; }
-	[Parameter, EditorRequired] public UserSettingsDTO UserSettings { get; set; }
+	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnParashaClosed { get; set; }
+	//[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	private TriennialEnums? triennial = ParashaHelper.GetCurrentReading();
+
+	//private ParashaEnums.Permutation CurrentVisibilityState;
+
+	private bool ShowModal = false;
+	private void CloseModal()
+	{
+		ShowModal = false;
+	}
+	private void OpenModal()
+	{
+		ShowModal = true;
+	}
+
 
 	protected int CurrentScrollToScriptureId = 0;
+	private async Task ReturnedScriptureId(int scriptureId)
+	{
+		CurrentScrollToScriptureId = scriptureId;
+		await SetFocusToElement();
+		ShowModal = false;
+	}
+
+	private async Task SetFocusToElement()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await SetParashaVerses();
+		//CurrentVisibilityState = GetCurrentVisibilityState();
+	}
+
+	private List<RCL.Features.Parasha.TocRecord>? TableOfContentList = null;
+
+	private List<Data.ParashaWithAT>? parashaVerses = null;
+	protected bool TurnSpinnerOff = false;
+
+	private async Task SetParashaVerses()
+	{
+		if (triennial is not null)
+		{
+			try
+			{
+				parashaVerses = await db!.GetParashaWithAT(triennial.Value);
+				TableOfContentList = ParashaHelper.GetTableOfContents(
+					parashaVerses.Select(d => (d.SectionId, d.GroupCount, d.ScriptureID_Beg, d.VerseRange)));
+			}
+			catch (Exception ex)
+			{
+				Logger!.LogError(ex, "{Method}", nameof(SetParashaVerses));
+				Toast!.ShowError($"{Global.ToastShowError} {nameof(SectionWrapper)}!{nameof(SetParashaVerses)}");
+			}
+			finally
+			{
+				TurnSpinnerOff = true;
+			}
+		}
+	}
 
 	protected List<ReportModel> GetParashaTorahVerses(int showSection)
 	{
@@ -87,7 +181,6 @@
 		.Select(parasha => DataExtensions.MapFromParasha(parasha))
 		.ToList();
 	}
-
 	protected List<ReportModel> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
 	{
 		return parashaVerses!
@@ -97,4 +190,47 @@
 			.OrderBy(o => o.ID).ToList();
 	}
 
+	private void ParashaClosedPassThrough()
+	{
+		OnParashaClosed.InvokeAsync();
+	}
+
+	#region JavaScript Setup and Teardown
+
+	private IJSObjectReference? _module;
+	protected bool _firstRendered = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_firstRendered)
+		{
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JS.Path);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync(JS.FunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger!.LogError(ex, "{Method}", nameof(OnAfterRenderAsync));
+			}
+			finally
+			{
+				_firstRendered = true;
+			}
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.DisposeAsync();
+		}
+	}
+
+	#endregion
 }

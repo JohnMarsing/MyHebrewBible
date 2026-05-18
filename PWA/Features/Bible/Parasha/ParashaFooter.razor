@@ -1,0 +1,48 @@
+﻿<div class="bg-success-subtle p-1 border-top border-success border-2">
+	<div class="d-flex justify-content-between">
+		
+		@* <div class="d-flex justify-content-start"></div> *@
+
+			<button type="button"
+							class="btn btn-danger btn-sm rounded rounded-3 me-1"
+							title="Close Parasha"
+							@onclick="ButtonClickedCloseModal">
+				<i class="fas fa-chevron-left"></i>
+			</button>
+
+
+		<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+						@onclick="ButtonClickedOpenModal"
+						title="Table of Content">
+			<i class="fa-solid fa-t"></i>
+		</button>
+
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public List<RCL.Features.Parasha.TocRecord>? TableOfContentList { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnModalOpen { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnModalClosed { get; set; }
+
+	private void ButtonClickedCloseModal()
+	{
+		OnModalClosed.InvokeAsync();
+	}
+
+
+	private void ButtonClickedOpenModal()
+	{
+		OnModalOpen.InvokeAsync();
+	}
+
+	//@onclick="() => ReturnedButton(ButtonType.ToC)"
+	//private void ReturnedButton(ButtonType buttonType) { 	OnButtonSelected.InvokeAsync(buttonType); 	}
+	/*
+	 		<SubtitleModal Title="@FilteredVerses?.GetTitle()"
+									 Data="FilteredVerses?.ToTableOfContentMapping().ToList()"
+									 OnSelected="ReturnedTOC"
+									 OnCancel="CloseModal" />
+	 */
+
+}

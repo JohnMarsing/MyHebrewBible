@@ -1,19 +1,11 @@
 ﻿@page "/Bible"
 
-@using Dapper;
 @using PWA.Features.Bible.Data
+@using PWA.Features.Bible.Enums
 
 @using DirEnums = Enums.VerticalDirection
 @using DirHelper = Enums.VerticalDirectionHelper
 
-@* @using ToolbarEnums = PWA.Features.Bible.Toolbar.Enums *@
-@using PWA.Features.Bible.Enums
-
-@using PWA.Features.Bible.Parasha
-@using PWA.Features.Bible.Parasha.TableOfContents
-@using RCL.Features.Parasha.Enums
-
-@using UserSettingEnums = PWA.Features.Bible.Enums.UserSetting
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
 
 @using PWA.Features.Bible.ActionComponents.LookupBCV
@@ -22,6 +14,8 @@
 @using PWA.Features.Bible.Headers
 @using PWA.Features.Bible.Toolbar
 @using PWA.Features.Bible.Footers
+@using PWA.Features.Bible.Parasha
+
 @using RCL.Enums
 
 @inject PWA.Features.Bible.Data.IRepository? db;
@@ -37,10 +31,10 @@
 	{
 		<ParashaButtons Title="Parasha" />
 		<div class="@MediaQuery.XsOrSm.DivClass">
-			<ParashaTable Triennial="@triennial" IsMdOrLgOrXl="false" />
+			<ParashaTable IsMdOrLgOrXl="false" />
 		</div>
 		<div class="@MediaQuery.MdOrLgOrXl.DivClass">
-			<ParashaTable Triennial="@triennial" IsMdOrLgOrXl="true" />
+			<ParashaTable IsMdOrLgOrXl="true" />
 		</div>
 	}
 	else
@@ -65,8 +59,8 @@
 
 		@if (currentAction == Footers.ButtonType.Parasha)
 		{
-
-			<SectionWrapper Triennial="@triennial" VM="VM" parashaVerses="parashaVerses" UserSettings="UserSettings" />
+			@* Rename to ParashaSectionAndFooter or ParashaWrapper *@
+			<SectionWrapper UserSettings="UserSettings" OnParashaClosed="ReturnedParashaClosed" />
 		}
 		else
 		{
@@ -95,8 +89,6 @@
 		{
 			@if (currentAction == Footers.ButtonType.Parasha)
 			{
-				@* <GetData OnDataGotten="ReturnedParashaData" /> *@
-				<ParashaFooter OnParashaClosed="ReturnedParashaClosed" />
 			}
 			else
 			{
@@ -104,6 +96,7 @@
 										OnButtonSelected="ReturnedButtonType"
 										OnBCVSelected="ReturnedBCVSelected" />
 			}
+
 		}
 	</footer>
 
@@ -124,8 +117,6 @@
 	}
 
 }
-
-@* else { <Alert>currentAction is null</Alert>	 } *@
 
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
@@ -175,13 +166,11 @@
 		}
 	}
 
-	// ToDo: can `SetScriptureIdAndBCV` this logic be pushed down to RCL.Enums i.e. `BibleBookHelper.cs`?
-	// - I would have to somehow pass in State
 	private void SetScriptureIdAndBCV()
 	{
-		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); // get from local storage, if not found use default (Gen 1:1); sometime Genesis is returned instead of Gen???
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); 
 
-		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); // based on the lookup, convert the abrv to a BibleBook.Value
+		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); 
 		if (!String.IsNullOrEmpty(errMsg))
 		{
 			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
@@ -212,15 +201,8 @@
 
 
 	#region EventCallback Return Logic
-	/*
-	ToDo: Consider a new feature; what if you persisted the last action
-	- maybe pre-populate the modal/form with the last search? Would that be helpful or just annoying?
-		- if you could persist a list, then you could show a dropdown of recent searches/actions.
-		next to the Find button not unlike the B/C History
- */
 
 	private string? TextFilter;
-	//private string? StrongsFilter;
 	private string? HighlightText;
 
 	private void ReturnedFilterSelected(FilterRecord filter)
@@ -251,48 +233,12 @@
 		currentAction = null;
 	}
 
-	private TOC_VM? VM;
-	private List<Data.ParashaWithAT>? parashaVerses = null;
-	private Triennial? triennial = RCL.Features.Parasha.Helpers.GetCurrentReading(); // Triennial.List.Where(w => w.Value == id).SingleOrDefault();
-	private async Task SetParashaVerses()
-	{
-		if (triennial is not null)
-		{
-			try
-			{
-				parashaVerses = await db!.GetParashaWithAT(triennial.Value);
-				List<TocRecord>? _tableOfContentList = parashaVerses
-					.GroupBy(d => new { d.SectionId, d.GroupCount, d.ScriptureID_Beg, d.VerseRange })
-					.Select(g => new TocRecord(
-							g.Key.SectionId,
-							g.Key.GroupCount,
-							g.Key.ScriptureID_Beg,
-							g.Key.VerseRange,
-							g.Count()
-					))
-					.ToList();
-
-				if (parashaVerses.Count > 0)
-				{
-					VM = new TOC_VM();
-					VM!.TableOfContentList = _tableOfContentList;
-				}
-			}
-			catch (Exception ex)
-			{
-				Logger!.LogError(ex, "{Method}", nameof(SetParashaVerses));
-				Toast!.ShowError($"{Global.ToastShowError} {nameof(SetParashaVerses)}!{nameof(SetParashaVerses)}");
-			}
-		}
-	}
-
 	private void ReturnedParashaClosed()
 	{
 		currentAction = null;
-		parashaVerses = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
-	 
+
 	private void ReturnedClearAction()
 	{
 		currentAction = null;
@@ -337,10 +283,7 @@
 	private async Task ReturnedButtonType(Footers.ButtonType action)
 	{
 		currentAction = action;
-		if (action == Footers.ButtonType.Parasha)
-		{
-			await SetParashaVerses();
-		}
+		await Task.CompletedTask;
 	}
 
 	protected int CurrentScrollToScriptureId;
@@ -376,7 +319,8 @@
 	{
 		if (_module is not null)
 		{
-			await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+			await _module.InvokeVoidAsync(JS.FunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+			await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 		}
 	}
 
@@ -417,9 +361,6 @@
 
 	private IJSObjectReference? _module;
 	protected bool _firstRendered = false;
-	
-	const string JSFunctionScrollTo = "scrollToElement";
-	const string JSFunctionSetFocus = "setFocusToElement";
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -427,11 +368,11 @@
 		{
 			try
 			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Features/Bible/Index.razor.js");
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JS.Path);
 				if (_module != null)
 				{
-					await _module.InvokeVoidAsync(JSFunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
-					await _module.InvokeVoidAsync(JSFunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JS.FunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 				}
 			}
 			catch (Exception ex)
