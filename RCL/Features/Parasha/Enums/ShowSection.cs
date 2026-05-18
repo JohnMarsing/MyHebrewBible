@@ -1,6 +1,6 @@
 ﻿using Ardalis.SmartEnum;
 
-namespace PWA.Features.Bible.Parasha.Enums;
+namespace RCL.Features.Parasha.Enums;
 
 [Flags]
 public enum Permutation : int {Torah = 1,	Haftorah = 2,	Brit = 4}

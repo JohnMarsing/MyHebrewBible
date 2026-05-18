@@ -2,11 +2,50 @@
 using RCL.Enums;
 using RCL.Features.Parasha.Enums;
 
+using ShowSectionEnums = RCL.Features.Parasha.Enums.ShowSection;
+
 namespace RCL.Features.Parasha;
 
 public class Helpers
 {
-  public const string BaseUrl = "Parasha";
+	public static List<TocRecord>? GetTableOfContents(
+		IEnumerable<(int SectionId, int GroupCount, int ScriptureID_Beg, string? VerseRange)> source)
+	{
+		var list = source
+				.GroupBy(d => new { d.SectionId, d.GroupCount, d.ScriptureID_Beg, d.VerseRange })
+				.Select(g => new TocRecord(
+						g.Key.SectionId,
+						g.Key.GroupCount,
+						g.Key.ScriptureID_Beg,
+						g.Key.VerseRange,
+						g.Count()
+				))
+				.ToList();
+
+		return list.Count > 0 ? list : null;
+	}
+
+
+	public static int GetTorahScriptureId(List<TocRecord>? toc)
+	{
+		return toc!
+       .Where(w => w.SectionId == ShowSectionEnums.Torah.Value)
+       .Select(s => s.ScriptureID_Beg).SingleOrDefault(1);
+	}
+
+	public static int GetSectionCount(ShowSectionEnums showSection, List<TocRecord>? toc)
+	{
+		return toc!.Where(w => w.SectionId == showSection.Value).Count();
+	}
+
+	public static string? GetTorahVerseRange(List<TocRecord>? toc)
+	{
+		return toc!
+      .Where(w => w.SectionId == ShowSectionEnums.Torah.Value)
+      .Select(s => s.VerseRange).SingleOrDefault("Gen 1:1");
+	}
+
+	public const string BaseUrl = "Parasha";
 
   public static string PrevNextUrl(Triennial triennial)
   {

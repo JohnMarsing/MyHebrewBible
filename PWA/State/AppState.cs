@@ -9,6 +9,7 @@ namespace PWA.State;
 public class AppState 
 {
 	public Features.Bible.State? BookChapterState { get; }
+	public Features.Bible.Parasha.ParashaState? ParashaState { get; }
 	//public Features.Haggadah.State? HaggadahState { get; }	
 	//public VerseList.VerseListState? VerseListState { get; }
 
@@ -21,6 +22,7 @@ public class AppState
 		Logger = logger;
 		this.localStorage = localStorage;
 		BookChapterState = new Features.Bible.State(localStorage, logger);
+		ParashaState = new Features.Bible.Parasha.ParashaState(localStorage, logger);
 		//HaggadahState = new Features.Haggadah.State(localStorage, logger);	
 		//VerseListState = new VerseList.VerseListState(localStorage, logger);
 		//Logger!.LogInformation("ctor of {Project}!{Class}", nameof(PWA), nameof(AppState));
