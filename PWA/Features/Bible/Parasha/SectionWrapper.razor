@@ -107,6 +107,8 @@
 	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnParashaClosed { get; set; }
 	//[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
 
 	private TriennialEnums? triennial = ParashaHelper.GetCurrentReading();
 
@@ -139,7 +141,6 @@
 		}
 	}
 
-
 	protected override async Task OnParametersSetAsync()
 	{
 		await SetParashaVerses();
@@ -163,8 +164,7 @@
 			}
 			catch (Exception ex)
 			{
-				Logger!.LogError(ex, "{Method}", nameof(SetParashaVerses));
-				Toast!.ShowError($"{Global.ToastShowError} {nameof(SectionWrapper)}!{nameof(SetParashaVerses)}");
+				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(SetParashaVerses)}");
 			}
 			finally
 			{
@@ -215,7 +215,7 @@
 			}
 			catch (Exception ex)
 			{
-				Logger!.LogError(ex, "{Method}", nameof(OnAfterRenderAsync));
+				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnAfterRenderAsync)}, failed to load JS module or set focus");
 			}
 			finally
 			{

@@ -1,9 +1,6 @@
-﻿
-@* After using `BCVHistory` this won't be needed' *@
-@using PWA.Features.Bible.Toolbar
+﻿@using PWA.Features.Bible.Toolbar
 
 @inject ILogger<RecentListPicker>? Logger
-@* @inject IToastService? Toast *@
 
 @if (RecentList is not null)
 {
@@ -22,9 +19,9 @@ else
 }
 
 @code {
-	[CascadingParameter] public CascadingAppState? State { get; set; } /* Can this be done in NavBar?*/
 	[Parameter] public EventCallback<RCL.Components.BookChapterVerseRecord> OnBCVSelected { get; set; }
-
+	[CascadingParameter] public CascadingAppState? State { get; set; } /* Can this be done in NavBar?*/
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 	
 	protected override async Task OnInitializedAsync()
 	{
@@ -41,8 +38,7 @@ else
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
-			//Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnParametersSet)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSet)}");
 		}
 	}
 

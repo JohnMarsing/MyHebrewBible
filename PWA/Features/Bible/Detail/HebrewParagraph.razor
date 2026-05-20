@@ -1,5 +1,4 @@
 ﻿@inject PWA.Features.Bible.Data.IRepository? db;
-@inject IToastService? Toast
 @inject ILogger<HebrewParagraph>? Logger
 
 <LoadingComponent IsLoading="hebrewWords == null" TurnSpinnerOff="TurnSpinnerOff">
@@ -27,6 +26,8 @@
 	[Parameter, EditorRequired] public bool HebrewWordNumbers { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
 
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
 	protected bool TurnSpinnerOff = false;
 	private List<Data.WordPartByScriptureId>? hebrewWords = null;
 
@@ -39,8 +40,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnParametersSetAsync));
-			//Toast!.ShowError($"{Global.ToastShowError} {nameof(HebrewTable)}!{nameof(OnParametersSetAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSetAsync)}");
 		}
 		finally
 		{

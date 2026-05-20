@@ -1,7 +1,6 @@
 ﻿@using PWA.Features.Bible.Enums
 
 @inject ILogger<EditModal>? Logger
-@* @inject IToastService? Toast *@
 
 <div class="@modalClass" style="display:@(modalOpen ? "block" : "none");">
 	<div class="modal-dialog">
@@ -37,6 +36,7 @@
 	
 	[Parameter, EditorRequired] public EventCallback<UserSettingsDTO> OnUserSettingsSelected { get; set; }
 	[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnClose { get; set; }
 
 	protected Permutation InitialPermutations;
@@ -52,8 +52,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
-			//Toast!.ShowError($"{Global.ToastShowError} {nameof(EditModal)}!{nameof(OnParametersSet)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSet)}");
 		}
 	}
 

@@ -18,6 +18,7 @@
 </LoadingComponent>
 
 @code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 	protected bool TurnSpinnerOff = false;
 	private List<TableRowCountQuery>? tableRowCnts = null;
 	
@@ -33,8 +34,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
-			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnInitializedAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnInitializedAsync)}");
 		}
 		finally
 		{

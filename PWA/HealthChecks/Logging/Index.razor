@@ -1,0 +1,61 @@
+﻿@page "/HealthChecks/ProcessError"
+
+@* @inject ProcessError ProcessError   // Or use [CascadingParameter] if you prefer *@
+
+<Buttons Title="Test Process Error" />
+
+<p>Current count: @currentCount</p>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@* <div class="card ">
+	<div class="card-body">
+
+		<div class="list-group">
+
+			<button type="button" class="list-group-item list-group-item-action" title="Throw"
+							@onclick="DoSomethingAsync">
+				<i class="fa-solid fa-bomb"></i> Throw
+			</button>
+
+		</div>
+
+	</div>
+</div>
+ *@
+@code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	private int currentCount = 0;
+
+	private void IncrementCount()
+	{
+		try
+		{
+			currentCount++;
+
+			if (currentCount > 5)
+			{
+				throw new InvalidOperationException("Current count is over five!");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(IncrementCount)}");
+		}
+	}
+
+	// private async Task DoSomethingAsync()
+	// {
+	// 	try
+	// 	{
+	// 		await Task.Delay(100); // simulate async work
+	// 		throw new InvalidOperationException("Test exception thrown from HealthChecks/ProcessError page.");
+	// 	}
+	// 	catch (Exception ex)
+	// 	{
+	// 		ProcessError.LogError(ex);
+	// 		// Optionally show a toast, modal, or friendly message to the user
+	// 	}
+	// }
+
+}

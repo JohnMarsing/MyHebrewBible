@@ -120,6 +120,7 @@
 
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected UserSettingsDTO? UserSettings { get; set; }
 
@@ -139,7 +140,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnInitializedAsync));
+			ProcessError!.LogErrorWithMessage(ex, "Error initializing Bible data");
 		}
 		finally
 		{
@@ -161,8 +162,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnParametersSet));
-			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(OnParametersSet)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in  {nameof(OnParametersSet)}");
 		}
 	}
 
@@ -265,8 +265,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}, {Message}", nameof(ReturnedBCVSelected), $"Error occurred while calling {nameof(db.GetBookChapterWithAT)}");
-			Toast!.ShowError("Failed to load verses. Please try again.");
+			ProcessError!.LogErrorWithMessage(ex, $"Error occurred while calling {nameof(ReturnedBCVSelected)}");
 			return;
 		}
 
@@ -377,7 +376,7 @@
 			}
 			catch (Exception ex)
 			{
-				Logger!.LogError(ex, "{Method} failed to load JS module or set focus", nameof(OnAfterRenderAsync));
+				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnAfterRenderAsync)}, failed to load JS module or set focus");
 			}
 			_firstRendered = true;
 		}
