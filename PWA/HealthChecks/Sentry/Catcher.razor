@@ -1,0 +1,37 @@
+﻿@* @page "/HealthChecks/Sentry/catcher" *@
+
+@using Microsoft.Extensions.Logging
+@inject ILogger<Catcher> Logger
+
+<h3 class="text-center">Throw and Catch an Exception!</h3>` 
+
+<button class="btn btn-primary" @onclick="ThrowAndCatch">Throw And Catch</button>
+
+@if (SentrySdk.LastEventId != SentryId.Empty)
+{
+  <p>Sentry Event Id: @SentrySdk.LastEventId</p>
+}
+
+@code {
+  [CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+  private void ThrowAndCatch()
+  {
+    try
+    {
+      Logger.LogWarning("{Method}, {Message}", nameof(ThrowAndCatch), "Throwing something");
+      OtherStuffThrower.DoSomething();
+    }
+    catch (Exception ex)
+    {
+      ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(ThrowAndCatch)}");
+      SentrySdk.CaptureException(ex);
+    }
+  }
+
+  private static class OtherStuffThrower
+  {
+    public static void DoSomething() => Thrower();
+    private static void Thrower() => throw null!;
+  }
+}

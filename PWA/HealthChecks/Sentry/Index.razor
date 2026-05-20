@@ -1,0 +1,42 @@
+﻿@page "/HealthChecks/sentry"
+
+
+<Buttons Title="Sentry Health Checks" />
+
+<div class="card ">
+	<div class="card-body">
+
+		<div class="list-group">
+
+			<button type="button" class="list-group-item list-group-item-action" title="Throw"
+							@onclick="@(() => ShowComponent(ButtonType.Throw))">
+				<i class="fa-solid fa-bomb"></i> Throw
+			</button>
+
+			<button type="button" class="list-group-item list-group-item-action" title="Catch"
+							@onclick="@(() => ShowComponent(ButtonType.Catch))">
+				<i class="fa-solid fa-arrow-rotate-left"></i> Catch
+			</button>
+
+		</div>
+
+	</div>
+</div>
+
+@if (activeButton == ButtonType.Throw)
+{
+	<Thrower />
+}
+else if (activeButton == ButtonType.Catch)
+{
+	<Catcher />
+}
+
+@code {
+	private ButtonType? activeButton;
+
+	private void ShowComponent(ButtonType buttonType)
+	{
+		activeButton = buttonType;
+	}
+}

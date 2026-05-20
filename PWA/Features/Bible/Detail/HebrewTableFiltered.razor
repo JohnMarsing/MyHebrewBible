@@ -2,7 +2,6 @@
 @using RCL.Helpers
 @using PWA.Features.Bible.Data
 
-@inject IToastService? Toast
 @inject ILogger<HebrewTableFiltered>? Logger
 @inject PWA.Features.Bible.Data.IRepository? db;
 
@@ -57,7 +56,10 @@
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
 	[Parameter, EditorRequired] public bool IsXs { get; set; }
-	
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+
+
 	protected string HeaderCSS => IsXs ? "table table-sm" : "table ";
 
 	protected bool TurnSpinnerOff = false;
@@ -87,8 +89,7 @@
 		}
 		catch (Exception ex)
 		{
-			Logger!.LogError(ex, "{Method}", nameof(OnParametersSetAsync));
-			Toast!.ShowError($"{Global.ToastShowError} {nameof(HebrewTableFiltered)}!{nameof(OnParametersSetAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSetAsync)}");
 		}
 		finally
 		{

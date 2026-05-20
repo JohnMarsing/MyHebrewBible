@@ -1,7 +1,12 @@
-﻿@inject ILogger<ProcessError> Logger
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
-<CascadingValue Value="this">
-  @ChildContent
+@inject IWebAssemblyHostEnvironment HostEnvironment
+@inject ILogger<ProcessError> Logger
+@inject Sentry.ISentryClient SentryClient   // Optional: for direct access
+@inject IToastService? Toast
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
 </CascadingValue>
 
 @code {
@@ -9,10 +14,30 @@
 
   public void LogError(Exception ex)
   {
-    Logger.LogError("ProcessError.LogError: {Type} Message: {Message}",  ex.GetType(), ex.Message);
-    // Call StateHasChanged if LogError directly participates in
-    // rendering. If LogError only logs or records the error,
-    // there's no need to call StateHasChanged.
-    //StateHasChanged();
+    // 1. Always log locally with ILogger (goes to browser console + Sentry via integration)
+    if (HostEnvironment.IsDevelopment())
+    {
+      // Full rich logging in development
+      Logger.LogError(ex, "ProcessError.LogError: {Type} - {Message}", ex.GetType().Name, ex.Message);
+    }
+    else
+    {
+      // Lighter logging in production (still sent to Sentry)
+      Logger.LogError("ProcessError.LogError: {Type} - {Message}", ex.GetType().Name, ex.Message);
+    }
+
+    // 2. Send directly to Sentry (rich context, stack trace, etc.)
+    SentrySdk.CaptureException(ex, scope =>
+    {
+      scope.SetTag("component", "ProcessError");
+      scope.SetExtra("logged_via", "ProcessError.LogError");
+      // You can add more context here (user id, current route, etc.)
+    });
+  }
+
+  public void LogErrorWithMessage(Exception ex, string userMessage)
+  {
+    LogError(ex);
+    Toast!.ShowError($"{Global.ToastShowError} | {userMessage}");
   }
 }

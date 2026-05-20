@@ -22,7 +22,10 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int Sitemap = 3;
 		internal const int ParashaList = 4;
 		internal const int Hebrew = 5;
-		internal const int HealthCheckTableRowCount = 28;
+		internal const int HealthCheckTableRowCount = 31;
+		internal const int HealthCheckSentryThrow = 32;
+		internal const int HealthCheckSentryCatch = 33;
+
 		/*
 		internal const int Donate = 4;
 		internal const int Article = 5;
