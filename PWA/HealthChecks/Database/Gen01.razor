@@ -1,0 +1,58 @@
+﻿@using PWA.HealthChecks.Database.Data
+@inject PWA.HealthChecks.Database.Data.IRepository? db;
+@inject ILogger<BookChapter>? Logger
+@inject IToastService? Toast
+
+<LoadingComponent IsLoading="verses == null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<TableTemplate Items="verses!.OrderBy(o => o.ID).ToList()" HeaderCSS="table table-bordered border-warning table-sm table-hover">
+		<TableHeader>
+			<th>ID</th>
+			<th>BCV</th>
+			<th>Verse</th>
+			<th>Verse Offset</th>
+			<th>KJV</th>
+			<th>DescH</th>
+			<th>DescD</th>
+		</TableHeader>
+		<RowTemplate>
+			<td>@context.ID</td>
+			<td>@context.BCV</td>
+			<td>@context.Verse</td>
+			<td>@context.VerseOffset</td>
+			<td>@context.KJV</td>
+			<td>@context.DescH</td>
+			<td>@context.DescD</td>
+		</RowTemplate>
+	</TableTemplate>
+</LoadingComponent>
+
+@code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	private List<BookChapter>? verses = null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			int chapter = 1;
+			verses = await db!.GetBookChapter(RCL.Enums.BibleBook.Genesis.Value, chapter);
+			if (verses is null)
+			{
+				Toast!.ShowWarning($"BookChapter {RCL.Enums.BibleBook.Genesis.Title}:{chapter} not found (◡︵◡) ");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(BookChapter), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetBookChapter)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+
+
+}

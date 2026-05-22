@@ -58,8 +58,6 @@
 	[Parameter, EditorRequired] public bool IsXs { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
-
-
 	protected string HeaderCSS => IsXs ? "table table-sm" : "table ";
 
 	protected bool TurnSpinnerOff = false;
@@ -89,7 +87,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSetAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewTableFiltered), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartsByScripureIdAndStrongs)}");
 		}
 		finally
 		{

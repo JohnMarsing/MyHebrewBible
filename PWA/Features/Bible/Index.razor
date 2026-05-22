@@ -121,7 +121,7 @@
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
-
+		
 	protected UserSettingsDTO? UserSettings { get; set; }
 
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
@@ -140,7 +140,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, "Error initializing Bible data");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnInitializedAsync), Nav.Bible, $"called {nameof(db.GetBookChapterWithAT)}");
 		}
 		finally
 		{
@@ -162,7 +162,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error in  {nameof(OnParametersSet)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnParametersSet), Nav.Bible, $"{nameof(State.AppState.BookChapterState.GetUserSetting)}");
 		}
 	}
 
@@ -265,7 +265,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error occurred while calling {nameof(ReturnedBCVSelected)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(db.GetBookChapterWithAT)}");
 			return;
 		}
 
@@ -374,9 +374,10 @@
 					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 				}
 			}
-			catch (Exception ex)
+			catch (Exception ex) 
 			{
-				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnAfterRenderAsync)}, failed to load JS module or set focus");
+				ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnAfterRenderAsync), Nav.Bible
+				, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
 			}
 			_firstRendered = true;
 		}

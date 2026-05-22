@@ -162,9 +162,9 @@
 				TableOfContentList = ParashaHelper.GetTableOfContents(
 					parashaVerses.Select(d => (d.SectionId, d.GroupCount, d.ScriptureID_Beg, d.VerseRange)));
 			}
-			catch (Exception ex)
+			catch (Exception ex) // catch (Exception ex)
 			{
-				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(SetParashaVerses)}");
+				ProcessError!.LogErrorWithMessage(ex, nameof(SectionWrapper), nameof(SetParashaVerses), Nav.Bible, $"called: {nameof(db.GetParashaWithAT)}");
 			}
 			finally
 			{
@@ -215,7 +215,7 @@
 			}
 			catch (Exception ex)
 			{
-				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnAfterRenderAsync)}, failed to load JS module or set focus");
+				ProcessError!.LogErrorWithMessage(ex, nameof(SectionWrapper), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
 			}
 			finally
 			{

@@ -52,7 +52,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSet)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(EditModal), nameof(OnParametersSet), Nav.Bible, $"called GetUserSetting");
 		}
 	}
 

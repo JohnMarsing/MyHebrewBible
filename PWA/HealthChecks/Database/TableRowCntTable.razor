@@ -19,6 +19,7 @@
 
 @code {
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+	
 	protected bool TurnSpinnerOff = false;
 	private List<TableRowCountQuery>? tableRowCnts = null;
 	
@@ -34,7 +35,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnInitializedAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(TableRowCntTable), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetTableRowCountQuery)}");
 		}
 		finally
 		{

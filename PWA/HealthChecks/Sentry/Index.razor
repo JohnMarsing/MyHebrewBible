@@ -1,42 +1,36 @@
 ﻿@page "/HealthChecks/sentry"
+@using PWA.HealthChecks.Enums
 
+<PageTitle>@Nav.HealthCheckSentry.Title</PageTitle>
+<Buttons Title="@Nav.HealthCheckSentry.Title" />
 
-<Buttons Title="Sentry Health Checks" />
+<ButtonCardTemplate Buttons="@(Button.List.Where(b => b.GroupTypeEnum == GroupType.Sentry).OrderBy(b => b.Value).ToList())"
+										OnButtonSelected="@ReturnedButton" />
 
-<div class="card ">
-	<div class="card-body">
-
-		<div class="list-group">
-
-			<button type="button" class="list-group-item list-group-item-action" title="Throw"
-							@onclick="@(() => ShowComponent(ButtonType.Throw))">
-				<i class="fa-solid fa-bomb"></i> Throw
-			</button>
-
-			<button type="button" class="list-group-item list-group-item-action" title="Catch"
-							@onclick="@(() => ShowComponent(ButtonType.Catch))">
-				<i class="fa-solid fa-arrow-rotate-left"></i> Catch
-			</button>
-
-		</div>
-
-	</div>
-</div>
-
-@if (activeButton == ButtonType.Throw)
+@if (currentButton != null)
 {
-	<Thrower />
-}
-else if (activeButton == ButtonType.Catch)
-{
-	<Catcher />
+	<section class="px-2">
+		@* <h1 class="text-center">@currentButton.GroupTypeEnum</h1> *@
+		<h3 class="text-center">@currentButton.Title</h3>
+		@if (currentButton == Button.Throw)
+		{
+			<Thrower />
+		}
+		else
+		{
+			if (currentButton == Button.ThrowAndCatch)
+			{
+				<Catcher />
+			}
+		}
+	</section>
 }
 
 @code {
-	private ButtonType? activeButton;
+	Button? currentButton = null;
 
-	private void ShowComponent(ButtonType buttonType)
+	private void ReturnedButton(Button button)
 	{
-		activeButton = buttonType;
+		currentButton = button;
 	}
 }

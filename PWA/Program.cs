@@ -20,11 +20,12 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Logging.AddSerilog(Log.Logger);
 
+
 builder.UseSentry(options =>
 {
 	options.Dsn = "https://92c51cb6dbb8813a9fc8356a5774910a@o4511417237962752.ingest.us.sentry.io/4511417300025344";
 	options.Environment = builder.HostEnvironment.Environment;  // "Development", "Production", etc.
-	options.Debug = builder.HostEnvironment.IsDevelopment();    // Enable debug output in dev
+	//options.Debug = builder.HostEnvironment.IsDevelopment();    // Enable debug output in dev
 	options.EnableLogs = true;
 	options.AutoSessionTracking = true;
 	options.TracesSampleRate = 1.0;
@@ -33,14 +34,15 @@ builder.UseSentry(options =>
 	//options.AddEventProcessor(new BlazorEventProcessor()); 
 });
 
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 // HttpClient is already registered by default in Blazor WASM
 
-builder.Services.AddBibleData(); 
-builder.Services.AddDatabaseHealthChecks(); 
+builder.Services.AddBibleData();
+builder.Services.AddDatabaseHealthChecks();
 builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how
 
 builder.Services.AddPWAUpdater(); // This is Toolbelt.Blazor
@@ -50,9 +52,9 @@ builder.Services.AddBlazoredToast();  // Need this here and in the Server
 
 Log.Information("PWA WebAssembly App Starting...");
 
-
 try
 {
+	SQLitePCL.Batteries_V2.Init(); // Added in 026 branch
 	await builder.Build().RunAsync();
 	Log.Information("PWA WebAssembly App Stopped cleanly");
 }

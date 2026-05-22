@@ -19,7 +19,7 @@
 
 	@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
 	{
-		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" /> 
+		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" />
 
 		<ParashaDisplay ScriptureId="@item.ID"
 										BookId="@item.BookID"
@@ -110,7 +110,7 @@
 									 HighlightText="@HighlightText"
 									 OnVerseSelectedPassThrough="ReturnedVerse" />
 			}
-		
+
 		}
 	}
 
@@ -193,7 +193,7 @@ else
 	{
 		Filter = filter;
 	}
-		
+
 	private async Task ReturnedCloseEvent()
 	{
 		DrilldownScriptureId = 0;
@@ -225,7 +225,7 @@ else
 			}
 			catch (Exception ex)
 			{
-				ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnAfterRenderAsync)}, failed to load JS module or set focus");
+				ProcessError!.LogErrorWithMessage(ex, nameof(Sections), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
 			}
 			_firstRendered = true;
 		}

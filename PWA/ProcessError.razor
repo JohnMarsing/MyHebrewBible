@@ -1,43 +1,49 @@
-﻿@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
 @inject IWebAssemblyHostEnvironment HostEnvironment
 @inject ILogger<ProcessError> Logger
-@inject Sentry.ISentryClient SentryClient   // Optional: for direct access
+@inject Sentry.ISentryClient SentryClient
 @inject IToastService? Toast
+@inject NavigationManager Navigation
 
 <CascadingValue Value="this" IsFixed="true">
-    @ChildContent
+  @ChildContent
 </CascadingValue>
 
 @code {
-  [Parameter]  public RenderFragment? ChildContent { get; set; }
+  [Parameter] public RenderFragment? ChildContent { get; set; }
 
-  public void LogError(Exception ex)
+  public void LogError(Exception ex, string? classname, string? methodname, Enums.Nav? nav, string? userMessage)
   {
-    // 1. Always log locally with ILogger (goes to browser console + Sentry via integration)
-    if (HostEnvironment.IsDevelopment())
-    {
-      // Full rich logging in development
-      Logger.LogError(ex, "ProcessError.LogError: {Type} - {Message}", ex.GetType().Name, ex.Message);
-    }
-    else
-    {
-      // Lighter logging in production (still sent to Sentry)
-      Logger.LogError("ProcessError.LogError: {Type} - {Message}", ex.GetType().Name, ex.Message);
-    }
+    Logger.LogError(ex,
+      "{Class} {Method} {Nav} {Message} {Type}",
+      classname, methodname, nav, userMessage, ex.GetType().Name);
 
-    // 2. Send directly to Sentry (rich context, stack trace, etc.)
     SentrySdk.CaptureException(ex, scope =>
     {
+      var currentUrl = Navigation.Uri;
+      var currentRoute = Navigation.ToBaseRelativePath(currentUrl);
+
+      if (string.IsNullOrWhiteSpace(currentRoute))
+      {
+        currentRoute = "/";
+      }
+      else
+      {
+        currentRoute = "/" + currentRoute;
+      }
+
       scope.SetTag("component", "ProcessError");
+      scope.SetTag("route", currentRoute);
+      scope.SetExtra("current_url", currentUrl);
       scope.SetExtra("logged_via", "ProcessError.LogError");
-      // You can add more context here (user id, current route, etc.)
     });
   }
 
-  public void LogErrorWithMessage(Exception ex, string userMessage)
+  public void LogErrorWithMessage(Exception ex, string? classname, string? methodname, Enums.Nav nav, string userMessage)
   {
-    LogError(ex);
+    LogError(ex, classname, methodname, nav, userMessage);
     Toast!.ShowError($"{Global.ToastShowError} | {userMessage}");
   }
 }

@@ -62,16 +62,16 @@
 	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
 
 	private BookChapterVerseRecord? _previousBCV;
-	private bool _isBCVChanged;
 
+	//private bool _isBCVChanged;
 	protected override async Task OnParametersSetAsync()
 	{
 		if (_previousBCV is not null && !_previousBCV.Equals(BCV))
 		{
-			_isBCVChanged = true;
+			//_isBCVChanged = true;
 			StateHasChanged();
 			await Task.Delay(1000);
-			_isBCVChanged = false;
+			//_isBCVChanged = false;
 			StateHasChanged();
 		}
 		_previousBCV = BCV;
