@@ -1,0 +1,26 @@
+﻿@using PWA.HealthChecks.Enums
+
+<div class="card">
+	<div class="card-body">
+
+		<div class="list-group">
+
+			@foreach (var button in Buttons)
+			{
+				<button type="button"
+								class="list-group-item list-group-item-action"
+								title="@button.Title"
+								@onclick="@(() => OnButtonSelected.InvokeAsync(button))">
+					<i class="@button.Icon"></i> @button.Title
+				</button>
+			}
+
+		</div>
+
+	</div>
+</div>
+
+@code {
+	[Parameter, EditorRequired] public required List<Button> Buttons { get; set; }
+	[Parameter, EditorRequired] public required EventCallback<Button> OnButtonSelected { get; set; }
+}

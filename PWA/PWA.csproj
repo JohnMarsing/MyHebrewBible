@@ -1,49 +1,62 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
-    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+		<WasmBuildNative>true</WasmBuildNative>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release' AND '$(Publish)' == 'true'">
-    <RunAOTCompilation>true</RunAOTCompilation>
-  </PropertyGroup>
+		<RunAOTCompilation>true</RunAOTCompilation> 
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
+	<ItemGroup>
+		<Compile Remove="Features\ScrollSpy\**" />
+		<Content Remove="Features\ScrollSpy\**" />
+		<EmbeddedResource Remove="Features\ScrollSpy\**" />
+		<None Remove="Features\ScrollSpy\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
 		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
 		<PackageReference Include="Blazored.Toast" Version="4.2.1" />
 		<PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
-    <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.5" />
-    <PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" Version="6.5.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-    <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
-    <!--<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />-->
-    <PackageReference Include="Toolbelt.Blazor.PWA.Updater" Version="3.2.0" />
-  </ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.79" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.8" />
+		<PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" Version="6.5.0" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+		<PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+		<PackageReference Include="Toolbelt.Blazor.PWA.Updater" Version="3.2.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RCL\RCL.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\RCL\RCL.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Lists\MitzvahPage\" />
-    <Folder Include="Features\ScrollSpy\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Features\Lists\MitzvahPage\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="Features\Bible\ActionComponents\VerseAndID.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Features\Bible\ActionComponents\VerseAndID.cs" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<!-- Optional but often helps with trimming issues -->
+		<PublishTrimmed>false</PublishTrimmed>
+	</PropertyGroup>
 
 </Project>

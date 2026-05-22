@@ -25,7 +25,6 @@
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
 	[Parameter, EditorRequired] public bool HebrewWordNumbers { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
-
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected bool TurnSpinnerOff = false;
@@ -40,7 +39,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, $"Error in {nameof(OnParametersSetAsync)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartByScriptureId)}");
 		}
 		finally
 		{

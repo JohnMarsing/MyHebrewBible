@@ -1,13 +1,40 @@
-﻿@page "/HealthChecks/TableRowCount"
+﻿@page "/HealthChecks/Database"
+@using PWA.HealthChecks.Enums
 
-@* <PageHeader PageEnum="Page.HealthCheckTableRowCount" /> *@
+<PageTitle>@Nav.HealthCheckDatabase.Title</PageTitle>
+<Buttons Title="@Nav.HealthCheckDatabase.Title" />
+<ButtonCardTemplate Buttons="@(Button.List.Where(b => b.GroupTypeEnum == GroupType.Database).OrderBy(b => b.Value).ToList())"
+										OnButtonSelected="@ReturnedButton" />
 
-<Buttons Title="@Nav.HealthCheckTableRowCount.Title" />
+@if (currentButton != null)
+{
+	<section class="px-2">
+		@* <h1 class="text-center">HC Group: @currentButton.GroupTypeEnum</h1> *@
+		<h3 class="text-center">@currentButton.Title</h3>
+		@if (currentButton == Button.TableRowCntTable)
+		{
+			<TableRowCntTable />
+		}
+		else
+		{
+			@if (currentButton == Button.Gen01)
+			{
+				<Gen01 />
+			}
+		}
+	</section>
+}
 
-<section class="px-2">
-	<TableRowCntTable />
-</section>
+	
+
 
 @code {
-	
+
+	Button? currentButton = null;
+
+	private void ReturnedButton(Button button)
+	{
+		currentButton = button;
+	}
+
 }

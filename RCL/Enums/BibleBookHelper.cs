@@ -10,7 +10,8 @@ public static class BibleBookHelper
 	public static MarkupString GetTitleAndChapter(BibleBook bibleBook, int chapter, bool isXs = true)
 	{
 		string fontSize = (bibleBook.Title.Length > 8 && isXs) ? "fs-6" : isXs ? "fs-5" : "fs-1";
-		string fontSizeH = (bibleBook.Title.Length > 8 && isXs) ? "hebrew16" : isXs ? "hebrew30" : "hebrew36";
+		//string fontSizeH = (bibleBook.Title.Length > 8 && isXs) ? "hebrew16" : isXs ? "hebrew30" : "hebrew36";
+		string fontSizeH = (isXs) ? "hebrew16" : "hebrew30";
 
 		string englishSpan = $"<span class='fw-bold text-primary {fontSize}'>{bibleBook.Title} {chapter}</span>";
 		string hebrewSpan  = $"<span class='{fontSizeH}'>{bibleBook.NameInHebrew}</span>";

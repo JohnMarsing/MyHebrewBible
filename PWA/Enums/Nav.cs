@@ -22,9 +22,9 @@ public abstract class Nav : SmartEnum<Nav>
 		internal const int Sitemap = 3;
 		internal const int ParashaList = 4;
 		internal const int Hebrew = 5;
-		internal const int HealthCheckTableRowCount = 31;
-		internal const int HealthCheckSentryThrow = 32;
-		internal const int HealthCheckSentryCatch = 33;
+		internal const int HealthCheckDatabase = 31;
+		internal const int HealthCheckSentry = 32; // HealthChecks/sentry Throw and (ThrowAnd) Catch
+		internal const int HealthCheckProcessError = 33; // HealthChecks/ProcessError
 
 		/*
 		internal const int Donate = 4;
@@ -60,7 +60,9 @@ public abstract class Nav : SmartEnum<Nav>
 	public static readonly Nav Sitemap = new SitemapSE();
 	public static readonly Nav ParashaList = new ParashaListSE();
 	public static readonly Nav Hebrew = new HebrewSE();
-	public static readonly Nav HealthCheckTableRowCount = new HealthCheckTableRowCountSE();
+	public static readonly Nav HealthCheckDatabase = new HealthCheckTableDatabaseSE();
+	public static readonly Nav HealthCheckSentry = new HealthCheckSentrySE();
+	public static readonly Nav HealthCheckProcessError = new HealthCheckProcessErrorSE();
 	/*
 		public static readonly Nav Donate = new DonateSE();
 		public static readonly Nav Article = new ArticleSE();
@@ -195,13 +197,41 @@ public abstract class Nav : SmartEnum<Nav>
 		public override bool Disabled => false;
 	}
 
-	private sealed class HealthCheckTableRowCountSE : Nav
+	private sealed class HealthCheckTableDatabaseSE : Nav
 	{
-		public HealthCheckTableRowCountSE() : base($"{nameof(Id.HealthCheckTableRowCount)}", Id.HealthCheckTableRowCount) { }
-		public override string Index => "HealthChecks/TableRowCount";
-		public override string Title => "Table Row Count (HC)";
-		public override string Icon => "fas fa-wave-square";  // fa-stopwatch-20
-		public override int Sort => Id.HealthCheckTableRowCount;
+		public HealthCheckTableDatabaseSE() : base($"{nameof(Id.HealthCheckDatabase)}", Id.HealthCheckDatabase) { }
+		public override string Index => "HealthChecks/Database";
+		public override string Title => "Database (HC)";
+		public override string Icon => "fa-solid fa-database";  
+		public override int Sort => Id.HealthCheckDatabase;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckSentrySE : Nav
+	{
+		public HealthCheckSentrySE() : base($"{nameof(Id.HealthCheckSentry)}", Id.HealthCheckSentry) { }
+		public override string Index => "HealthChecks/Sentry";
+		public override string Title => "Sentry (HC)";
+		public override string Icon => "fa-solid fa-person-military-pointing"; 
+		public override int Sort => Id.HealthCheckSentry;
+		public override string HomeTitleSuffix => " ";
+		public override string HomeFloatRightHebrew => "";
+		public override PageListType PageListType => PageListType.HealthCheck;
+		public override bool IsPartOfList(PageListType pageListType) => (PageListType & pageListType) == pageListType;
+		public override bool Disabled => false;
+	}
+
+	private sealed class HealthCheckProcessErrorSE : Nav
+	{
+		public HealthCheckProcessErrorSE() : base($"{nameof(Id.HealthCheckProcessError)}", Id.HealthCheckProcessError) { }
+		public override string Index => "HealthChecks/ProcessError";
+		public override string Title => "Process Error (HC)";
+		public override string Icon => "fa-solid fa-pallet";  
+		public override int Sort => Id.HealthCheckProcessError;
 		public override string HomeTitleSuffix => " ";
 		public override string HomeFloatRightHebrew => "";
 		public override PageListType PageListType => PageListType.HealthCheck;
