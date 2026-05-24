@@ -73,12 +73,12 @@
 	</section>
 
 	<footer class="sticky-bottom">
-		
+
 		@if (currentAction == Footers.ButtonType.Find)
 		{
 			if (String.IsNullOrEmpty(TextFilter))
 			{
-				<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+					<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
 			}
 			else
 			{
@@ -121,7 +121,7 @@
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
-		
+
 	protected UserSettingsDTO? UserSettings { get; set; }
 
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
@@ -168,9 +168,9 @@
 
 	private void SetScriptureIdAndBCV()
 	{
-		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV(); 
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV();
 
-		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv); 
+		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv);
 		if (!String.IsNullOrEmpty(errMsg))
 		{
 			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
@@ -374,7 +374,7 @@
 					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
 				}
 			}
-			catch (Exception ex) 
+			catch (Exception ex)
 			{
 				ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnAfterRenderAsync), Nav.Bible
 				, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");

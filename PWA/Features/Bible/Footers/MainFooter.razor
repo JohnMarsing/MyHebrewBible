@@ -21,12 +21,11 @@
 		
 		<div class="d-flex justify-content-center">
 
-			<button class="btn btn-primary btn-sm rounded rounded-1 me-1"
-							@onclick="() => ReturnedButton(ButtonType.BCV)"
-							title="Change book/chapter/verse">
+			<button class="btn btn-primary btn-sm rounded rounded-1 me-1 @(_isBCVChanged ? "bcv-flash" : "")"
+						@onclick="() => ReturnedButton(ButtonType.BCV)"
+						title="Change book/chapter/verse">
 				<span class="fs-6 fw-bold text-white me-1">
-					<span class="@MediaQuery.Xs.InlineClass">@BCV!.BibleBook!.Abrv @BCV.Chapter</span>           
-					<span class="@MediaQuery.SmOrMdOrLgOrXl.InlineClass">@BCV!.BibleBook!.Title @BCV.Chapter</span> 
+					@((MarkupString)GetDropDownMarkup())
 				</span>
 				<i class="fas fa-angle-down"></i>
 			</button>
@@ -63,19 +62,32 @@
 
 	private BookChapterVerseRecord? _previousBCV;
 
-	//private bool _isBCVChanged;
+	private bool _isBCVChanged;
 	protected override async Task OnParametersSetAsync()
 	{
 		if (_previousBCV is not null && !_previousBCV.Equals(BCV))
 		{
-			//_isBCVChanged = true;
+			_isBCVChanged = true;
 			StateHasChanged();
 			await Task.Delay(1000);
-			//_isBCVChanged = false;
+			_isBCVChanged = false;
 			StateHasChanged();
 		}
 		_previousBCV = BCV;
 	}
+
+	private string GetDropDownMarkup()
+	{
+		return $"<span class='text white {MediaQuery.Xs.InlineClass} {BCVChangedCSS()}'>{BCV!.BibleBook!.Abrv} {BCV.Chapter}</span>" +
+				$"<span class='text white {MediaQuery.SmOrMdOrLgOrXl.InlineClass} {BCVChangedCSS()}'>{BCV!.BibleBook!.Title} {BCV.Chapter}</span>";
+	}
+
+	private string BCVChangedCSS()
+	{
+		return _isBCVChanged ? "bcv-flash" : "text white ";
+	}
+
+
 
 	private void ReturnedButton(ButtonType buttonType)
 	{
