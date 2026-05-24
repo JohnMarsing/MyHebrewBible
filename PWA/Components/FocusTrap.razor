@@ -1,0 +1,29 @@
+@inject IJSRuntime JSRuntime
+
+<div @ref="_containerElement">
+	@ChildContent
+</div>
+
+@code {
+	[Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = default!;
+
+	private ElementReference _containerElement;
+	private IJSObjectReference? _jsModule;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/FocusTrap.razor.js");
+			await _jsModule.InvokeVoidAsync("trapFocus", _containerElement);
+		}
+	}
+
+	public async ValueTask ReleaseAsync()
+	{
+		if (_jsModule is not null)
+		{
+			await _jsModule.InvokeVoidAsync("releaseFocusTrap", _containerElement);
+		}
+	}
+}

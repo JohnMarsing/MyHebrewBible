@@ -5,6 +5,9 @@
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
+
+<FocusTrap @ref="_focusTrap">
+
 @* Modal backdrop *@
 <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="bookChapterModalLabel">
 	<div class="modal-dialog" role="document">
@@ -128,6 +131,10 @@
 		</div>
 	</div>
 </div>
+
+
+</FocusTrap>
+
 <div class="modal-backdrop fade show"></div>
 
 @code {
@@ -270,8 +277,10 @@
 		}
 	}
 
+	private FocusTrap? _focusTrap;
 	private async Task HandleCancel()
 	{
+		if (_focusTrap is not null) { await _focusTrap.ReleaseAsync(); }
 		await OnCancel.InvokeAsync();
 	}
 
