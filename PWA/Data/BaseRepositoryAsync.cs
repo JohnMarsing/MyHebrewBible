@@ -1,32 +1,32 @@
-﻿//using Dapper;
-using System.Data;
+﻿using System.Data;
 
 namespace PWA.Data;
 
 /// <summary>
-/// Base repository for Blazor WASM that uses SqliteDataService's pre-initialized connection.
+/// Base repository for Blazor WASM SqliteWasmBlazorService
 /// Provides centralized error handling and logging for database operations.
 /// </summary>
 public abstract class BaseRepositoryAsync
 {
-	private readonly SqliteDataService _dataService;
+	private readonly SqliteWasmBlazorService _sqliteService;
+
 	protected readonly ILogger Logger;
 
-	protected BaseRepositoryAsync(SqliteDataService dataService, ILogger logger)
+	protected BaseRepositoryAsync(SqliteWasmBlazorService sqliteService, ILogger logger)
 	{
-		_dataService = dataService;
+		_sqliteService = sqliteService; ; 
 		Logger = logger;
 	}
 
 	/// <summary>
 	/// Executes a database query using the shared SQLite connection.
-	/// Connection is managed by SqliteDataService (already downloaded to WASM VFS).
+	/// Connection is managed by SqliteWasmBlazorService (already downloaded to WASM VFS).
 	/// </summary>
 	protected async Task<T> WithConnectionAsync<T>(Func<IDbConnection, Task<T>> getData, string? sqlForLogging = null)
 	{
 		try
 		{
-			var connection = await _dataService.GetConnectionAsync();
+			await using var connection = await _sqliteService.CreateOpenConnectionAsync();
 			return await getData(connection);
 		}
 		catch (Exception ex)
@@ -36,4 +36,5 @@ public abstract class BaseRepositoryAsync
 			throw; // Re-throw original exception
 		}
 	}
+
 }

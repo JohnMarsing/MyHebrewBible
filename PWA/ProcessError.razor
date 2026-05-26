@@ -44,6 +44,26 @@
   public void LogErrorWithMessage(Exception ex, string? classname, string? methodname, Enums.Nav nav, string userMessage)
   {
     LogError(ex, classname, methodname, nav, userMessage);
-    Toast!.ShowError($"{Global.ToastShowError} | {userMessage}");
+		ShowToast(userMessage, ToastLevel.Error); 
   }
+
+  public void ShowToast(string userMessage, ToastLevel toastLevel)
+	{
+    switch (toastLevel)
+    {
+      case ToastLevel.Error:
+        Toast!.ShowError($"An invalid operation occurred, contact your administrator | {userMessage}");
+        break;
+      case ToastLevel.Warning:
+        Toast!.ShowWarning(userMessage);
+        break;
+      case ToastLevel.Info:
+        Toast!.ShowInfo(userMessage);
+        break;
+      case ToastLevel.Success:
+        Toast!.ShowSuccess(userMessage);
+        break;
+    }
+
+	} 
 }
