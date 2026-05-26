@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using PWA.Data;
+using SqliteWasmBlazor;
 
 namespace PWA.HealthChecks.Database.Data;
 
@@ -7,13 +8,14 @@ public interface IRepository
 {
 	Task<List<TableRowCountQuery>> GetTableRowCountQuery();
 	Task<List<BookChapter>> GetBookChapter(int bookID, int chapter);
+	Task<string?> GetSqliteVersion();
 }
 
 #region DI
 public class Repository : BaseRepositoryAsync, IRepository
 {
-	public Repository(SqliteDataService dataService, ILogger<Repository> logger)
-		: base(dataService, logger)
+	public Repository(SqliteWasmBlazorService sqliteService, ILogger<Repository> logger)
+		: base(sqliteService, logger)
 	{
 	}
 #endregion
@@ -53,5 +55,16 @@ ORDER BY Name
 			return rows.ToList();
 		}, sql);
 	}
+
+	public async Task<string?> GetSqliteVersion()
+	{
+		var sql = "SELECT sqlite_version() AS Version";
+		return await WithConnectionAsync(async connection =>
+		{
+			var version = await connection.QueryFirstOrDefaultAsync<string>(sql);
+			return version;
+		}, sql);
+	}
+
 }
 

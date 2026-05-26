@@ -19,7 +19,7 @@
 
 		<RowTemplate Context="reading">
 			<td><b>@reading.TorahAbrv</b></td>
-			<td><b>@ParashaHelpers.GetNextShabbatDate().ToString(DateFormat.YYYY_MM_DD)</b></td>
+			<td><b>@ParashaHelpers.GetNextShabbatDate().ToString(RCL.Constants.DateFormat.YYYY_MM_DD)</b></td>
 
 			@if (IsMdOrLgOrXl)
 			{

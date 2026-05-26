@@ -20,11 +20,9 @@
 
 @inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
-@inject IToastService? Toast
 
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
-
 
 <header>
 	@if (currentAction == Footers.ButtonType.Parasha)
@@ -174,6 +172,7 @@
 		if (!String.IsNullOrEmpty(errMsg))
 		{
 			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			ProcessError!.ShowToast(errMsg, ToastLevel.Warning);
 			throw new InvalidOperationException(errMsg);
 		}
 
@@ -186,7 +185,8 @@
 		else
 		{
 			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
-			throw new InvalidOperationException("BibleBook.TryFromValue fa");
+			ProcessError!.ShowToast("BibleBook.TryFromValue failed", ToastLevel.Error);
+			throw new InvalidOperationException("BibleBook.TryFromValue failed");
 		}
 	}
 
@@ -197,7 +197,6 @@
 				.Select(bc => bc.MapFromBookChapter(BCV!.BibleBook!.Value, BCV.Chapter))
 				.ToList();
 	}
-
 
 
 	#region EventCallback Return Logic
@@ -294,7 +293,7 @@
 
 		if (!String.IsNullOrEmpty(errMsg))
 		{
-			Toast!.ShowWarning(errMsg);
+			ProcessError!.ShowToast(errMsg, ToastLevel.Warning);
 			return;
 		}
 		else
@@ -344,7 +343,7 @@
 		else
 		{
 			Logger!.LogWarning("{Method}, Invalid MenuItem: {Id}", nameof(ReturnedMenuItemId), id);
-			Toast!.ShowError($"{Global.ToastShowError} {nameof(Index)}!{nameof(ReturnedMenuItemId)} {id}");
+			ProcessError!.ShowToast($"Invalid MenuItem: {id}", ToastLevel.Error);
 		}
 	}
 

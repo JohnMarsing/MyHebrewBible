@@ -1,5 +1,9 @@
 ﻿@page "/"
+
 @using RCL.Constants
+@using SqliteWasmBlazor
+
+
 
 <PageTitle>@Nav.Home.Title</PageTitle>
 
@@ -20,15 +24,16 @@
 
 		<div class="card-header">
 			<h1 class="text-center">Landing Page</h1>
-@* 	
-		<Alert>
-				I have to build this simple landing page because apparently PWA get confused easily during startup<br /> @Emoji.Shrug
-			</Alert>
- *@		
 		</div>
 
 		<div class="card-body">
-			<div class="d-flex justify-content-center">
+			<div class="d-flex justify-content-around">
+        
+        <button class="btn btn-outline-warning text-dark"
+                @onclick="ButtonTestSqlite"
+                title="Test SQLite functionality by calling GetConnectionAsync">
+          Test Sqlite
+        </button>
 
 				<a class="btn btn-success" href="@Nav.Bible.Index">
 					<i class="fa fa-book"></i>
@@ -45,6 +50,63 @@
 
 <footer class=""><DefaultFooter /></footer>
 
-@code {
-	
+@code 
+{
+  [Inject] private ISqliteWasmDatabaseService DbService { get; set; } = default!;
+  [Inject] private ILogger<Index> Logger { get; set; } = default!;
+  [Inject] private IToastService Toast { get; set; } = default!;
+  [Inject] private PWA.HealthChecks.Database.Data.IRepository? db { get; set; } = default!;
+
+
+  [CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	string? SqliteVersion = null;
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      SqliteVersion = await db!.GetSqliteVersion();
+      if (SqliteVersion is null)
+      {
+        Toast!.ShowWarning($"SQLite version not found (◡︵◡)");
+      }
+    }
+    catch (Exception ex)
+    {
+      ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetSqliteVersion)}");
+    }
+    //finally { TurnSpinnerOff = true;  }
+  }
+
+  private async Task ButtonTestSqlite()
+  {
+    try
+    {
+      const string dbName = "MhbSqlite.db";
+
+      bool exists = await DbService.ExistsDatabaseAsync(dbName);
+      StateHasChanged(); // if you want to show result immediately
+
+      if (exists)
+      {
+        await using var conn = new SqliteWasmConnection($"Data Source={dbName}");
+        await conn.OpenAsync();
+        await conn.CloseAsync();
+
+        Logger.LogInformation("SQLite test successful. DB exists. Version: {Version}", SqliteVersion);
+        Toast!.ShowSuccess($"SQLite test successful. DB exists. Version: {SqliteVersion}");
+      }
+      else
+      {
+        Logger.LogWarning("Database does not exist yet.");
+        Toast!.ShowWarning("Database does not exist yet.");
+      }
+    }
+    catch (Exception ex)
+    {
+      //Logger.LogError(ex, "{Method} failed", nameof(ButtonTestSqlite));
+      ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ButtonTestSqlite), Nav.Home, "");
+    }
+  }
 }
+

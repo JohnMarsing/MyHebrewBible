@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using PWA.Data;
+using SqliteWasmBlazor;
 
 namespace PWA.Features.Bible.Data;
 
@@ -15,8 +16,8 @@ public interface IRepository
 public class Repository : BaseRepositoryAsync, IRepository
 {
 #region DI
-	public Repository(SqliteDataService dataService, ILogger<Repository> logger)
-		: base(dataService, logger)
+	public Repository(SqliteWasmBlazorService sqliteService, ILogger<Repository> logger)
+		: base(sqliteService, logger)	
 	{
 	}
 	#endregion

@@ -11,6 +11,9 @@ using PWA.State;
 using Serilog;
 using PWA.Features.Bible.Data;
 
+using SqliteWasmBlazor;  // Added in 026 branch
+using PWA.Data.Constants;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 Log.Logger = new LoggerConfiguration()
@@ -19,7 +22,7 @@ Log.Logger = new LoggerConfiguration()
 		.CreateLogger();
 
 builder.Logging.AddSerilog(Log.Logger);
-
+builder.Services.AddSqliteWasm(); // Register SqliteWasmBlazor core services; Added in 026 branch
 
 builder.UseSentry(options =>
 {
@@ -43,7 +46,8 @@ builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(build
 
 builder.Services.AddBibleData();
 builder.Services.AddDatabaseHealthChecks();
-builder.Services.AddSingleton<SqliteDataService>();  // ToDo: refactor this...not sure how
+builder.Services.AddSqliteWasm();
+builder.Services.AddSingleton<SqliteWasmBlazorService>();
 
 builder.Services.AddPWAUpdater(); // This is Toolbelt.Blazor
 builder.Services.AddBlazoredLocalStorage();
@@ -54,8 +58,12 @@ Log.Information("PWA WebAssembly App Starting...");
 
 try
 {
-	SQLitePCL.Batteries_V2.Init(); // Added in 026 branch
-	await builder.Build().RunAsync();
+	var host = builder.Build();
+
+	var sqliteWasmBlazorService = host.Services.GetRequiredService<SqliteWasmBlazorService>();
+	await sqliteWasmBlazorService.InitializeAsync();
+	
+	await host.RunAsync();
 	Log.Information("PWA WebAssembly App Stopped cleanly");
 }
 catch (Exception ex)

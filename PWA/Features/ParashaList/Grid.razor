@@ -26,7 +26,7 @@
 		@* <i class="fas fa-chevron-right"></i> *@
 
 		<TemplateColumn Title="Torah">
-			@context.TorahAbrv @context.Value @context.Date.ToString(DateFormat.YYYY_MM_DD)
+			@context.TorahAbrv @context.Value @context.Date.ToString(RCL.Constants.DateFormat.YYYY_MM_DD)
 		</TemplateColumn>
 
 		<PropertyColumn Property="@(p => p.Date.ToString(@dateFormat))" Align="Align.Center" Title="Date" />
@@ -52,7 +52,7 @@
 
 	TorahBookFilter? CurrentFilter;
 
-	private string dateFormat => DateFormat.MMM_d;
+	private string dateFormat => RCL.Constants.DateFormat.MMM_d;
 
 	List<ParashaEnums.Triennial>? itemList;
 	IQueryable<ParashaEnums.Triennial>? items;
