@@ -46,6 +46,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Features\Bible\ActionComponents\Find\" />
 		<Folder Include="Features\Lists\MitzvahPage\" />
 	</ItemGroup>
 

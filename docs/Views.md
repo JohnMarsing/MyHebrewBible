@@ -1,6 +1,29 @@
 # Views
 
-## vwAlephTavBookChapterWordPart.sql
+## `GetWordPartsByBookChapterAndFilter`
+```sql
+SELECT 
+    wp.ScriptureID,
+    wp.WordCount,
+    wp.SegmentCount,
+    wp.WordEnum,
+    wp.Hebrew1,
+    wp.Hebrew2,
+    wp.Hebrew3,
+    wp.KjvWord,
+    wp.Strongs,
+    wp.Transliteration,
+    wp.FinalEnum
+FROM WordPart wp
+JOIN Scripture s ON s.Id = wp.ScriptureID
+WHERE s.BookID = 1 
+  AND s.Chapter = 1 
+  AND wp.KjvWord LIKE '%create%'
+ORDER BY s.Id, wp.WordCount, wp.SegmentCount
+
+```
+
+## `vwAlephTavBookChapterWordPart.sql`
 ```sql
 CREATE VIEW vwAlephTavBookChapterWordPart 
 AS  

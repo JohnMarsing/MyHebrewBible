@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using PWA.Data;
-using SqliteWasmBlazor;
 
 namespace PWA.Features.Bible.Data;
 
@@ -8,16 +7,17 @@ public interface IRepository
 {
 	Task<List<BookChapterWithAT>> GetBookChapterWithAT(int bookID, int chapter);
 	Task<List<WordPartByScriptureId>> GetWordPartByScriptureId(int scriptureId);
-	Task<List<WordPartByScripureIdAndStrongs>>  GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs);
+	Task<List<WordPartByScriptureIdAndStrongs>> GetWordPartsByScriptureIdAndStrongs(int scriptureId, int strongs);
+	Task<List<WordPartByScriptureIdAndStrongs>> GetWordPartsByBCF(int bibleBookId, int chapter, string filter);
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
 	Task<List<ParashaWithAT>> GetParashaWithAT(int id);
 }
 
 public class Repository : BaseRepositoryAsync, IRepository
 {
-#region DI
+	#region DI
 	public Repository(SqliteWasmBlazorService sqliteService, ILogger<Repository> logger)
-		: base(sqliteService, logger)	
+		: base(sqliteService, logger)
 	{
 	}
 	#endregion
@@ -98,8 +98,8 @@ ORDER BY WordCount
 			return rows.ToList();
 		}, sql);
 	}
-
-	public async Task<List<WordPartByScripureIdAndStrongs>> GetWordPartsByScripureIdAndStrongs(int scriptureId, int strongs)
+	
+	public async Task<List<WordPartByScriptureIdAndStrongs>> GetWordPartsByScriptureIdAndStrongs(int scriptureId, int strongs)
 	{
 		var parms = new DynamicParameters(new { ScriptureID = scriptureId, Strongs = strongs });
 
@@ -109,27 +109,36 @@ FROM WordPart
 WHERE ScriptureID=@ScriptureID and Strongs=@Strongs
 ORDER BY WordCount, SegmentCount
 ";
-	/*
-		string SqlOrderBy = "";
-
-		string SqlDetail = @"
-SELECT Id, BCV, BookID, Chapter, Verse
-, ScriptureID, WordCount, SegmentCount, WordEnum
-, Hebrew1, Hebrew2, Hebrew3
-, KjvWord, Strongs, Transliteration, FinalEnum
---, HasTwo
-FROM vwAlephTavTriennialWordPart
---WHERE TriennialId=@TriennialId
-ORDER BY Id	
-		";
-		*/
-
+		/* ToDo: do I need this? see notes below */
 		return await WithConnectionAsync(async connection =>
 		{
-			var rows = await connection.QueryAsync<WordPartByScripureIdAndStrongs>(sql, parms);
+			var rows = await connection.QueryAsync<WordPartByScriptureIdAndStrongs>(sql, parms);
 			return rows.ToList();
 		}, sql);
 	}
+
+	public async Task<List<WordPartByScriptureIdAndStrongs>> GetWordPartsByBCF(int bibleBookId, int chapter, string filter)
+	{
+		var parms = new DynamicParameters(new { BookID = bibleBookId, Chapter = chapter, Filter = filter });
+
+		string sql = @"
+SELECT wp.ScriptureID, wp.WordCount, wp.SegmentCount,  wp.WordEnum,
+       wp.Hebrew1, wp.Hebrew2, wp.Hebrew3, 
+       wp.KjvWord, wp.Strongs, wp.Transliteration,  wp.FinalEnum
+FROM WordPart wp
+JOIN Scripture s ON s.Id = wp.ScriptureID
+WHERE s.BookID = @BookID
+  AND s.Chapter = @Chapter
+  AND wp.KjvWord LIKE '%' || @Filter || '%'
+ORDER BY s.Id, wp.WordCount, wp.SegmentCount
+";
+		return await WithConnectionAsync(async connection =>
+		{
+			var rows = await connection.QueryAsync<WordPartByScriptureIdAndStrongs>(sql, parms);
+			return rows.ToList();
+		}, sql);
+	}
+
 
 	public async Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId)
 	{
@@ -172,5 +181,21 @@ ORDER BY s.ID
 	#endregion
 
 }
+
+/* 
+	string SqlOrderBy = "";
+
+	string SqlDetail = @"
+SELECT Id, BCV, BookID, Chapter, Verse
+, ScriptureID, WordCount, SegmentCount, WordEnum
+, Hebrew1, Hebrew2, Hebrew3
+, KjvWord, Strongs, Transliteration, FinalEnum
+--, HasTwo
+FROM vwAlephTavTriennialWordPart
+--WHERE TriennialId=@TriennialId
+ORDER BY Id	
+	";
+	*/
+
 
 // Ignore Spelling: Descr, bookid, Mitzvah, mitzvot, wordpart, wordpartkjv, scriptureid, bookchapterwithat, verselist, begverse endverse Nav, triennialid, alephtavkjvverse, alephtavhebrewverse, alephtavbookchapterwordpartcontext, alephtavtriennialwordpartcontext, Strongs, ifnull

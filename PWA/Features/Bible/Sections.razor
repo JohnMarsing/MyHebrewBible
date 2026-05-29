@@ -1,6 +1,5 @@
 ﻿@using RCL.Enums
 
-
 @using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Detail
 @using PWA.Features.Bible.Enums
@@ -33,7 +32,7 @@
 									 Verse="item"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
 									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
-									 HighlightText="@HighlightText"
+									 HighlightText=""
 									 OnVerseSelectedPassThrough="ReturnedVerse" />
 			</div>
 			@if (item.WordPartList?.Count() > 0)
@@ -53,8 +52,6 @@
 						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
 												BCV="@item!.BCV"
 												VerseNumber="item!.Verse"
-												Filter="Filter"
-												OnFilter="ReturnedFilter"
 												OnClose="ReturnedCloseEvent" />
 					</div>
 
@@ -91,11 +88,11 @@
 				@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
 				{
 					<div class="@MediaQuery.Xs.DivClass">
-						<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+						<HebrewBySelectedWord ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected" IsXs=true />
 					</div>
 					<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-						<HebrewTableFiltered ScriptureId="DrilldownScriptureId"
+						<HebrewBySelectedWord ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected" IsXs=false />
 					</div>
 				}
@@ -107,7 +104,7 @@
 									 Verse="item"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
 									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
-									 HighlightText="@HighlightText"
+									 HighlightText=""
 									 OnVerseSelectedPassThrough="ReturnedVerse" />
 			}
 
@@ -121,10 +118,9 @@ else
 }
 
 @code {
-	[Parameter, EditorRequired] public List<Data.ReportModel>? FilteredVerses { get; set; }
+	[Parameter, EditorRequired] public List<Data.VerseModel>? FilteredVerses { get; set; }
 	[Parameter, EditorRequired] public int ParmScrollToScriptureId { get; set; }
 	[Parameter, EditorRequired] public UserSettingsDTO UserSettings { get; set; }
-	[Parameter, EditorRequired] public string HighlightText { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected int CurrentScrollToScriptureId;

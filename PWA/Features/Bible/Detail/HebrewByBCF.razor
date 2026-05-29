@@ -1,0 +1,45 @@
+﻿@using PWA.Features.Bible.Data
+
+@inject ILogger<HebrewByBCF>? Logger
+@inject PWA.Features.Bible.Data.IRepository? db;
+
+<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
+	<WordPartTable items="items" IsXs="IsXs" Strongs="0" />
+</LoadingComponent>
+
+@* Strongs="WordSelected.Strongs" *@
+
+@code {
+	[Parameter, EditorRequired] public int ScriptureId { get; set; }
+	[Parameter, EditorRequired] public BookChapterFilter? BCF { get; set; }
+	[Parameter, EditorRequired] public bool IsXs { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	protected IQueryable<WordPartByScriptureIdAndStrongs>? items;
+	protected override async Task OnParametersSetAsync()
+	{
+		ICollection<WordPartByScriptureIdAndStrongs>? hebrewWords;
+		try
+		{
+			if (BCF is not null)
+			{
+				hebrewWords = await db!.GetWordPartsByBCF(BCF.BookId, BCF.Chapter, BCF.Filter);
+				if (hebrewWords.Any())
+				{
+					items = hebrewWords.AsQueryable().Where(w => w.ScriptureID == ScriptureId).OrderBy(o => o.WordCount);
+					Logger!.LogInformation("{Method}; RowCnt: {RowCnt}", nameof(OnParametersSetAsync), items.Count());
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewByBCF), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartsByBCF)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+}
+

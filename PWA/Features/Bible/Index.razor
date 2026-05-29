@@ -9,8 +9,8 @@
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
 
 @using PWA.Features.Bible.ActionComponents.LookupBCV
-@using PWA.Features.Bible.ActionComponents.Find
 @using PWA.Features.Bible.ActionComponents.ToC
+@using PWA.Features.Bible.Filtered
 @using PWA.Features.Bible.Headers
 @using PWA.Features.Bible.Toolbar
 @using PWA.Features.Bible.Footers
@@ -57,17 +57,25 @@
 
 		@if (currentAction == Footers.ButtonType.Parasha)
 		{
-			@* Rename to ParashaSectionAndFooter or ParashaWrapper *@
-			<SectionWrapper UserSettings="UserSettings" OnParashaClosed="ReturnedParashaClosed" />
+			<ParashaWrapper UserSettings="UserSettings" OnParashaClosed="ReturnedParashaClosed" />
 		}
 		else
 		{
-			<Sections FilteredVerses="FilteredVerses"
-								ParmScrollToScriptureId="CurrentScrollToScriptureId"
-								UserSettings="UserSettings"
-								HighlightText="@HighlightText" />
+			if (currentAction == Footers.ButtonType.Find && !String.IsNullOrEmpty(TextFilter))
+			{
+				<FilteredWrapper ParamBookAndChapter="new BookAndChapter(BCV.BibleBook, BCV.Chapter)"
+												 verses="verses"
+												 ParamTextFilter="@TextFilter"
+												 UserSettings="UserSettings"
+												 OnFilteredClosed="ReturnedFilteredClosed" />
+			}
+			else
+			{
+				<Sections FilteredVerses="FilteredVerses"
+									ParmScrollToScriptureId="CurrentScrollToScriptureId"
+									UserSettings="UserSettings" />
+			}
 		}
-
 	</section>
 
 	<footer class="sticky-bottom">
@@ -76,7 +84,7 @@
 		{
 			if (String.IsNullOrEmpty(TextFilter))
 			{
-					<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+				<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
 			}
 			else
 			{
@@ -90,7 +98,7 @@
 			}
 			else
 			{
-				<MainFooter BCV="@BCV" TextFilter="@TextFilter"
+				<MainFooter BCV="@BCV"
 										OnButtonSelected="ReturnedButtonType"
 										OnBCVSelected="ReturnedBCVSelected" />
 			}
@@ -116,6 +124,7 @@
 
 }
 
+
 @code {
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
@@ -126,7 +135,7 @@
 	protected bool TurnSpinnerOff = false;
 	private List<Data.BookChapterWithAT>? verses = null;
 	private BookChapterVerseRecord BCV { get; set; } = null!;
-	protected List<ReportModel>? FilteredVerses { get; set; }
+	protected List<VerseModel>? FilteredVerses { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -190,7 +199,7 @@
 		}
 	}
 
-	protected List<ReportModel> GetBookChapterVerses()
+	protected List<VerseModel> GetBookChapterVerses()
 	{
 		return verses!
 				.OrderBy(o => o.ID)
@@ -202,30 +211,18 @@
 	#region EventCallback Return Logic
 
 	private string? TextFilter;
-	private string? HighlightText;
-
 	private void ReturnedFilterSelected(FilterRecord filter)
 	{
 		TextFilter = !string.IsNullOrEmpty(filter.Description) ? filter.Description : null;
-		HighlightText = filter.SearchText;
-		ApplyFilter(filter);
-		// Don't reset currentAction here — keep it as Find so FilterFooter stays visible
 	}
 
-	private void ApplyFilter(FilterRecord filter)
+	private void ReturnedClearAction()
 	{
-		var hasText = !string.IsNullOrWhiteSpace(filter.SearchText);
-
-		if (!hasText)
-		{
-			FilteredVerses = GetBookChapterVerses();
-			return;
-		}
-
-		FilteredVerses = GetBookChapterVerses()
-			.Where(v => v.KJV?.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase) ?? false)
-			.ToList();
+		currentAction = null;
+		TextFilter = null;
+		FilteredVerses = GetBookChapterVerses();
 	}
+
 
 	private void CloseModal()
 	{
@@ -238,11 +235,10 @@
 		FilteredVerses = GetBookChapterVerses();
 	}
 
-	private void ReturnedClearAction()
+	//ToDo: same code as above [ReturnedParashaClosed], consider unifying
+	private void ReturnedFilteredClosed()
 	{
 		currentAction = null;
-		HighlightText = null;
-		TextFilter = null;
 		FilteredVerses = GetBookChapterVerses();
 	}
 
@@ -276,7 +272,7 @@
 
 
 	protected Footers.ButtonType? currentAction = null;
-	private List<ReportModel>? ParashaVerses { get; set; }
+	private List<VerseModel>? ParashaVerses { get; set; }
 
 	private async Task ReturnedButtonType(Footers.ButtonType action)
 	{

@@ -1,0 +1,35 @@
+﻿
+<footer class="sticky-bottom">
+
+	<div class="bg-success-subtle p-1 border-top border-success border-2">
+		<div class="d-flex justify-content-between">
+
+			<button type="button"
+							class="btn btn-danger btn-sm rounded rounded-3 me-1"
+							title="Close Parasha"
+							@onclick="ButtonClickedCloseModal">
+				<i class="fas fa-chevron-left"></i>
+			</button>
+
+			@*
+		<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+						@onclick="ButtonClickedOpenModal"
+						title="Table of Content">
+			<i class="fa-solid fa-t"></i>
+		</button>
+
+ *@	
+		</div>
+	</div>
+
+</footer>
+
+@code {
+	// originally copied from PWA\Features\Bible\Parasha\ParashaFooter.razor
+	[Parameter, EditorRequired] public EventCallback OnModalClosed { get; set; }
+
+	private void ButtonClickedCloseModal()
+	{
+		OnModalClosed.InvokeAsync();
+	}
+}

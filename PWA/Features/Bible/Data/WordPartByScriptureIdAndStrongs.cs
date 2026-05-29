@@ -1,7 +1,7 @@
 ﻿namespace PWA.Features.Bible.Data;
 
-public class WordPartByScripureIdAndStrongs
-{
+public class WordPartByScriptureIdAndStrongs
+{ 
 	public int ScriptureID { get; set; }
 	public int WordCount { get; set; }
 	public int SegmentCount { get; set; }
