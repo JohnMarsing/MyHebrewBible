@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PWA.Features.Bible.ActionComponents.Find;
+namespace PWA.Features.Bible.Filtered;
 
 public class FindFormVM
 {

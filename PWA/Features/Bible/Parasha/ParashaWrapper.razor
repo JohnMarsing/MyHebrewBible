@@ -3,12 +3,10 @@
 @using ParashaEnums = RCL.Features.Parasha.Enums
 @using ParashaHelper = RCL.Features.Parasha.Helpers
 @using TriennialEnums = RCL.Features.Parasha.Enums.Triennial
-@using PWA.Features.Bible.Footers
-
 @using PWA.Features.Bible.Data
 
 @inject PWA.Features.Bible.Data.IRepository? db
-@inject ILogger<SectionWrapper>? Logger
+@inject ILogger<ParashaWrapper>? Logger
 @inject IToastService? Toast
 @inject IJSRuntime JSRuntime
 
@@ -29,8 +27,7 @@
 				<div class="card-body px-1">
 					<Sections FilteredVerses="GetParashaTorahVerses(ParashaEnums.ShowSection.Torah.Value)"
 										ParmScrollToScriptureId="CurrentScrollToScriptureId"
-										UserSettings="UserSettings"
-										HighlightText="" />
+										UserSettings="UserSettings"/>
 				</div>
 				<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
 			}
@@ -47,8 +44,7 @@
 							<h5 class="text-center">@haftorah.VerseRange</h5>
 							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
 												ParmScrollToScriptureId="CurrentScrollToScriptureId"
-												UserSettings="UserSettings"
-												HighlightText="" />
+												UserSettings="UserSettings"/>
 						</div>
 					}
 				}
@@ -71,8 +67,7 @@
 							<h5 class="text-center">@brit.VerseRange</h5>
 							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
 												ParmScrollToScriptureId="CurrentScrollToScriptureId"
-												UserSettings="UserSettings"
-												HighlightText="" />
+												UserSettings="UserSettings"/>
 						</div>
 					}
 				}
@@ -164,7 +159,7 @@
 			}
 			catch (Exception ex) // catch (Exception ex)
 			{
-				ProcessError!.LogErrorWithMessage(ex, nameof(SectionWrapper), nameof(SetParashaVerses), Nav.Bible, $"called: {nameof(db.GetParashaWithAT)}");
+				ProcessError!.LogErrorWithMessage(ex, nameof(ParashaWrapper), nameof(SetParashaVerses), Nav.Bible, $"called: {nameof(db.GetParashaWithAT)}");
 			}
 			finally
 			{
@@ -173,7 +168,7 @@
 		}
 	}
 
-	protected List<ReportModel> GetParashaTorahVerses(int showSection)
+	protected List<VerseModel> GetParashaTorahVerses(int showSection)
 	{
 		return parashaVerses!
 		.Where(w => w.SectionId == showSection)
@@ -181,7 +176,7 @@
 		.Select(parasha => DataExtensions.MapFromParasha(parasha))
 		.ToList();
 	}
-	protected List<ReportModel> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
+	protected List<VerseModel> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
 	{
 		return parashaVerses!
 			.Where(w => w.SectionId == showSection)
@@ -215,7 +210,7 @@
 			}
 			catch (Exception ex)
 			{
-				ProcessError!.LogErrorWithMessage(ex, nameof(SectionWrapper), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
+				ProcessError!.LogErrorWithMessage(ex, nameof(ParashaWrapper), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
 			}
 			finally
 			{

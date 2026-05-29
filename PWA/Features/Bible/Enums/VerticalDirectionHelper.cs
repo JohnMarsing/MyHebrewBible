@@ -36,7 +36,7 @@ public class VerticalDirectionHelper
 	*/
 
 	public static (string, int, int) GetVerseAndScriptureId(
-		VerticalDirection dir, int currentScriptureId, List<Data.ReportModel> verses)
+		VerticalDirection dir, int currentScriptureId, List<Data.VerseModel> verses)
 	{
 
 		int i = verses.FindIndex(v => v.ID == currentScriptureId);

@@ -1,6 +1,6 @@
 ﻿namespace PWA.Features.Bible.Data;
 
-public class ReportModel
+public class VerseModel
 {
 	public int ID { get; init; }
 	public string? BCV { get; init; }
@@ -11,8 +11,7 @@ public class ReportModel
 	public string? DescD { get; init; }
 	public int BookID { get; init; }
 	public int Chapter { get; init; }
-	//public int LastVerse { get; init; } // This shouldn't be here
-	public List<WordPart> WordPartList { get; init; } = new();
+	public List<WordPart> WordPartList { get; init; } = [];
 }
 
 // Ignore Spelling: BCV, Strongs, bigint

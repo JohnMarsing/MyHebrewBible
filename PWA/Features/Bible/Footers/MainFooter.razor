@@ -56,7 +56,6 @@
 
 @code {
 	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; }
-	[Parameter] public string? TextFilter { get; set; }
 	[Parameter, EditorRequired] public EventCallback<ButtonType> OnButtonSelected { get; set; }
 	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
 
