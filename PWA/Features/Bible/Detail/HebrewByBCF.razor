@@ -4,10 +4,10 @@
 @inject PWA.Features.Bible.Data.IRepository? db;
 
 <LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
-	<WordPartTable items="items" IsXs="IsXs" Strongs="0" />
+	<WordPartTable items="items"
+								 IsXs="IsXs" 
+								 StrongsArray="StrongsArray" />
 </LoadingComponent>
-
-@* Strongs="WordSelected.Strongs" *@
 
 @code {
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
@@ -17,6 +17,7 @@
 
 	protected bool TurnSpinnerOff = false;
 	protected IQueryable<WordPartByScriptureIdAndStrongs>? items;
+	protected int[] StrongsArray = [];
 	protected override async Task OnParametersSetAsync()
 	{
 		ICollection<WordPartByScriptureIdAndStrongs>? hebrewWords;
@@ -28,6 +29,11 @@
 				if (hebrewWords.Any())
 				{
 					items = hebrewWords.AsQueryable().Where(w => w.ScriptureID == ScriptureId).OrderBy(o => o.WordCount);
+					StrongsArray = items.Select(w => w.Strongs)
+													.Distinct()
+													.OrderBy(s => s)
+													.ToArray();
+
 					Logger!.LogInformation("{Method}; RowCnt: {RowCnt}", nameof(OnParametersSetAsync), items.Count());
 				}
 			}

@@ -14,9 +14,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="Features\Bible\ActionComponents\Find\**" />
 		<Compile Remove="Features\ScrollSpy\**" />
+		<Content Remove="Features\Bible\ActionComponents\Find\**" />
 		<Content Remove="Features\ScrollSpy\**" />
+		<EmbeddedResource Remove="Features\Bible\ActionComponents\Find\**" />
 		<EmbeddedResource Remove="Features\ScrollSpy\**" />
+		<None Remove="Features\Bible\ActionComponents\Find\**" />
 		<None Remove="Features\ScrollSpy\**" />
 	</ItemGroup>
 
@@ -46,7 +50,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Features\Bible\ActionComponents\Find\" />
 		<Folder Include="Features\Lists\MitzvahPage\" />
 	</ItemGroup>
 

@@ -30,7 +30,6 @@
 				<i class="fas fa-angle-down"></i>
 			</button>
 
-
 			<HistoryDropdown BtnSize="btn-xs rounded rounded-3">
 				<Recent>
 					<RecentListPicker OnBCVSelected="ReturnedBCV" />
@@ -68,7 +67,7 @@
 		{
 			_isBCVChanged = true;
 			StateHasChanged();
-			await Task.Delay(1000);
+			await Task.Delay(200); // 1000
 			_isBCVChanged = false;
 			StateHasChanged();
 		}
@@ -85,8 +84,6 @@
 	{
 		return _isBCVChanged ? "bcv-flash" : "text white ";
 	}
-
-
 
 	private void ReturnedButton(ButtonType buttonType)
 	{

@@ -1,0 +1,65 @@
+﻿@using DbConstants = PWA.Data.Constants.Database
+@using SqliteWasmBlazor
+
+@inject ISqliteWasmDatabaseService DbService
+@inject ILogger<TestSqlite> Logger
+@inject IToastService Toast
+@inject PWA.HealthChecks.Database.Data.IRepository? db
+
+<div class="d-flex justify-content-center">
+	<button class="btn btn-outline-warning text-dark"
+					@onclick="ButtonTestSqlite"
+					title="Test SQLite functionality by opening the database connection">
+		Test Sqlite
+	</button>
+</div>
+
+@code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	private string? SqliteVersion;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			SqliteVersion = await db!.GetSqliteVersion();
+			if (SqliteVersion is null)
+			{
+				Toast.ShowWarning("SQLite version not found (◡︵◡)");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(TestSqlite), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetSqliteVersion)}");
+		}
+	}
+
+	private async Task ButtonTestSqlite()
+	{
+		try
+		{
+			bool exists = await DbService.ExistsDatabaseAsync(DbConstants.DbFileName);
+
+			if (exists)
+			{
+				await using var conn = new SqliteWasmConnection($"Data Source={DbConstants.DbFileName}");
+				await conn.OpenAsync();
+				await conn.CloseAsync();
+
+				Logger.LogInformation("SQLite test successful. DB exists. Version: {Version}", SqliteVersion);
+				Toast.ShowSuccess($"SQLite test successful. DB exists. Version: {SqliteVersion}");
+			}
+			else
+			{
+				Logger.LogWarning("Database does not exist yet.");
+				Toast.ShowWarning("Database does not exist yet.");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(TestSqlite), nameof(ButtonTestSqlite), 
+				Nav.HealthCheckDatabase, $"called: {nameof(DbService.ExistsDatabaseAsync)}");
+		}
+	}
+}

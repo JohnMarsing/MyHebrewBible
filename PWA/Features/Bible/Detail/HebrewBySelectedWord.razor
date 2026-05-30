@@ -1,12 +1,14 @@
 ﻿@using PWA.Features.Bible.Data
 
-@inject ILogger<HebrewBySelectedWord>? Logger	
+@inject ILogger<HebrewBySelectedWord>? Logger
 @inject PWA.Features.Bible.Data.IRepository? db;
 
 @if (WordSelected is not null)
 {
 	<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
-		<WordPartTable items="items" IsXs="IsXs" Strongs="WordSelected.Strongs" />
+		<WordPartTable items="items"
+									 IsXs="IsXs"
+									 StrongsArray="new[] { WordSelected.Strongs }" />
 	</LoadingComponent>
 }
 

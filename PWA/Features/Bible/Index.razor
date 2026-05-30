@@ -246,6 +246,7 @@
 	{
 		CurrentScrollToScriptureId = rec.ID;
 		CurrentVerse = rec.Verse;
+		BCV = BCV with { Verse = CurrentVerse };
 		await SetFocusToElement();
 		currentAction = null;
 	}

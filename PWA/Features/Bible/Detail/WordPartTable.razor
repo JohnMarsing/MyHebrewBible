@@ -5,7 +5,7 @@
 @if (IsXs)
 {
 	<p class="bg-secondary-subtle text-center mb-0 pb-2 fw-bold">
-		Strong's: @BibleAnchors.StrongsH_p_Xs(Strongs)
+		Strong's: @BibleAnchors.StrongsH_p_Xs(StrongsArray)
 	</p>
 }
 
@@ -32,7 +32,6 @@
 			</td>
 			@if (IsXs)
 			{
-				@* <td><sup>@BibleAnchors.StrongsH_td_Xs(context.Strongs, context.WordCount)</sup></td> *@
 				<td><sup>@context.WordCount</sup></td>
 			}
 			else
@@ -44,18 +43,9 @@
 	</TableTemplate>
 </article>
 
-
 @code {
 	[Parameter, EditorRequired] public IQueryable<WordPartByScriptureIdAndStrongs>? items { get; set; }
-	[Parameter, EditorRequired] public int Strongs { get; set; }
 	[Parameter, EditorRequired] public bool IsXs { get; set; }
-
-	// protected override void OnInitialized()
-	// {
-	// 	if (IsXs)
-	// 	{
-	// 		//Strong's: @BibleAnchors.StrongsH_p_Xs(Strongs)
-	// 	}
-	// }
+	[Parameter, EditorRequired] public int[] StrongsArray { get; set; } = [];
 
 }

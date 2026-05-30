@@ -1,15 +1,8 @@
 ﻿@using BibleEnums = PWA.Features.Bible.Enums
 @using PWA.Features.Bible.Data
-
-@using DirEnums = Enums.VerticalDirection
-@using DirHelper = Enums.VerticalDirectionHelper
-
 @using PWA.Features.Bible.Detail
 
-@inject PWA.Features.Bible.Data.IRepository? db
-@inject ILogger<FilteredWrapper>? Logger
-@inject IToastService? Toast
-@inject IJSRuntime JSRuntime
+@* @inject ILogger<FilteredWrapper>? Logger *@
 
 <LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
 
@@ -20,16 +13,16 @@
 			{
 				<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" />
 
-				@* if (DrilldownScriptureId == 0) { *@
-
-				<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
+				@* <div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown"> *@
+				<div id="verse-@item.ID" tabindex="0">
 					<Paragraph BookAndChapter="@BookAndChapter"
 										 Verse="item"
-										 ScrollToScriptureId="CurrentScrollToScriptureId"
+										 ScrollToScriptureId="0"
 										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
-										 HighlightText="@TextFilter"
-										 OnVerseSelectedPassThrough="ReturnedVerse" />
+										 HighlightText="@TextFilter"/>
 				</div>
+
+				@* ToDo: don't know if these works, and probable don't want ShowStandaloneAlephTavIcon *@
 
 				<div class="@MediaQuery.Xs.DivClass">
 					<HebrewByBCF ScriptureId="@item.ID"
@@ -50,172 +43,42 @@
 
 </LoadingComponent>
 
-
 @code {
 	[Parameter, EditorRequired] public BookAndChapter ParamBookAndChapter { get; set; }
 	[Parameter, EditorRequired] public List<Data.BookChapterWithAT>? verses { get; set; }
 	[Parameter, EditorRequired] public string? ParamTextFilter { get; set; }
 	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnFilteredClosed { get; set; }
-	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected bool TurnSpinnerOff = false;
 	BookAndChapter BookAndChapter => ParamBookAndChapter;
-	//protected List<VerseModel>? Verses { get; set; }
 	protected List<VerseModel>? FilteredVerses { get; set; }
 
 	protected string? TextFilter;
 
-	protected override async Task OnParametersSetAsync()
+	protected override void OnParametersSet()
 	{
 		if (string.IsNullOrEmpty(ParamTextFilter)) throw new ArgumentException("Value cannot be null or empty.", nameof(ParamTextFilter));
-		TextFilter = ParamTextFilter;
-
 		if (verses is null || verses.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(verses));
-		//Verses = verses;
 
+		TextFilter = ParamTextFilter;
 		FilteredVerses = GetBookChapterVerses(TextFilter);
+		TurnSpinnerOff = true;
 	}
 
-	//BookAndChapter
-	//.Select(bc => bc.MapFromBookChapter(BCV!.BibleBook!.Value, BCV.Chapter))
-
-	protected List<VerseModel> GetBookChapterVerses(string? filterText = null)
+	protected List<VerseModel> GetBookChapterVerses(string filterText)
 	{
-		if (filterText is null)
-		{
-			return verses!
-					.OrderBy(o => o.ID)
-					.Select(bc => bc.MapFromBookChapter(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter))
-					.ToList();
-		}
-		else
-		{
-			return verses!
-				.Where(v => v.KJV != null && v.KJV.Contains(filterText, StringComparison.OrdinalIgnoreCase))
-				.OrderBy(o => o.ID)
-				.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter, filterText))
-				.ToList();
-		}
+		return verses!
+			.Where(v => v.KJV != null && v.KJV.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+			.OrderBy(o => o.ID)
+			.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter, filterText))
+			.ToList();
 	}
-
-
-	protected int DrilldownScriptureId = 0;
-	private void ReturnedVerse(int scriptureId)
-	{
-		DrilldownScriptureId = scriptureId;
-	}
-
-	WordSelected? CurrentWordSelected = new WordSelected(0, 0);
-	private void ReturnedWord(WordSelected? wordSelected)
-	{
-		CurrentWordSelected = wordSelected;
-	}
-
-
-	private bool ShowModal = false;  // warning CS0414: The field 'FilteredWrapper.ShowModal' is assigned but its value is never used
-	private void OpenModal() => ShowModal = true;
-	private void CloseModal() => ShowModal = false;
-
-	protected int CurrentScrollToScriptureId = 0;
-
-	protected bool ShowStandaloneAlephTavIcon(int count) => count > 0 && !UserSettings.IsStandaloneAlephTavDetailsOn;
 
 	private void FilteredClosedPassThrough()
 	{
-		ShowModal = false;
 		OnFilteredClosed.InvokeAsync();
 	}
 
-	private void ApplyFilter(FilterRecord filter)
-	{
-		var hasText = !string.IsNullOrWhiteSpace(filter.SearchText);
-
-		if (!hasText)
-		{
-			FilteredVerses = GetBookChapterVerses();
-		}
-		else
-		{
-			FilteredVerses = GetBookChapterVerses(filter.SearchText);
-			//FilteredVerses = GetBookChapterVerses().Where(v => v.KJV?.Contains(filter.SearchText!, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
-		}
-		return;
-
-	}
-
-	private async Task HandleKeyDown(KeyboardEventArgs e)
-	{
-		//Toast!.ShowWarning($"{nameof(HandleKeyDown)} called");
-		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
-		if (!valid) { return; }
-
-		SetJustScriptureId(dirEnums!);
-		await SetFocusToElement(); //Do I Need this???
-	}
-
-	
-	//Note: Code initially copied from SetScriptureIdAndVerse
-	private void SetJustScriptureId(DirEnums dirEnums)
-	{
-		var (errMsg, verse, _scriptureId) =
-			DirHelper.GetVerseAndScriptureId(dirEnums, CurrentScrollToScriptureId, FilteredVerses!);
-
-		if (!String.IsNullOrEmpty(errMsg))
-		{
-			Toast!.ShowWarning(errMsg);
-			return;
-		}
-		else
-		{
-			CurrentScrollToScriptureId = _scriptureId;
-		}
-	}
-
-	private async Task SetFocusToElement()
-	{
-		if (_module is not null)
-		{
-			await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
-		}
-	}
-
-	#region JavaScript Setup and Teardown
-
-	private IJSObjectReference? _module;
-	protected bool _firstRendered = false;
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && !_firstRendered)
-		{
-			try
-			{
-				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JS.Path);
-				if (_module != null)
-				{
-					await _module.InvokeVoidAsync(JS.FunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
-					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
-				}
-			}
-			catch (Exception ex)
-			{
-				ProcessError!.LogErrorWithMessage(ex, nameof(FilteredWrapper), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
-			}
-			finally
-			{
-				_firstRendered = true;
-			}
-		}
-	}
-
-	public async ValueTask DisposeAsync()
-	{
-		if (_module is not null)
-		{
-			await _module.DisposeAsync();
-		}
-	}
-
-	#endregion
+	protected bool ShowStandaloneAlephTavIcon(int count) => count > 0 && !UserSettings.IsStandaloneAlephTavDetailsOn;
 }
