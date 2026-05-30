@@ -4,10 +4,14 @@ namespace RCL.Enums;
 
 public class BibleAnchors
 {
-
-	public static MarkupString StrongsH_p_Xs(int strongs)
+	public static MarkupString StrongsH_p_Xs(int[] strongs)
 	{
-		return (MarkupString)(LexiconAnchor("H", LongToInt(strongs), "", false));
+		if (strongs is null || strongs.Length == 0) { return (MarkupString)string.Empty; }
+
+		return (MarkupString)string.Join(", ",
+			strongs
+				.Distinct()
+				.Select(s => LexiconAnchor("H", LongToInt(s), "", false)));
 	}
 
 	public static MarkupString StrongsH_td_Xs(int strongs, int wordCount)
