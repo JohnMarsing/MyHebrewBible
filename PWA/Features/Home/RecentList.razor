@@ -1,0 +1,74 @@
+﻿@using PWA.Features.Bible.Toolbar
+@using RCL.Enums
+
+@inject NavigationManager NavigationManager
+@inject IToastService Toast
+
+<div class="list-group">
+	@if (list is not null && list.Any())
+	{
+		@foreach (var item in list)
+		{
+			@if (BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) && bibleBook is not null)
+			{
+				var scriptureId = BibleBookHelper.GetScriptureId(bibleBook, item.Chapter, item.Verse);
+
+				<button type="button"
+								class="list-group-item  list-group-item-action list-group-item-danger fs-5 py-1 fw-bold"
+								@onclick="() => ButtonClicked(item)">
+					@Format(item)
+				</button>
+			}
+		}
+	}
+	else
+	{
+		<Alert>list is null or empty</Alert>
+	}
+</div>
+
+@code {
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	private List<BookChapterVerseHistory>? list { get; set; } = [];
+
+	protected override async Task OnInitializedAsync()
+	{
+		await State!.AppState!.BookChapterState!.Initialize();
+	}
+
+	protected bool TurnSpinnerOff = false;
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			list = State!.AppState!.BookChapterState!.GetBCVs();
+			if (list is null || !list.Any())
+			{
+				Toast!.ShowWarning($"list is null or empty; Inside: {nameof(OnParametersSetAsync)}");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnParametersSetAsync), Nav.Home, $"called: {nameof(OnParametersSetAsync)}");
+		}
+		finally { TurnSpinnerOff = true; }
+	}
+
+	private static string Format(BookChapterVerseHistory item) =>
+		$"{BibleBook.FromValue(item.BibleBookId).Title} {item.Chapter}:{item.Verse}";
+
+	private Task ButtonClicked(BookChapterVerseHistory item)
+	{
+		Toast!.ShowWarning("Not Yet Working");
+		// if (!BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) || bibleBook is null)
+		// {
+		// 	return Task.CompletedTask;
+		// }
+
+		// var scriptureId = BibleBookHelper.GetScriptureId(bibleBook, item.Chapter, item.Verse);
+		// NavigationManager.NavigateTo($"{Nav.Bible.Index}/{bibleBook.Abrv}/{item.Chapter}/{item.Verse}/{scriptureId}");
+		return Task.CompletedTask;
+	}
+}

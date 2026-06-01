@@ -13,11 +13,15 @@
 					<span class="@GetBgColor(item.Strongs, item.WordCount) me-2"
 								@onclick="@(e => ButtonWordClick(item.Strongs, item.WordCount))">
 						@item.Word
+						@GetSuper(item.WordCount)
 					</span>
 				}
 				else
 				{
-					<span class=" @GetBgColor(item.Strongs, item.WordCount) me-2"> @item.Word</span>
+					<span class=" @GetBgColor(item.Strongs, item.WordCount) me-2">
+						@item.Word
+						@GetSuper(item.WordCount)
+					</span>
 				}
 			}
 			else
@@ -32,11 +36,12 @@
 @code {
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
+	[Parameter, EditorRequired] public bool ShowWordCount { get; set; }  // using UserSettings.IsHebrewWordNumbersOn
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
 
 	protected bool TurnSpinnerOff = false;
-	
+
 	private ICollection<Data.WordPartKjv>? kjvWords = null;
 	protected override async Task OnParametersSetAsync()
 	{
@@ -62,6 +67,18 @@
 
 		if (strongs == WordSelected.Strongs) { return " bg-warning-subtle"; }
 		else { return " bg-info-subtle "; }
+	}
+
+	protected MarkupString GetSuper(int wordCount)
+	{
+		if (ShowWordCount)
+		{
+			return (MarkupString)$"<sup class='px-1 text-muted fst-italic'>{wordCount}</sup>";
+		}
+		else
+		{
+			return (MarkupString)string.Empty;
+		}
 	}
 
 

@@ -1,10 +1,5 @@
 ﻿@page "/"
 
-@using SqliteWasmBlazor
-
-
-
-
 <PageTitle>@Nav.Home.Title</PageTitle>
 
 <header class="">
@@ -19,22 +14,30 @@
 				 alt="My Hebrew Bible" />
 	</div>
 
-	<div class="card bg-warning-subtle mb-2">
+	<p class="text-center text-muted">Book/Chapter/Verse</p>
 
-		<div class="card-header bg-warning ">
-			<h5 class="text-center">Book/Chapter List</h5>
+	<BcvCardTemplate Button="Enums.Button.LastBCV" MarginXClass="mx-auto">
+			<ListGroupRF>
+				<LastBCV />
+			</ListGroupRF>
+	</BcvCardTemplate>
+
+	<div class="d-flex flex-column flex-sm-row justify-content-sm-evenly align-items-center">
+		<div>
+			<BcvCardTemplate Button="Enums.Button.RecentList" MarginXClass="mx-0">
+				<ListGroupRF>
+					<RecentList />
+				</ListGroupRF>
+			</BcvCardTemplate>
 		</div>
 
-		<div class="card-body my-3">
-			<div class="text-center">
-				<a class="btn btn-secondary btn-lg" href="@Nav.Bible.Index">
-					<i class="fa fa-book"></i>
-					Bible
-					<i class="fas fa-chevron-right"></i>
-				</a>
-			</div>
+		<div>
+			<BcvCardTemplate Button="Enums.Button.ParashaList" MarginXClass="mx-0">
+				<ListGroupRF>
+					<ParashaList />
+				</ListGroupRF>
+			</BcvCardTemplate>
 		</div>
-
 	</div>
 
 </section>
@@ -43,33 +46,6 @@
 
 @code
 {
-	[Inject] private ISqliteWasmDatabaseService DbService { get; set; } = default!;
-	[Inject] private ILogger<Index> Logger { get; set; } = default!;
-	[Inject] private IToastService Toast { get; set; } = default!;
-	[Inject] private PWA.HealthChecks.Database.Data.IRepository? db { get; set; } = default!;
 
-	[CascadingParameter] private ProcessError? ProcessError { get; set; }
-
-
-	string? SqliteVersion = null;
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			SqliteVersion = await db!.GetSqliteVersion();
-			if (SqliteVersion is null)
-			{
-				Toast!.ShowWarning($"SQLite version not found (◡︵◡)");
-			}
-			//PopulateParashaList();
-		}
-		catch (Exception ex)
-		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetSqliteVersion)}");
-		}
-		//finally { TurnSpinnerOff = true;  }
-	}
-
-	
 }
 

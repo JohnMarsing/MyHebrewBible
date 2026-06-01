@@ -9,10 +9,5 @@ export function initializeTypeahead(inputElement, dotNetHelper) {
         }
     });
 
-    inputElement.addEventListener('input', async () => {
-        await dotNetHelper.invokeMethodAsync('HandleKeyDown', 'Input');
-    });
-
-    // Auto-focus the search input
     inputElement.focus();
 }

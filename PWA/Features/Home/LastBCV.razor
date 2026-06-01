@@ -1,0 +1,89 @@
+﻿@using PWA.Features.Bible
+@using RCL.Enums
+
+@inject NavigationManager NavigationManager
+@inject IToastService Toast
+@inject ILogger<LastBCV>? Logger
+
+	@ChildContent
+
+<div class="list-group">
+	@if (CurrentAbrvChapterVerse is not null)
+	{
+		<button type="button"
+				class="list-group-item list-group-item-primary list-group-item-action fs-3 py-2 fw-bold"
+				@onclick="NavigateToBible">
+			@Format(CurrentAbrvChapterVerse)
+		</button>
+	}
+	else
+	{
+		<Alert>Current BCV is null</Alert>
+	}
+</div>
+
+@code {
+	[Parameter] public RenderFragment? ChildContent { get; set; }
+
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	private AbrvChapterVerse? CurrentAbrvChapterVerse;
+
+	protected bool TurnSpinnerOff = false;
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await State!.AppState!.BookChapterState!.Initialize();
+			SetScriptureIdAndBCV();
+			if (CurrentAbrvChapterVerse is null)
+			{
+				Toast!.ShowWarning($"CurrentAbrvChapterVerse is null; Inside: {nameof(OnInitializedAsync)}");
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(LastBCV), nameof(OnInitializedAsync), Nav.Home, $"called: {nameof(OnInitializedAsync)}");
+		}
+		finally { TurnSpinnerOff = true; }
+	}
+
+	protected int CurrentScrollToScriptureId;
+	private BookChapterVerseRecord BCV { get; set; } = null!;
+	private void SetScriptureIdAndBCV()
+	{
+		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV();
+
+		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv);
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			ProcessError!.ShowToast(errMsg, ToastLevel.Warning);
+			throw new InvalidOperationException(errMsg);
+		}
+
+		BibleBook? bibleBook;
+		if (BibleBook.TryFromValue(_value, out bibleBook))  // Lookup the SmartEnum based on the newly acquired BibleBook.Value
+		{
+			BCV = new BookChapterVerseRecord(bibleBook, CurrentAbrvChapterVerse.Chapter, CurrentAbrvChapterVerse.Verse);
+			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
+		}
+		else
+		{
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			ProcessError!.ShowToast("BibleBook.TryFromValue failed", ToastLevel.Error);
+			throw new InvalidOperationException("BibleBook.TryFromValue failed");
+		}
+	}
+
+
+	private static string Format(AbrvChapterVerse item)
+	{
+		string title = BibleBook.List.FirstOrDefault(book => book.Abrv == item.Abrv)?.Title ?? item.Abrv;
+		return $"{title} {item.Chapter}:{item.Verse}";
+	}
+
+	private void NavigateToBible() => NavigationManager.NavigateTo(Nav.Bible.Index);
+
+}

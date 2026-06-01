@@ -1,0 +1,109 @@
+﻿@using PWA.Features.Bible
+@using PWA.Features.Bible.Toolbar
+@using RCL.Enums
+
+@inject NavigationManager NavigationManager
+@inject IToastService Toast
+
+<div class="list-group">
+
+	@if (list is not null)
+	{
+		@foreach (var item in list)
+		{
+			@if (BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) && bibleBook is not null)
+			{
+				var scriptureId = BibleBookHelper.GetScriptureId(bibleBook, item.Chapter, item.Verse);
+				<button type="button"
+								class="list-group-item list-group-item-warning list-group-item-action fs-5 py-1 fw-bold"
+						@onclick="() => ButtonClicked(item)">
+					@Format(item)
+				</button>
+			}
+		}
+	}
+	else 
+	{
+		<Alert>List is null</Alert>
+	}
+
+</div>
+
+@code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	private List<BookChapterVerseHistory>? list { get; set; } = [];
+
+	protected bool TurnSpinnerOff = false;
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			PopulateParashaList();
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnInitializedAsync), Nav.Home, $"called: {nameof(PopulateParashaList)}");
+		}
+		finally { TurnSpinnerOff = true; }
+	}
+
+	protected RCL.Features.Parasha.Enums.Triennial? currentReading;
+	private void PopulateParashaList()
+	{
+		currentReading = RCL.Features.Parasha.Helpers.GetCurrentReading();
+		if (currentReading is null)
+		{
+			Toast!.ShowWarning($"currentReading is null; Inside: {nameof(PopulateParashaList)}");
+			return;
+		}
+
+		var (chapter, verse) = RCL.Features.Parasha.Helpers.CalculateChapterAndVerse(
+			currentReading.TorahVerse.BibleBook,
+			currentReading.TorahVerse.BegId);
+
+		list = new List<BookChapterVerseHistory>
+		{
+			new BookChapterVerseHistory(
+				currentReading.TorahVerse.BibleBook.Value,
+				chapter,
+				verse)
+		};
+
+		if (currentReading.HaftorahVerses is not null)
+		{
+			foreach (var item in currentReading.HaftorahVerses)
+			{
+				var (chapterH, verseH) = RCL.Features.Parasha.Helpers.CalculateChapterAndVerse(item.BibleBook, item.BegId);
+				list.Add(new BookChapterVerseHistory(item.BibleBook.Value, chapterH, verseH));
+			}
+		}
+
+		if (currentReading.BritVerses is not null)
+		{
+			foreach (var item in currentReading.BritVerses)
+			{
+				var (chapterB, verseB) = RCL.Features.Parasha.Helpers.CalculateChapterAndVerse(item.BibleBook, item.BegId);
+				list.Add(new BookChapterVerseHistory(item.BibleBook.Value, chapterB, verseB));
+			}
+		}
+	}
+	
+	private static string Format(BookChapterVerseHistory item) =>
+			$"{BibleBook.FromValue(item.BibleBookId).Title} {item.Chapter}:{item.Verse}";
+
+	private Task ButtonClicked(BookChapterVerseHistory item)
+	{
+		Toast!.ShowWarning("Not Yet Working");
+		// if (!BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) || bibleBook is null)
+		// {
+		// 	return Task.CompletedTask;
+		// }
+
+		// var scriptureId = BibleBookHelper.GetScriptureId(bibleBook, item.Chapter, item.Verse);
+		// NavigationManager.NavigateTo($"{Nav.Bible.Index}/{bibleBook.Abrv}/{item.Chapter}/{item.Verse}/{scriptureId}");
+		return Task.CompletedTask;
+	}
+
+
+}

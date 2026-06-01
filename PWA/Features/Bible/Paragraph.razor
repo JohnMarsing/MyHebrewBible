@@ -18,11 +18,11 @@
 		}
 		@((MarkupString)HighlightedKjv)
 
-	@if (ShowStandaloneAlephTavIcon)
-	{
-		<span><i class="fa fa-letter-aleph-tav text-danger ps-2"></i></span>
-	}
-	
+		@if (ShowStandaloneAlephTavIcon is not null && ShowStandaloneAlephTavIcon == true)
+		{
+			<span><i class="fa fa-letter-aleph-tav text-danger ps-2"></i></span>
+		}
+
 		@if (BookAndChapter!.BibleBook!.IsHebrewBible && string.IsNullOrWhiteSpace(HighlightText))
 		{
 			<DrillDownButton ScriptureId="Verse!.ID"
@@ -42,7 +42,7 @@
 @code {
 	[Parameter, EditorRequired] public VerseModel? Verse { get; set; }
 	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
-	[Parameter, EditorRequired] public bool ShowStandaloneAlephTavIcon { get; set; }
+	[Parameter] public bool? ShowStandaloneAlephTavIcon { get; set; } = null;
 	[Parameter] public int ScrollToScriptureId { get; set; }
 	[Parameter] public EventCallback<int> OnVerseSelectedPassThrough { get; set; }
 	[Parameter] public string? HighlightText { get; set; }
@@ -69,7 +69,7 @@
 
 	private void ReturnedVersePassThrough(int scriptureId)
 	{
-	//Toast!.ShowWarning($"ReturnedVersePassThrough {scriptureId}");
+		//Toast!.ShowWarning($"ReturnedVersePassThrough {scriptureId}");
 		OnVerseSelectedPassThrough.InvokeAsync(scriptureId);
 	}
 }
