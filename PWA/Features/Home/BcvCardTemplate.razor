@@ -1,0 +1,13 @@
+﻿
+<div class="card my-3 @MarginXClass" style="width: 18rem;">
+	<div class="card-header @Button.HeaderCSS">
+		<div class="@Button.HeaderFontSize">@Button.Title</div>
+	</div>
+	@ListGroupRF
+</div>
+
+@code {
+	[Parameter, EditorRequired] public Enums.Button Button { get; set; }
+	[Parameter, EditorRequired] public RenderFragment? ListGroupRF { get; set; }
+	[Parameter] public string MarginXClass { get; set; } = "mx-5";
+}

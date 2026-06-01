@@ -18,7 +18,6 @@
 					<Paragraph BookAndChapter="@BookAndChapter"
 										 Verse="item"
 										 ScrollToScriptureId="0"
-										 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
 										 HighlightText="@TextFilter"/>
 				</div>
 
@@ -46,7 +45,7 @@
 @code {
 	[Parameter, EditorRequired] public BookAndChapter ParamBookAndChapter { get; set; }
 	[Parameter, EditorRequired] public List<Data.BookChapterWithAT>? verses { get; set; }
-	[Parameter, EditorRequired] public string? ParamTextFilter { get; set; }
+	[Parameter, EditorRequired] public string? TextFilter { get; set; }
 	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnFilteredClosed { get; set; }
 
@@ -54,25 +53,17 @@
 	BookAndChapter BookAndChapter => ParamBookAndChapter;
 	protected List<VerseModel>? FilteredVerses { get; set; }
 
-	protected string? TextFilter;
-
 	protected override void OnParametersSet()
 	{
-		if (string.IsNullOrEmpty(ParamTextFilter)) throw new ArgumentException("Value cannot be null or empty.", nameof(ParamTextFilter));
+		if (string.IsNullOrEmpty(TextFilter)) throw new ArgumentException("Value cannot be null or empty.", nameof(TextFilter));
 		if (verses is null || verses.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(verses));
 
-		TextFilter = ParamTextFilter;
-		FilteredVerses = GetBookChapterVerses(TextFilter);
-		TurnSpinnerOff = true;
-	}
-
-	protected List<VerseModel> GetBookChapterVerses(string filterText)
-	{
-		return verses!
-			.Where(v => v.KJV != null && v.KJV.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+		FilteredVerses = verses
+			.Where(v => v.KJV != null && v.KJV.Contains(TextFilter, StringComparison.OrdinalIgnoreCase))
 			.OrderBy(o => o.ID)
-			.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter!.BibleBook!.Value, BookAndChapter.Chapter, filterText))
+			.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
 			.ToList();
+		TurnSpinnerOff = true;
 	}
 
 	private void FilteredClosedPassThrough()
@@ -80,5 +71,4 @@
 		OnFilteredClosed.InvokeAsync();
 	}
 
-	protected bool ShowStandaloneAlephTavIcon(int count) => count > 0 && !UserSettings.IsStandaloneAlephTavDetailsOn;
 }

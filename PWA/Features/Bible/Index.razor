@@ -65,7 +65,7 @@
 			{
 				<FilteredWrapper ParamBookAndChapter="new BookAndChapter(BCV.BibleBook, BCV.Chapter)"
 												 verses="verses"
-												 ParamTextFilter="@TextFilter"
+												 TextFilter="@TextFilter"
 												 UserSettings="UserSettings"
 												 OnFilteredClosed="ReturnedFilteredClosed" />
 			}
@@ -134,7 +134,6 @@
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
 	private List<Data.BookChapterWithAT>? verses = null;
-	private BookChapterVerseRecord BCV { get; set; } = null!;
 	protected List<VerseModel>? FilteredVerses { get; set; }
 
 	protected override async Task OnInitializedAsync()
@@ -173,6 +172,8 @@
 		}
 	}
 
+	protected int CurrentScrollToScriptureId;
+	private BookChapterVerseRecord BCV { get; set; } = null!;
 	private void SetScriptureIdAndBCV()
 	{
 		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV();
@@ -281,7 +282,6 @@
 		await Task.CompletedTask;
 	}
 
-	protected int CurrentScrollToScriptureId;
 	protected int CurrentVerse;
 	private void SetScriptureIdAndVerse(DirEnums dirEnums)
 	{

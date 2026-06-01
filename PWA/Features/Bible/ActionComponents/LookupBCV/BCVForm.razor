@@ -8,129 +8,134 @@
 
 <FocusTrap @ref="_focusTrap">
 
-@* Modal backdrop *@
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="bookChapterModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
+	@* Modal backdrop *@
+	<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="bookChapterModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
 
-			<div class="modal-header">
-				<h5 class="modal-title" id="bookChapterModalLabel">Book Chapter Lookup</h5>
-				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
-			</div>
+				<div class="modal-header">
+					<h5 class="modal-title" id="bookChapterModalLabel">Book Chapter Lookup</h5>
+					<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
+				</div>
 
-			<div class="modal-body">
-				<EditForm Model="@VM" OnValidSubmit="HandleValidSubmit">
-					<DataAnnotationsValidator />
+				<div class="modal-body">
+					<EditForm Model="@VM" OnValidSubmit="HandleValidSubmit">
+						<DataAnnotationsValidator />
 
-					<div class="row mb-3 align-items-center">
-						<label for="bookSearch" class="col-4 col-form-label">
-							Book
-							<button type="button" class="btn btn-sm btn-link p-0 ms-1" @onclick="ToggleSortOrder" title="@(_sortAlphabetically ? "Sort by book order" : "Sort alphabetically")">
-								@if (_sortAlphabetically)
+						<div class="row mb-3 align-items-center">
+							<label for="bookSearch" class="col-4 col-form-label">
+								Book
+								<button type="button" class="btn btn-sm btn-link p-0 ms-1" @onclick="ToggleSortOrder" title="@(_sortAlphabetically ? "Sort by book order" : "Sort alphabetically")">
+									@if (_sortAlphabetically)
+									{
+										<i class="fa-solid fa-arrow-down-a-z"></i>
+									}
+									else
+									{
+										<i class="fa-solid fa-arrow-down-1-9"></i>
+									}
+								</button>
+							</label>
+							<div class="col-8">
+								<div class="position-relative">
+									<input type="text"
+												 id="bookSearch"
+												 class="form-control form-control-sm @(VM.SelectedBook is null && !string.IsNullOrWhiteSpace(VM.SearchText) ? "is-invalid" : "")"
+												 @bind="VM.SearchText"
+												 @bind:event="oninput"
+												 @bind:after="HandleSearchInput"
+												 @onfocus="HandleSearchFocus"
+												 @onblur="HandleSearchBlur"
+												 @ref="_searchInput"
+												 autocomplete="off"
+												 placeholder="Type to search..." />
+
+									@if (_showDropdown && _filteredBooks.Any())
+									{
+										<ul class="dropdown-menu show w-100" style="max-height: 250px; overflow-y: auto;" @ref="_dropdownRef">
+											@foreach (var (book, index) in _filteredBooks.Select((b, i) => (b, i)))
+											{
+												<li>
+													<a class="dropdown-item @(index == _selectedIndex ? "active" : "")"
+														 href="javascript:void(0)"
+														 @onclick="() => SelectBook(book)"
+														 @onclick:preventDefault="true">
+														@book.Title
+													</a>
+												</li>
+											}
+										</ul>
+									}
+
+									@if (VM.SelectedBook is not null)
+									{
+										<div class="mt-2">
+											<span class="badge bg-primary">@VM.SelectedBook.Title</span>
+										</div>
+									}
+								</div>
+								<ValidationMessage For="() => VM.SelectedBook" />
+							</div>
+						</div>
+
+						<div class="row mb-2 align-items-center">
+							<label for="chapter" class="col-4 col-form-label">Chapter</label>
+							<div class="col-8">
+								<InputNumber id="chapter"
+														 class="form-control form-control-sm"
+														 @bind-Value="VM.Chapter"
+														 disabled="@(VM.SelectedBook is null)"
+														 placeholder="@(VM.SelectedBook is not null ? $"1 – {VM.SelectedBook.LastChapter}" : "Select book first")" />
+								<ValidationMessage For="() => VM.Chapter" />
+								@if (VM.Chapter.HasValue && VM.SelectedBook is not null && VM.Chapter > VM.SelectedBook.LastChapter)
 								{
-									<i class="fa-solid fa-arrow-down-a-z"></i>
-								}
-								else
-								{
-									<i class="fa-solid fa-arrow-down-1-9"></i>
-								}
-							</button>
-						</label>
-						<div class="col-8">
-							<div class="position-relative">
-								<input type="text"
-											 id="bookSearch"
-											 class="form-control form-control-sm @(VM.SelectedBook is null && !string.IsNullOrWhiteSpace(VM.SearchText) ? "is-invalid" : "")"
-											 @bind="VM.SearchText"
-											 @bind:event="oninput"
-											 @onfocus="HandleSearchFocus"
-											 @onblur="HandleSearchBlur"
-											 @ref="_searchInput"
-											 autocomplete="off"
-											 placeholder="Type to search..." />
-
-								@if (_showDropdown && _filteredBooks.Any())
-								{
-									<ul class="dropdown-menu show w-100" style="max-height: 250px; overflow-y: auto;" @ref="_dropdownRef">
-										@foreach (var (book, index) in _filteredBooks.Select((b, i) => (b, i)))
-										{
-											<li>
-												<a class="dropdown-item @(index == _selectedIndex ? "active" : "")"
-													 href="javascript:void(0)"
-													 @onclick="() => SelectBook(book)"
-													 @onclick:preventDefault="true">
-													@book.Title
-												</a>
-											</li>
-										}
-									</ul>
-								}
-
-								@if (VM.SelectedBook is not null)
-								{
-									<div class="mt-2">
-										<span class="badge bg-primary">@VM.SelectedBook.Title</span>
+									<div class="invalid-feedback d-block">
+										Chapter must be between 1 and @VM.SelectedBook.LastChapter
 									</div>
 								}
 							</div>
-							<ValidationMessage For="() => VM.SelectedBook" />
 						</div>
-					</div>
 
-					<div class="row mb-2 align-items-center">
-						<label for="chapter" class="col-4 col-form-label">Chapter</label>
-						<div class="col-8">
-							<InputNumber id="chapter"
-													 class="form-control form-control-sm"
-													 @bind-Value="VM.Chapter"
-													 disabled="@(VM.SelectedBook is null)"
-													 placeholder="@(VM.SelectedBook is not null ? $"1 – {VM.SelectedBook.LastChapter}" : "Select book first")" />
-							<ValidationMessage For="() => VM.Chapter" />
-							@if (VM.Chapter.HasValue && VM.SelectedBook is not null && VM.Chapter > VM.SelectedBook.LastChapter)
-							{
-								<div class="invalid-feedback d-block">
-									Chapter must be between 1 and @VM.SelectedBook.LastChapter
-								</div>
-							}
+						<div class="row mb-2 align-items-center">
+							<label for="verse" class="col-4 col-form-label">Verse</label>
+							<div class="col-8">
+								<InputNumber id="verse"
+														 class="form-control form-control-sm"
+														 @bind-Value="VM.Verse"
+														 disabled="@(VM.SelectedBook is null)"
+														 placeholder="@(
+														 VM.SelectedBook is not null && VM.Chapter.HasValue
+																 ? $"1 – {PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value)}"
+																 : VM.SelectedBook is not null
+																		 ? "Select chapter first"
+																		 : "Select book first"
+																						 )" />
+								<ValidationMessage For="() => VM.Verse" />
+								@if (VM.Verse.HasValue && VM.SelectedBook is not null && VM.Chapter.HasValue && VM.Verse > PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value))
+								{
+									<div class="invalid-feedback d-block">
+										Verse must be between 1 and @PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value)
+									</div>
+								}
+							</div>
 						</div>
-					</div>
 
-					<div class="row mb-2 align-items-center">
-						<label for="verse" class="col-4 col-form-label">Verse</label>
-						<div class="col-8">
-							<InputNumber id="verse"
-													 class="form-control form-control-sm"
-													 @bind-Value="VM.Verse"
-													 disabled="@(VM.SelectedBook is null)"
-													 placeholder="@(
-															VM.SelectedBook is not null && VM.Chapter.HasValue
-																	? $"1 – {PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value)}"
-																	: VM.SelectedBook is not null
-																			? "Select chapter first"
-																			: "Select book first"
-								)" />
-							<ValidationMessage For="() => VM.Verse" />
-							@if (VM.Verse.HasValue && VM.SelectedBook is not null && VM.Chapter.HasValue && VM.Verse > PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value))
-							{
-								<div class="invalid-feedback d-block">
-									Verse must be between 1 and @PWA.Features.Bible.Helper.LastVerseCount(VM.SelectedBook, VM.Chapter.Value)
-								</div>
-							}
+						<ValidationSummary />
+
+						<div class="modal-footer px-0 pb-0">
+							<button type="submit"
+											class="btn btn-sm btn-primary"
+											aria-disabled="@(!VM.IsValid())">
+								Go <i class="fas fa-chevron-right"></i>
+							</button>
 						</div>
-					</div>
 
-					<ValidationSummary />
+					</EditForm>
+				</div>
 
-					<div class="modal-footer px-0 pb-0">
-						<button type="submit" class="btn btn-sm btn-primary" disabled="@(!VM.IsValid())">Go <i class="fas fa-chevron-right"></i> </button>
-					</div>
-
-				</EditForm>
 			</div>
-
 		</div>
 	</div>
-</div>
 
 
 </FocusTrap>
@@ -161,6 +166,20 @@
 				"./Features/Bible/ActionComponents/LookupBCV/BCVForm.razor.js");
 			await _module.InvokeVoidAsync("initializeTypeahead", _searchInput, DotNetObjectReference.Create(this));
 		}
+	}
+
+	private void HandleSearchInput()
+	{
+		if (VM.SelectedBook is not null &&
+				!string.Equals(VM.SearchText, VM.SelectedBook.Title, StringComparison.OrdinalIgnoreCase))
+		{
+			VM.SelectedBook = null;
+			VM.Chapter = null;
+			VM.Verse = null;
+		}
+
+		FilterBooks();
+		StateHasChanged();
 	}
 
 	private void HandleSearchFocus()
