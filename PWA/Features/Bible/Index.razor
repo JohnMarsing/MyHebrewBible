@@ -1,10 +1,9 @@
-﻿@page "/Bible"
+﻿@page "/bible"
+@page "/bible/{BookAbrv}/{Chapter:int}/{Verse:int}/"
+
 
 @using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Enums
-
-@using DirEnums = Enums.VerticalDirection
-@using DirHelper = Enums.VerticalDirectionHelper
 
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
 
@@ -57,7 +56,7 @@
 
 		@if (currentAction == Footers.ButtonType.Parasha)
 		{
-			<ParashaWrapper UserSettings="UserSettings" OnParashaClosed="ReturnedParashaClosed" />
+			<ParashaWrapper OnParashaClosed="ReturnedParashaClosed" />
 		}
 		else
 		{
@@ -66,14 +65,12 @@
 				<FilteredWrapper ParamBookAndChapter="new BookAndChapter(BCV.BibleBook, BCV.Chapter)"
 												 verses="verses"
 												 TextFilter="@TextFilter"
-												 UserSettings="UserSettings"
 												 OnFilteredClosed="ReturnedFilteredClosed" />
 			}
 			else
 			{
 				<Sections FilteredVerses="FilteredVerses"
-									ParmScrollToScriptureId="CurrentScrollToScriptureId"
-									UserSettings="UserSettings" />
+									ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 			}
 		}
 	</section>
@@ -126,27 +123,52 @@
 
 
 @code {
+	// Route parameters
+	[Parameter] public string? BookAbrv { get; set; }
+	[Parameter] public int Chapter { get; set; }
+	[Parameter] public int Verse { get; set; }
+
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
-
-	protected UserSettingsDTO? UserSettings { get; set; }
 
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
 	private List<Data.BookChapterWithAT>? verses = null;
 	protected List<VerseModel>? FilteredVerses { get; set; }
 
-	protected override async Task OnInitializedAsync()
+
+	protected int CurrentScrollToScriptureId;
+	private BookChapterVerseRecord BCV { get; set; } = null!;
+
+	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
-			SetScriptureIdAndBCV();
+			if (!string.IsNullOrEmpty(BookAbrv))
+			{
+				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: Verse); 
+
+				// Test:	
+				//ResolveBCV("Foo", Chapter, Verse, scrollTarget: Verse); // Test: invalid book
+				//ResolveBCV("Gen", 99, Verse, scrollTarget: Verse); // Test: chapter out of range
+				//ResolveBCV("Gen", 1, 9999, scrollTarget: Verse); // Test: verse out of range
+			}
+			else
+			{
+				CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV();
+				ResolveBCV(
+						CurrentAbrvChapterVerse.Abrv,
+						CurrentAbrvChapterVerse.Chapter,
+						CurrentAbrvChapterVerse.Verse,
+						scrollTarget: CurrentAbrvChapterVerse.ScriptureId);
+			}
+
 			verses = await db!.GetBookChapterWithAT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 			FilteredVerses = GetBookChapterVerses();
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnInitializedAsync), Nav.Bible, $"called {nameof(db.GetBookChapterWithAT)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnParametersSetAsync), Nav.Bible, "");
 		}
 		finally
 		{
@@ -154,47 +176,24 @@
 		}
 	}
 
-	protected override void OnParametersSet()
+	private void ResolveBCV(string abrv, int chapter, int verse, int scrollTarget)
 	{
-		//Logger!.LogDebug("{Method}, Route: {Abrv}/{Chapter}/{Verse}/{ScriptureId}", nameof(OnParametersSet), Abrv, Chapter, Verse, ScriptureId);
-		try
+		var (errMsg, _value) = BibleBookDictionary.GetId(abrv);
+		if (!string.IsNullOrEmpty(errMsg))
 		{
-			PWA.Features.Bible.Enums.Permutation _currentPermutations = (PWA.Features.Bible.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
-			UserSettings = new UserSettingsDTO(
-				IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
-				IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
-				IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
-				IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
-		}
-		catch (Exception ex)
-		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(OnParametersSet), Nav.Bible, $"{nameof(State.AppState.BookChapterState.GetUserSetting)}");
-		}
-	}
-
-	protected int CurrentScrollToScriptureId;
-	private BookChapterVerseRecord BCV { get; set; } = null!;
-	private void SetScriptureIdAndBCV()
-	{
-		CurrentAbrvChapterVerse = State!.AppState!.BookChapterState!.GetACV();
-
-		var (errMsg, _value) = BibleBookDictionary.GetId(CurrentAbrvChapterVerse.Abrv);
-		if (!String.IsNullOrEmpty(errMsg))
-		{
-			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			Logger!.LogWarning("{Method}, {errMsg}", nameof(ResolveBCV), errMsg);
 			ProcessError!.ShowToast(errMsg, ToastLevel.Warning);
 			throw new InvalidOperationException(errMsg);
 		}
 
-		BibleBook? bibleBook;
-		if (BibleBook.TryFromValue(_value, out bibleBook))  // Lookup the SmartEnum based on the newly acquired BibleBook.Value
+		if (BibleBook.TryFromValue(_value, out BibleBook? bibleBook))
 		{
-			BCV = new BookChapterVerseRecord(bibleBook, CurrentAbrvChapterVerse.Chapter, CurrentAbrvChapterVerse.Verse);
-			CurrentScrollToScriptureId = CurrentAbrvChapterVerse.ScriptureId; // = 1;
+			BCV = new BookChapterVerseRecord(bibleBook, chapter, verse);
+			CurrentScrollToScriptureId = scrollTarget;
 		}
 		else
 		{
-			Logger!.LogWarning("{Method}, {errMsg}", nameof(SetScriptureIdAndBCV), errMsg);
+			Logger!.LogWarning("{Method}, BibleBook.TryFromValue failed", nameof(ResolveBCV));
 			ProcessError!.ShowToast("BibleBook.TryFromValue failed", ToastLevel.Error);
 			throw new InvalidOperationException("BibleBook.TryFromValue failed");
 		}
@@ -283,29 +282,6 @@
 	}
 
 	protected int CurrentVerse;
-	private void SetScriptureIdAndVerse(DirEnums dirEnums)
-	{
-		var (errMsg, verse, _scriptureId) =
-			DirHelper.GetVerseAndScriptureId(dirEnums, CurrentScrollToScriptureId, FilteredVerses!);
-
-		if (!String.IsNullOrEmpty(errMsg))
-		{
-			ProcessError!.ShowToast(errMsg, ToastLevel.Warning);
-			return;
-		}
-		else
-		{
-			CurrentScrollToScriptureId = _scriptureId;
-			CurrentVerse = verse;
-		}
-
-		if (CurrentScrollToScriptureId != CurrentAbrvChapterVerse!.ScriptureId)
-		{
-			CurrentAbrvChapterVerse = CurrentAbrvChapterVerse!
-				with
-			{ Verse = verse, ScriptureId = CurrentScrollToScriptureId };
-		}
-	}
 
 	#endregion
 
@@ -322,12 +298,14 @@
 
 	#region EventCallback Return Toolbar Logic
 
-
+	//protected UserSettingsDTO? UserSettings { get; set; }
 	private void ReturnUserSettingsDTO(UserSettingsDTO userSettingsDTO)
 	{
 		//Logger!.LogDebug("{Method}, UserSettingsDTO: {UserSettingsDTO}", nameof(ReturnUserSettingsDTO), userSettingsDTO);
-		UserSettings = userSettingsDTO;
+		//UserSettings = userSettingsDTO;
+		ProcessError!.ShowToast("User settings updated", ToastLevel.Success);
 	}
+
 
 	protected MenuItem? CurrentModalToShow { get; set; }
 	private void ReturnedMenuItemId(int id)

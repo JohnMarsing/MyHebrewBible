@@ -1,5 +1,4 @@
-﻿@using BibleEnums = PWA.Features.Bible.Enums
-@using PWA.Features.Bible.Data
+﻿@using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Detail
 
 @* @inject ILogger<FilteredWrapper>? Logger *@
@@ -46,7 +45,6 @@
 	[Parameter, EditorRequired] public BookAndChapter ParamBookAndChapter { get; set; }
 	[Parameter, EditorRequired] public List<Data.BookChapterWithAT>? verses { get; set; }
 	[Parameter, EditorRequired] public string? TextFilter { get; set; }
-	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnFilteredClosed { get; set; }
 
 	protected bool TurnSpinnerOff = false;

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using Blazored.LocalStorage;
 using Blazored.Toast;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
@@ -56,15 +57,37 @@ builder.Services.AddBlazoredToast();  // Need this here and in the Server
 
 Log.Information("PWA WebAssembly App Starting...");
 
+WebAssemblyHost? host = null;
 try
 {
-	var host = builder.Build();
+	host = builder.Build();
 
 	var sqliteWasmBlazorService = host.Services.GetRequiredService<SqliteWasmBlazorService>();
 	await sqliteWasmBlazorService.InitializeAsync();
-	
+
 	await host.RunAsync();
 	Log.Information("PWA WebAssembly App Stopped cleanly");
+}
+catch (Exception ex) when (ex.Message.Contains("createSyncAccessHandle") || ex.Message.Contains("Access Handles cannot be created"))
+{
+	Log.Warning(ex, "PWA WebAssembly App could not start: OPFS database locked by another tab");
+	if (host is not null)
+	{
+		var js = (IJSInProcessRuntime)host.Services.GetRequiredService<IJSRuntime>();
+		js.InvokeVoid("eval", """
+			(function() {
+				var app = document.getElementById('app');
+				if (app) {
+					app.innerHTML = '<div style="font-family:sans-serif;max-width:540px;margin:80px auto;padding:2rem;border:1px solid #f5c2c7;border-radius:.5rem;background:#fff3cd;text-align:center;">'
+						+ '<h2 style="color:#842029;">&#9888; MyHebrewBible is already open</h2>'
+						+ '<p style="color:#664d03;font-size:1.1rem;">Another browser tab is already running MyHebrewBible. Only one tab is allowed at a time because of how the local database works.</p>'
+						+ '<p><strong>Please close this tab or the other tab, then reload.</strong></p>'
+						+ '<button onclick="location.reload()" style="margin-top:1rem;padding:.5rem 1.5rem;font-size:1rem;cursor:pointer;border-radius:.375rem;border:none;background:#0d6efd;color:#fff;">Reload</button>'
+						+ '</div>';
+				}
+			})();
+			""");
+	}
 }
 catch (Exception ex)
 {

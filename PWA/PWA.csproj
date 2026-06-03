@@ -51,7 +51,6 @@
 
 	<ItemGroup>
 		<Folder Include="Features\Lists\MitzvahPage\" />
-		<Folder Include="Home\Enums\" />
 	</ItemGroup>
 
 	<ItemGroup>

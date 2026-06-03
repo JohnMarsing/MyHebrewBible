@@ -1,5 +1,10 @@
 ﻿@page "/"
 
+@using RCL.Enums
+@using PWA.Features.Bible.Toolbar
+
+@inject NavigationManager NavigationManager
+
 <PageTitle>@Nav.Home.Title</PageTitle>
 
 <header class="">
@@ -18,7 +23,7 @@
 
 	<BcvCardTemplate Button="Enums.Button.LastBCV" MarginXClass="mx-auto">
 			<ListGroupRF>
-				<LastBCV />
+				<LastBCV OnItemClicked="NavigateToItem" />
 			</ListGroupRF>
 	</BcvCardTemplate>
 
@@ -26,7 +31,7 @@
 		<div>
 			<BcvCardTemplate Button="Enums.Button.RecentList" MarginXClass="mx-0">
 				<ListGroupRF>
-					<RecentList />
+					<RecentList OnItemClicked="NavigateToItem" />
 				</ListGroupRF>
 			</BcvCardTemplate>
 		</div>
@@ -34,7 +39,7 @@
 		<div>
 			<BcvCardTemplate Button="Enums.Button.ParashaList" MarginXClass="mx-0">
 				<ListGroupRF>
-					<ParashaList />
+					<ParashaList OnItemClicked="NavigateToItem" />
 				</ListGroupRF>
 			</BcvCardTemplate>
 		</div>
@@ -46,6 +51,13 @@
 
 @code
 {
-
+	private void NavigateToItem(BookChapterVerseHistory item)
+	{
+		if (!BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) || bibleBook is null)
+		{
+			return;
+		}
+		NavigationManager.NavigateTo($"{Nav.Bible.Index}/{bibleBook.Abrv}/{item.Chapter}/{item.Verse}");
+	}
 }
 
