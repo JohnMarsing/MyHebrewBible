@@ -1,6 +1,5 @@
 ﻿@using RCL.Enums
 
-@using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Detail
 @using PWA.Features.Bible.Enums
 @using DirEnums = Enums.VerticalDirection
@@ -91,11 +90,11 @@
 				{
 					<div class="@MediaQuery.Xs.DivClass">
 						<HebrewBySelectedWord ScriptureId="DrilldownScriptureId"
-																 WordSelected="CurrentWordSelected" IsXs=true />
+																	WordSelected="CurrentWordSelected" IsXs=true />
 					</div>
 					<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
 						<HebrewBySelectedWord ScriptureId="DrilldownScriptureId"
-																 WordSelected="CurrentWordSelected" IsXs=false />
+																	WordSelected="CurrentWordSelected" IsXs=false />
 					</div>
 				}
 
@@ -122,13 +121,23 @@ else
 @code {
 	[Parameter, EditorRequired] public List<Data.VerseModel>? FilteredVerses { get; set; }
 	[Parameter, EditorRequired] public int ParmScrollToScriptureId { get; set; }
-	[Parameter, EditorRequired] public UserSettingsDTO UserSettings { get; set; }
+	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected int CurrentScrollToScriptureId;
 
+	private UserSettingsDTO UserSettings { get; set; } = new UserSettingsDTO(false, false, false, false);  // ToDo: Review
+
 	protected override async Task OnParametersSetAsync()
 	{
+		var _currentPermutations = (PWA.Features.Bible.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+
+		UserSettings = new UserSettingsDTO(
+						IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
+						IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
+						IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
+						IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
+
 		CurrentScrollToScriptureId = ParmScrollToScriptureId;
 	}
 

@@ -1,5 +1,4 @@
 ﻿@using BibleEnums = PWA.Features.Bible.Enums
-
 @using ParashaEnums = RCL.Features.Parasha.Enums
 @using ParashaHelper = RCL.Features.Parasha.Helpers
 @using TriennialEnums = RCL.Features.Parasha.Enums.Triennial
@@ -26,8 +25,7 @@
 			{
 				<div class="card-body px-1">
 					<Sections FilteredVerses="GetParashaTorahVerses(ParashaEnums.ShowSection.Torah.Value)"
-										ParmScrollToScriptureId="CurrentScrollToScriptureId"
-										UserSettings="UserSettings"/>
+										ParmScrollToScriptureId="CurrentScrollToScriptureId"/>
 				</div>
 				<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
 			}
@@ -43,8 +41,7 @@
 						<div class="card-body px-1">
 							<h5 class="text-center">@haftorah.VerseRange</h5>
 							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
-												ParmScrollToScriptureId="CurrentScrollToScriptureId"
-												UserSettings="UserSettings"/>
+												ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 						</div>
 					}
 				}
@@ -66,8 +63,7 @@
 						<div class="card-body px-1">
 							<h5 class="text-center">@brit.VerseRange</h5>
 							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
-												ParmScrollToScriptureId="CurrentScrollToScriptureId"
-												UserSettings="UserSettings"/>
+												ParmScrollToScriptureId="CurrentScrollToScriptureId"/>
 						</div>
 					}
 				}
@@ -99,9 +95,8 @@
 }
 
 @code {
-	[Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
+	// [Parameter, EditorRequired] public BibleEnums.UserSettingsDTO UserSettings { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnParashaClosed { get; set; }
-	//[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 
@@ -118,7 +113,6 @@
 	{
 		ShowModal = true;
 	}
-
 
 	protected int CurrentScrollToScriptureId = 0;
 	private async Task ReturnedScriptureId(int scriptureId)

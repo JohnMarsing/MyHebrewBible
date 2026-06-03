@@ -1,7 +1,7 @@
 ﻿@using PWA.Features.Bible
+@using PWA.Features.Bible.Toolbar
 @using RCL.Enums
 
-@inject NavigationManager NavigationManager
 @inject IToastService Toast
 @inject ILogger<LastBCV>? Logger
 
@@ -84,6 +84,9 @@
 		return $"{title} {item.Chapter}:{item.Verse}";
 	}
 
-	private void NavigateToBible() => NavigationManager.NavigateTo(Nav.Bible.Index);
+	[Parameter] public EventCallback<BookChapterVerseHistory> OnItemClicked { get; set; }
+
+	private Task NavigateToBible() => OnItemClicked.InvokeAsync(
+		new BookChapterVerseHistory(BCV.BibleBook.Value, BCV.Chapter, BCV.Verse));
 
 }

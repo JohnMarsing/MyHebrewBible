@@ -1,8 +1,6 @@
-﻿@using PWA.Features.Bible
-@using PWA.Features.Bible.Toolbar
+﻿@using PWA.Features.Bible.Toolbar
 @using RCL.Enums
 
-@inject NavigationManager NavigationManager
 @inject IToastService Toast
 
 <div class="list-group">
@@ -92,18 +90,9 @@
 	private static string Format(BookChapterVerseHistory item) =>
 			$"{BibleBook.FromValue(item.BibleBookId).Title} {item.Chapter}:{item.Verse}";
 
-	private Task ButtonClicked(BookChapterVerseHistory item)
-	{
-		Toast!.ShowWarning("Not Yet Working");
-		// if (!BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) || bibleBook is null)
-		// {
-		// 	return Task.CompletedTask;
-		// }
+	[Parameter] public EventCallback<BookChapterVerseHistory> OnItemClicked { get; set; }
 
-		// var scriptureId = BibleBookHelper.GetScriptureId(bibleBook, item.Chapter, item.Verse);
-		// NavigationManager.NavigateTo($"{Nav.Bible.Index}/{bibleBook.Abrv}/{item.Chapter}/{item.Verse}/{scriptureId}");
-		return Task.CompletedTask;
-	}
+	private Task ButtonClicked(BookChapterVerseHistory item) => OnItemClicked.InvokeAsync(item);
 
 
 }
