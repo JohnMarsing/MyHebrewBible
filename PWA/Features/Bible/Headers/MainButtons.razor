@@ -1,12 +1,8 @@
-﻿@using RCL.Enums
-@using PWA.Features.Bible
+﻿
 @using PWA.Features.Bible.Toolbar
-@using PWA.Features.Bible.Enums
 @using MenuItemEnums = PWA.Features.Bible.Enums.MenuItem
-@* @using ToolbarEnums = PWA.Features.Bible.Toolbar.Enums *@
 
 @inject ILogger<MainButtons>? Logger
-@inject IToastService? Toast
 
 <PageTitle>@Nav.Bible.Title</PageTitle>
 
@@ -18,23 +14,26 @@
 		<div class="ps-1">
 			<SitemapButton />
 		</div>
+
 	</div>
 
-		<div class="@MediaQuery.Xs.DivClass">
-			@BibleBookHelper.GetTitleAndChapter(BCV!.BibleBook!, BCV.Chapter, true)
-		</div>
-		<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-			@BibleBookHelper.GetTitleAndChapter(BCV!.BibleBook!, BCV.Chapter, false)
-		</div>
+	<div class="ps-1">
+
+		@if (CurrentBookAndChapter is not null)
+		{
+			<ChapterNavFAB BookAndChapter="CurrentBookAndChapter"
+										 OnBookAndChapterSelected="ReturnedBookAndChapter" />
+		}
+	</div>
 
 	<div class="collapse navbar-collapse justify-content-end">
 		<div class="pe-1">
-			
+
 			<div class="@MediaQuery.Xs.DivClass">
 				<MenuTemplate Items="menuItems" BtnSize="btn-sm" OnItemSelected="ReturnedMenuItemPassThrough" />
 			</div>
 			<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemPassThrough" /> 
+				<MenuTemplate Items="menuItems" OnItemSelected="ReturnedMenuItemPassThrough" />
 			</div>
 
 		</div>
@@ -46,6 +45,17 @@
 @code {
 	[Parameter, EditorRequired] public BookChapterVerseRecord? BCV { get; set; }
 	[Parameter, EditorRequired] public EventCallback<int> OnMenuItemSelectedPassThrough { get; set; }
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+
+	public BookAndChapter? CurrentBookAndChapter { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		if (BCV is not null)
+		{
+			CurrentBookAndChapter = new BookAndChapter(BCV.BibleBook, BCV.Chapter);
+		}
+	}
 
 	private List<Dictionary<int, string?>> menuItems = MenuItemEnums.List
 		.Select(item => new Dictionary<int, string?> { { item.Value, item.Title } })
@@ -53,7 +63,11 @@
 
 	private void ReturnedMenuItemPassThrough(int menuItem)
 	{
-		//		Toast!.ShowWarning($"ReturnedMenuItemPassThrough {menuItem}");
 		OnMenuItemSelectedPassThrough.InvokeAsync(menuItem);
+	}
+
+	private void ReturnedBookAndChapter(BookAndChapter bookAndChapter)
+	{
+		OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(bookAndChapter.BibleBook, bookAndChapter.Chapter, 1));
 	}
 }

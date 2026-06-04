@@ -1744,8 +1744,8 @@ public abstract class BibleBook : SmartEnum<Enums.BibleBook>
 
 	public static class NavigationIcon
 	{
-		public const string Previous = "fas fa-arrow-left";
-		public const string Next = "fas fa-arrow-right";
+		public const string Previous = "fa-solid fa-caret-left"; // fas fa-arrow-left
+		public const string Next = "fa-solid fa-caret-right"; // fas fa-arrow-right
 		public const string Down = "fas fa-arrow-down";
 		public const string Up = "fas fa-arrow-up";
 	}

@@ -1,0 +1,51 @@
+﻿@using RCL.Components
+@using RCL.Enums
+
+<div class="position-relative">
+	@* FAB panel — slides BELOW the Headers\MainButtons.razor navbar when open *@
+	@if (_isOpen)
+	{
+		<div class="fab-panel position-absolute top-100 end-0 mt-1 d-flex flex-row align-items-center gap-2"
+				 style="z-index: 1050;">
+
+			<PrevOrNextButton BookAndChapter="BookAndChapter"
+												IsPrevious=true
+												OnBookAndChapterSelected="ReturnedBookAndChapter" />
+
+			<PrevOrNextButton BookAndChapter="BookAndChapter"
+												IsPrevious=false
+												OnBookAndChapterSelected="ReturnedBookAndChapter" />
+		</div>
+	}
+
+	@* 
+	ToDo: it would be nice to show bibleBook.NameInHebrew but it's cramped; maybe a tooltip?
+	@BibleBookHelper.GetTitle(BookAndChapter!.BibleBook!, true) 
+	*@
+
+	<span class='fw-bold text-primary fs-4'>
+		
+		@BookAndChapter.BibleBook!.Title @BookAndChapter.Chapter
+
+		<button type="button"
+						class="btn btn-primary btn-sm rounded rounded-4" aria-label="toggle button"
+						title="@(_isOpen ? "Close navigation" : "◀ chapter navigation ▶")"
+						@onclick="ToggleFab">
+			<i class="fas fa-chevron-down fab-toggle-icon @(_isOpen ? "is-open" : "")"></i>
+		</button>
+	</span>
+</div>
+
+
+@code {
+	[Parameter, EditorRequired] public BookAndChapter BookAndChapter { get; set; }
+	[Parameter, EditorRequired] public EventCallback<BookAndChapter> OnBookAndChapterSelected { get; set; }
+
+	private bool _isOpen;
+	private void ToggleFab() => _isOpen = !_isOpen;
+
+	private void ReturnedBookAndChapter(BookAndChapter bookAndChapter)
+	{
+		OnBookAndChapterSelected.InvokeAsync(bookAndChapter);
+	}
+}
