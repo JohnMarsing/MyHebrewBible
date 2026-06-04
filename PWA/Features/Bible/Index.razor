@@ -36,7 +36,9 @@
 	}
 	else
 	{
-		<MainButtons BCV="@BCV" OnMenuItemSelectedPassThrough="ReturnedMenuItemId" />
+		<MainButtons BCV="@BCV"
+								 OnMenuItemSelectedPassThrough="ReturnedMenuItemId"
+								 OnBCVSelected="ReturnedBCVSelected" />
 	}
 
 </header>
@@ -146,9 +148,9 @@
 		{
 			if (!string.IsNullOrEmpty(BookAbrv))
 			{
-				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: Verse); 
+				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: Verse);
 
-				// Test:	
+				// Test:
 				//ResolveBCV("Foo", Chapter, Verse, scrollTarget: Verse); // Test: invalid book
 				//ResolveBCV("Gen", 99, Verse, scrollTarget: Verse); // Test: chapter out of range
 				//ResolveBCV("Gen", 1, 9999, scrollTarget: Verse); // Test: verse out of range
