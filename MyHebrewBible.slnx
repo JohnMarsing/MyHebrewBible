@@ -1,4 +1,12 @@
 <Solution>
+  <Folder Name="/scripts/">
+    <File Path="BibleXRef.cs" />
+    <File Path="DownloadBibleCrossRefs.cs" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="CopySqliteDB/CopySqliteDB.csproj" Id="cbab6f5a-8341-46ba-8472-e412e5f5756e" />
   <Project Path="PWA/PWA.csproj" />
   <Project Path="RCL/RCL.csproj" />
 </Solution>

@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-		<PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.5" />
+		<PackageReference Include="Ardalis.SmartEnum" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
 
 </Project>

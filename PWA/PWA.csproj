@@ -25,20 +25,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
-		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-		<PackageReference Include="Blazored.Toast" Version="4.2.1" />
-		<PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
-		<PackageReference Include="Dapper" Version="2.1.79" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="10.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.8" />
-		<PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" Version="6.5.0" />
-		<PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-		<PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
-		<PackageReference Include="SqliteWasmBlazor" Version="0.9.1-pre" />
-		<PackageReference Include="Toolbelt.Blazor.PWA.Updater" Version="3.2.0" />
+		<PackageReference Include="Ardalis.SmartEnum" />
+		<PackageReference Include="Blazored.LocalStorage" />
+		<PackageReference Include="Blazored.Toast" />
+		<PackageReference Include="Blazored.Typeahead" />
+		<PackageReference Include="Dapper" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Data.Sqlite" />
+		<PackageReference Include="Sentry.AspNetCore.Blazor.WebAssembly" />
+		<PackageReference Include="Serilog.Extensions.Logging" />
+		<PackageReference Include="Serilog.Sinks.BrowserConsole" />
+		<PackageReference Include="SqliteWasmBlazor" />
+		<PackageReference Include="Toolbelt.Blazor.PWA.Updater" />
 	</ItemGroup>
 
 	<ItemGroup>
