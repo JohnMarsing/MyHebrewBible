@@ -30,6 +30,7 @@
 		<PackageReference Include="Blazored.Toast" />
 		<PackageReference Include="Blazored.Typeahead" />
 		<PackageReference Include="Dapper" />
+		<PackageReference Include="MessagePack" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
