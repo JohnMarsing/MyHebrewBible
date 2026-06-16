@@ -11,6 +11,16 @@ public interface IRepository
 	Task<List<WordPartByScriptureIdAndStrongs>> GetWordPartsByBCF(int bibleBookId, int chapter, string filter);
 	Task<List<WordPartKjv>> GetWordPartKjv(int scriptureId);
 	Task<List<ParashaWithAT>> GetParashaWithAT(int id);
+
+	Task<List<WordPartByScriptureIdNT>> GetWordPartByScriptureIdNT(int id);
+	
+
+	/*
+	WordPartByScriptureIdNT
+
+	ToDo: add after finding source: ScriptureID, WordCount, Strongs, Word
+	Task<List<WordPartKjvNT>> GetWordPartKjvNT(int scriptureId); 
+	*/
 }
 
 public class Repository : BaseRepositoryAsync, IRepository
@@ -156,6 +166,25 @@ ORDER BY WordCount
 			return rows.ToList();
 		}, sql);
 	}
+
+	public async Task<List<WordPartByScriptureIdNT>> GetWordPartByScriptureIdNT(int scriptureId)
+	{
+		var parms = new DynamicParameters(new { ScriptureID = scriptureId });
+
+		string sql = @"
+SELECT ScriptureID, WordCount, Greek, KjvWord, Strongs, Transliteration, LexicalGK
+FROM WordPartNT
+WHERE ScriptureID=@ScriptureID
+ORDER BY WordCount
+";
+
+		return await WithConnectionAsync(async connection =>
+		{
+			var rows = await connection.QueryAsync<WordPartByScriptureIdNT>(sql, parms);
+			return rows.ToList();
+		}, sql);
+	}
+
 
 	#endregion
 
