@@ -1,7 +1,4 @@
 <Solution>
-  <Folder Name="/Solution Items/">
-    <File Path="Directory.Packages.props" />
-  </Folder>
   <Project Path="PWA/PWA.csproj" />
   <Project Path="RCL/RCL.csproj" />
 </Solution>
