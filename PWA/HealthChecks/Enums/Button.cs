@@ -15,16 +15,18 @@ public abstract class Button : SmartEnum<Button>
 	{
 		internal const int TableRowCntTable = 1;
 		internal const int Gen01 = 2;
+		internal const int Pragma = 3;
 
-		internal const int Throw = 3;
-		internal const int ThrowAndCatch = 4;
-		internal const int TestSqlite = 5;
+		internal const int Throw = 4;
+		internal const int ThrowAndCatch = 5;
+		internal const int TestSqlite = 6;
 	}
 	#endregion
 
 	#region Declared Public Instances
 	public static readonly Button TableRowCntTable = new TableRowCntTableSE();
 	public static readonly Button Gen01 = new Gen01SE();
+	public static readonly Button Pragma = new PragmaSE();
 	public static readonly Button Throw = new ThrowSE();
 	public static readonly Button ThrowAndCatch = new ThrowAndCatchSE();
 	public static readonly Button TestSqlite = new TestSqliteSE();
@@ -54,6 +56,15 @@ public abstract class Button : SmartEnum<Button>
 		public override GroupType GroupTypeEnum => GroupType.Database;
 		public override string Title => "Book & Chapter Gen-01";
 		public override string Icon => "fa-solid fa-minus";
+	}
+
+	private sealed class PragmaSE : Button
+	{
+		public PragmaSE() : base(nameof(Pragma), Id.Pragma) { }
+		public override GroupType GroupTypeEnum => GroupType.Database;
+		public override string Title => "SQLite PRAGMA";
+		public override string Icon => "fa-solid fa-code-branch"; 
+
 	}
 
 	private sealed class ThrowSE : Button

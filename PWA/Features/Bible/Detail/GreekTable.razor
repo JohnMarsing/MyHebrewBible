@@ -1,0 +1,64 @@
+﻿@using PWA.Features.Bible.Data
+@using RCL.Enums
+
+@inject IToastService? Toast
+@inject ILogger<GreekTable>? Logger
+
+	@if (IsXs)
+{
+	<p class="bg-secondary-subtle text-center mb-0 pb-2 fw-bold">
+		missing StrongsArray
+		@* Strong's: @BibleAnchors.StrongsG_p_Xs(StrongsArray) *@
+	</p>
+}
+
+<article class="mb-4 mt-0">
+	@if (WordPartList is not null)
+	{
+		<TableTemplate Items="WordPartList.ToList()" HeaderCSS="table table-sm" TheadCSS="table-secondary" TRCSS="table-success">
+			<TableHeader>
+				<th class=""></th> @* bump  *@
+				<th class="">KJV</th>
+				<th class=""><i>Transliteration</i></th>
+				<th class="">Greek</th>
+				<th class="">#</th>
+				@if (!IsXs)
+				{
+					<th class="">Strong&apos;s</th>
+				}
+			</TableHeader>
+			<RowTemplate>
+				<td class=""></td>
+				<td>@context.KjvWord</td>
+				<td><i>@context.Transliteration</i></td>
+				<td class="">@context.Greek</td>
+				@if (IsXs)
+				{
+					<td><sup>@context.WordCount</sup></td>
+				}
+				else
+				{
+					<td> <sup>@context.WordCount</sup></td>
+					<td class="">
+						@BibleAnchors.StrongsG_td(context.Strongs)
+						<sup>@context.LexicalGK</sup>
+					</td>
+				}
+
+			</RowTemplate>
+		</TableTemplate>
+	}
+	else
+	{
+		<p class="text-center text-muted"><code>WordPartList</code> is loading</p>
+	}
+</article>
+
+
+@code {
+	[Parameter, EditorRequired] public List<WordPartNT>? WordPartList { get; set; }
+	[Parameter, EditorRequired] public bool IsXs { get; set; }
+	//[Parameter, EditorRequired] public int[] StrongsArray { get; set; } = [];
+
+
+}

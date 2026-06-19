@@ -9,6 +9,7 @@ public interface IRepository
 	Task<List<TableRowCountQuery>> GetTableRowCountQuery();
 	Task<List<BookChapter>> GetBookChapter(int bookID, int chapter);
 	Task<string?> GetSqliteVersion();
+	Task<int?> GetSqlitePRAGMA();
 }
 
 #region DI
@@ -62,6 +63,16 @@ ORDER BY Name
 		return await WithConnectionAsync(async connection =>
 		{
 			var version = await connection.QueryFirstOrDefaultAsync<string>(sql);
+			return version;
+		}, sql);
+	}
+
+	public async Task<int?> GetSqlitePRAGMA()
+	{
+		var sql = "PRAGMA user_version";
+		return await WithConnectionAsync(async connection =>
+		{
+			int? version = await connection.QueryFirstOrDefaultAsync<int>(sql);
 			return version;
 		}, sql);
 	}

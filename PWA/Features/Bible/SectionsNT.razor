@@ -1,0 +1,243 @@
+﻿@using RCL.Enums
+
+@using PWA.Features.Bible.Detail
+@using DirEnums = Enums.VerticalDirection
+@using DirHelper = Enums.VerticalDirectionHelper
+
+@inject ILogger<SectionsNT>? Logger
+@inject IToastService? Toast
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (FilteredVersesNT! is not null && FilteredVersesNT.Count() != 0)
+{
+
+	@foreach (var item in FilteredVersesNT!.OrderBy(o => o.Header.ID))
+	{
+		<TitleSubtitle Title="@item.Header.DescH" Subtitle="@item.Header.DescD" />
+
+		if (DrilldownScriptureId == 0)
+		{
+			<div id="verse-@item.Header.ID" tabindex="0" @onkeydown="HandleKeyDown">
+				<Paragraph BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+									 VerseHeader="item.Header"
+									 ScrollToScriptureId="CurrentScrollToScriptureId"
+									 HighlightText=""
+									 OnVerseSelectedPassThrough="ReturnedVerse" />
+			</div>
+		}
+		else
+		{
+			if (item.Header.ID == DrilldownScriptureId)
+			{
+				<div class="card border-primary mt-2 mb-4">
+					<div class="card-header">
+						<CardHeader BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+												BCV="@item!.Header.BCV"
+												VerseNumber="item!.Header.Verse"
+												OnClose="ReturnedCloseEvent" />
+					</div>
+
+					<div class="card-body">
+
+						<ParagraphSimple BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+														 VerseHeader="item.Header" />
+
+						<div class="@MediaQuery.Xs.DivClass">
+							<GreekTable WordPartList="@item.WordPartList" IsXs="true" />
+						</div>
+
+						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+							<GreekTable WordPartList="@item.WordPartList" IsXs="false" />
+						</div>
+
+						@*
+						<div class="@MediaQuery.Xs.DivClass">
+							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																				WordSelected="CurrentWordSelected"
+																				IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																				OnWordSelected="ReturnedWord" />
+							<hr />
+							<GreekParagraph ScriptureId="DrilldownScriptureId"
+															 WordSelected="CurrentWordSelected"
+															IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+															 OnWordSelected="ReturnedWord" />
+						</div>
+
+						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+							<div class="d-flex justify-content-between">
+								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
+																					WordSelected="CurrentWordSelected"
+																					IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																					OnWordSelected="ReturnedWord" />
+
+								<HebrewParagraph ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected"
+																 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																 OnWordSelected="ReturnedWord" />
+							</div>
+						</div>
+ *@
+					</div>
+
+				</div>
+
+@* 	
+				@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
+				{
+					<div class="@MediaQuery.Xs.DivClass">
+						<GreekBySelectedWord ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected" IsXs=true />
+					</div>
+					<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+						<GreekBySelectedWord ScriptureId="DrilldownScriptureId"
+																 WordSelected="CurrentWordSelected" IsXs=false />
+					</div>
+				}
+ *@
+
+			}
+			else
+			{
+				<Paragraph BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+									 VerseHeader="item.Header"
+									 ScrollToScriptureId="CurrentScrollToScriptureId"
+									 HighlightText=""
+									 OnVerseSelectedPassThrough="ReturnedVerse" />
+			}
+
+		}
+	}
+
+}
+else
+{
+	<p class="fs-3 text-danger text-center">FilteredVerses is null or empty  (◡︵◡)</p>
+}
+
+@code {
+	[Parameter, EditorRequired] public List<Data.VerseModelNT>? FilteredVersesNT { get; set; }
+	[Parameter, EditorRequired] public int ParmScrollToScriptureId { get; set; }
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected int CurrentScrollToScriptureId;
+
+	//private UserSettingsDTO UserSettings { get; set; } = new UserSettingsDTO(false, false, false, false);
+
+	protected override async Task OnParametersSetAsync()
+	{
+		CurrentScrollToScriptureId = ParmScrollToScriptureId;
+	}
+
+	protected BookAndChapter GetBookAndChapter(int bookId, int chapter)
+	{
+		return new BookAndChapter(BibleBook.FromValue(bookId), chapter);
+	}
+
+	
+	protected int DrilldownScriptureId;
+	private void ReturnedVerse(int scriptureId)
+	{
+		DrilldownScriptureId = scriptureId;
+	}
+
+	//Called by @onkeydown on the div that wraps each Paragraph.
+	private async Task HandleKeyDown(KeyboardEventArgs e)
+	{
+		//Toast!.ShowWarning($"{nameof(HandleKeyDown)} called");
+		var (valid, dirEnums) = DirHelper.IsKeyDownValid(e.Key);
+		if (!valid) { return; }
+
+		SetJustScriptureId(dirEnums!);
+		await SetFocusToElement(); //Do I Need this???
+	}
+
+
+	//Note: Code initially copied from SetScriptureIdAndVerse
+	private void SetJustScriptureId(DirEnums dirEnums)
+	{
+		var (errMsg, verse, _scriptureId) =
+			DirHelper.GetVerseAndScriptureIdNT(dirEnums, CurrentScrollToScriptureId, FilteredVersesNT!);
+
+		if (!String.IsNullOrEmpty(errMsg))
+		{
+			Toast!.ShowWarning(errMsg);
+			return;
+		}
+		else
+		{
+			CurrentScrollToScriptureId = _scriptureId;
+		}
+	}
+
+
+	private async Task SetFocusToElement()
+	{
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+	protected bool Filter = false;
+	private void ReturnedFilter(bool filter)
+	{
+		Filter = filter;
+	}
+
+	private async Task ReturnedCloseEvent()
+	{
+		DrilldownScriptureId = 0;
+		await Task.Delay(5);
+		if (_module is not null)
+		{
+			await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+		}
+	}
+
+
+	#region JavaScript Setup and Teardown
+
+	private IJSObjectReference? _module;
+	protected bool _firstRendered = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_firstRendered)
+		{
+			try
+			{
+				_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", JS.Path);
+				if (_module != null)
+				{
+					await _module.InvokeVoidAsync(JS.FunctionScrollTo, $"verse-{CurrentScrollToScriptureId}");
+					await _module.InvokeVoidAsync(JS.FunctionSetFocus, $"verse-{CurrentScrollToScriptureId}");
+				}
+			}
+			catch (Exception ex)
+			{
+				ProcessError!.LogErrorWithMessage(ex, nameof(SectionsNT), nameof(OnAfterRenderAsync), Nav.Bible, $"failed to load {nameof(JS.FunctionScrollTo)} or {nameof(JS.FunctionSetFocus)}");
+			}
+			_firstRendered = true;
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_module is not null)
+		{
+			await _module.DisposeAsync();
+		}
+	}
+
+	#endregion
+
+	// WordSelected? CurrentWordSelected = new WordSelected(0, 0);
+	// private void ReturnedWord(WordSelected? wordSelected)
+	// {
+	// 	CurrentWordSelected = wordSelected;
+	// }
+
+
+}

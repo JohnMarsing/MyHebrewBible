@@ -15,20 +15,20 @@
 @if (FilteredVerses! is not null && FilteredVerses.Count() != 0)
 {
 
-	@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
+	@foreach (var item in FilteredVerses!.OrderBy(o => o.Header.ID))
 	{
-		<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" />
+		<TitleSubtitle Title="@item.Header.DescH" Subtitle="@item.Header.DescD" />
 
-		<ParashaDisplay ScriptureId="@item.ID"
-										BookId="@item.BookID"
+		<ParashaDisplay ScriptureId="@item.Header.ID"
+										BookId="@item.Header.BookID"
 										IsUserSettingParashaDividerDetailOn="UserSettings.IsParashaDividerDetailsOn" />
 
 
 		if (DrilldownScriptureId == 0)
 		{
-			<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">
-				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-									 Verse="item"
+			<div id="verse-@item.Header.ID" tabindex="0" @onkeydown="HandleKeyDown">
+				<Paragraph BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+									 VerseHeader="item.Header"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
 									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
 									 HighlightText=""
@@ -44,13 +44,13 @@
 		}
 		else
 		{
-			if (item.ID == DrilldownScriptureId)
+			if (item.Header.ID == DrilldownScriptureId)
 			{
 				<div class="card border-primary mt-2 mb-4">
 					<div class="card-header">
-						<CardHeader BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-												BCV="@item!.BCV"
-												VerseNumber="item!.Verse"
+						<CardHeader BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+												BCV="@item!.Header.BCV"
+												VerseNumber="item!.Header.Verse"
 												OnClose="ReturnedCloseEvent" />
 					</div>
 
@@ -59,12 +59,12 @@
 						<div class="@MediaQuery.Xs.DivClass">
 							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
 																				WordSelected="CurrentWordSelected"
-																				ShowWordCount="UserSettings.IsHebrewWordNumbersOn"
+																				IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
 																				OnWordSelected="ReturnedWord" />
 							<hr />
 							<HebrewParagraph ScriptureId="DrilldownScriptureId"
 															 WordSelected="CurrentWordSelected"
-															 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+															 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
 															 OnWordSelected="ReturnedWord" />
 						</div>
 
@@ -72,12 +72,12 @@
 							<div class="d-flex justify-content-between">
 								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
 																					WordSelected="CurrentWordSelected"
-																					ShowWordCount="UserSettings.IsHebrewWordNumbersOn"
+																					IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
 																					OnWordSelected="ReturnedWord" />
 
 								<HebrewParagraph ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected"
-																 HebrewWordNumbers="UserSettings.IsHebrewWordNumbersOn"
+																 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
 																 OnWordSelected="ReturnedWord" />
 							</div>
 						</div>
@@ -101,8 +101,8 @@
 			}
 			else
 			{
-				<Paragraph BookAndChapter="GetBookAndChapter(item.BookID, item.Chapter)"
-									 Verse="item"
+				<Paragraph BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
+									 VerseHeader="item.Header"
 									 ScrollToScriptureId="CurrentScrollToScriptureId"
 									 ShowStandaloneAlephTavIcon="ShowStandaloneAlephTavIcon(item.WordPartList?.Count() ?? 0)"
 									 HighlightText=""

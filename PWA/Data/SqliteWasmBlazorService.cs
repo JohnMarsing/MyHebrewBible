@@ -1,4 +1,5 @@
-﻿using PWA.Data.Constants;
+﻿using Dapper;
+using PWA.Data.Constants;
 using SqliteWasmBlazor;
 
 namespace PWA.Data;
@@ -52,7 +53,26 @@ public sealed class SqliteWasmBlazorService
 			}
 			else
 			{
-				_logger.LogInformation("{Method}, {Message}", nameof(InitializeAsync), "Database already exists in OPFS - skipping download.");
+				int localVersion = await GetUserVersionAsync(dbName);
+				if (localVersion < Database.CurrentSchemaVersion)
+				{
+					_logger.LogInformation("{Method}, {Message}, LocalVersion={Local}, Required={Required}",
+						nameof(InitializeAsync),
+						"New table(s) or schema change detected - deleting and re-importing database to reflect changes",
+						localVersion, Database.CurrentSchemaVersion);
+
+					await _databaseService.DeleteDatabaseAsync(dbName);
+
+					var bytes = await _httpClient.GetByteArrayAsync(dbName);
+					await _databaseService.ImportDatabaseAsync(dbName, bytes);
+
+					_logger.LogInformation("{Method}, {Message}", nameof(InitializeAsync), "Database re-imported successfully after schema update");
+				}
+				else
+				{
+					_logger.LogInformation("{Method}, {Message}, Version={Version}",
+						nameof(InitializeAsync), "Database already exists in OPFS - skipping download.", localVersion);
+				}
 			}
 
 			_initialized = true;
@@ -75,5 +95,21 @@ public sealed class SqliteWasmBlazorService
 		var connection = new SqliteWasmConnection($"Data Source={Database.DbFileName}");
 		await connection.OpenAsync();
 		return connection;
+	}
+
+	private async Task<int> GetUserVersionAsync(string dbName)
+	{
+		await using var connection = new SqliteWasmConnection($"Data Source={dbName}");
+		await connection.OpenAsync();
+		try
+		{
+			// PRAGMA user_version returns an integer (0 for brand-new or never-set DBs)
+			var version = await connection.QueryFirstOrDefaultAsync<int>("PRAGMA user_version;");
+			return version;
+		}
+		finally
+		{
+			await connection.CloseAsync();
+		}
 	}
 }

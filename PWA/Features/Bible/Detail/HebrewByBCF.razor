@@ -18,6 +18,7 @@
 	protected bool TurnSpinnerOff = false;
 	protected IQueryable<WordPartByScriptureIdAndStrongs>? items;
 	protected int[] StrongsArray = [];
+
 	protected override async Task OnParametersSetAsync()
 	{
 		ICollection<WordPartByScriptureIdAndStrongs>? hebrewWords;

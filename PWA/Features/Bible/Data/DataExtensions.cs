@@ -4,19 +4,22 @@ namespace PWA.Features.Bible.Data;
 
 public static class DataExtensions
 {
-	public static VerseModel MapFromBookChapter(this BookChapterWithAT bc, int bookId, int chapter)
+	public static VerseModel MapFromBookChapter(this BookChapterWithOT bc, int bookId, int chapter)
 	{
 		return new VerseModel
 		{
-			ID = bc.ID,
-			BCV = bc.BCV,
-			Verse = bc.Verse,
-			VerseOffset = bc.VerseOffset,
-			KJV = bc.KJV,
-			DescH = bc.DescH,
-			DescD = bc.DescD,
-			BookID = bookId,
-			Chapter = chapter,
+			Header = new VerseHeader
+			{
+				ID = bc.Header.ID,
+				BCV = bc.Header.BCV,
+				Verse = bc.Header.Verse,
+				VerseOffset = bc.Header.VerseOffset,
+				KJV = bc.Header.KJV,
+				DescH = bc.Header.DescH,
+				DescD = bc.Header.DescD,
+				BookID = bookId,
+				Chapter = chapter
+			},
 			WordPartList = bc.WordPartList?
 						.Select(wp => new WordPart
 						{
@@ -41,57 +44,136 @@ public static class DataExtensions
 		};
 	}
 
-public static VerseModel MapFromBookChapterFilter(this BookChapterWithAT bc, int bookId, int chapter, string filterText)
-{
-	return new VerseModel
+	public static VerseModelNT MapFromBookChapterNT(this BookChapterNT bc, int bookId, int chapter)
 	{
-		ID = bc.ID,
-		BCV = bc.BCV,
-		Verse = bc.Verse,
-		VerseOffset = bc.VerseOffset,
-		KJV = bc.KJV,
-		DescH = bc.DescH,
-		DescD = bc.DescD,
-		BookID = bookId,
-		Chapter = chapter,
-		WordPartList = bc.WordPartList?
-					.Where(wp => wp.KjvWord != null && wp.KjvWord.Contains(filterText, StringComparison.OrdinalIgnoreCase))
-					.Select(wp => new WordPart
-					{
-						Id = wp.Id,
-						BCV = wp.BCV,
-						BookID = wp.BookID,
-						Chapter = wp.Chapter,
-						Verse = wp.Verse,
-						ScriptureID = wp.ScriptureID,
-						WordCount = wp.WordCount,
-						SegmentCount = wp.SegmentCount,
-						WordEnum = wp.WordEnum,
-						Hebrew1 = wp.Hebrew1,
-						Hebrew2 = wp.Hebrew2,
-						Hebrew3 = wp.Hebrew3,
-						KjvWord = wp.KjvWord,
-						Strongs = wp.Strongs,
-						Transliteration = wp.Transliteration,
-						FinalEnum = wp.FinalEnum
-					})
-					.ToList() ?? new()
-	};
-}
+		return new VerseModelNT
+		{
+			Header = new VerseHeader
+			{
+				ID = bc.Header.ID,
+				BCV = bc.Header.BCV,
+				Verse = bc.Header.Verse,
+				VerseOffset = bc.Header.VerseOffset,
+				KJV = bc.Header.KJV,
+				DescH = bc.Header.DescH,
+				DescD = bc.Header.DescD,
+				BookID = bookId,
+				Chapter = chapter
+			},
+			WordPartList = bc.WordPartList?
+						.Select(wp => new WordPartNT
+						{
+							Id = wp.Id,
+							BCV = wp.BCV,
+							BookID = wp.BookID,
+							Chapter = wp.Chapter,
+							Verse = wp.Verse,
+							ScriptureID = wp.ScriptureID,
+							WordCount = wp.WordCount,
+							Greek = wp.Greek,
+							KjvWord = wp.KjvWord,
+							Strongs = wp.Strongs,
+							Transliteration = wp.Transliteration,
+							LexicalGK = wp.LexicalGK
+						})
+						.ToList() ?? []
+		};
+	}
 
-	public static VerseModel MapFromParasha(ParashaWithAT parasha)  
+	public static VerseModel MapFromBookChapterFilter(this BookChapterWithOT bc, int bookId, int chapter, string filterText)
 	{
 		return new VerseModel
 		{
-			ID = parasha.ID,
-			BCV = parasha.BCV,
-			Verse = parasha.Verse,
-			VerseOffset = parasha.VerseOffset,
-			KJV = parasha.KJV,
-			DescH = parasha.DescH,
-			DescD = parasha.DescD,
-			BookID = parasha.BookID,
-			Chapter = parasha.Chapter,
+			Header = new VerseHeader
+			{
+				ID = bc.Header.ID,
+				BCV = bc.Header.BCV,
+				Verse = bc.Header.Verse,
+				VerseOffset = bc.Header.VerseOffset,
+				KJV = bc.Header.KJV,
+				DescH = bc.Header.DescH,
+				DescD = bc.Header.DescD,
+				BookID = bookId,
+				Chapter = chapter
+			},
+			WordPartList = bc.WordPartList?
+						.Where(wp => wp.KjvWord != null && wp.KjvWord.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+						.Select(wp => new WordPart
+						{
+							Id = wp.Id,
+							BCV = wp.BCV,
+							BookID = wp.BookID,
+							Chapter = wp.Chapter,
+							Verse = wp.Verse,
+							ScriptureID = wp.ScriptureID,
+							WordCount = wp.WordCount,
+							SegmentCount = wp.SegmentCount,
+							WordEnum = wp.WordEnum,
+							Hebrew1 = wp.Hebrew1,
+							Hebrew2 = wp.Hebrew2,
+							Hebrew3 = wp.Hebrew3,
+							KjvWord = wp.KjvWord,
+							Strongs = wp.Strongs,
+							Transliteration = wp.Transliteration,
+							FinalEnum = wp.FinalEnum
+						})
+						.ToList() ?? new()
+		};
+	}
+
+	public static VerseModelNT MapFromBookChapterFilterNT(this BookChapterNT bc, int bookId, int chapter, string filterText)
+	{
+		return new VerseModelNT
+		{
+			Header = new VerseHeader
+			{
+				ID = bc.Header.ID,
+				BCV = bc.Header.BCV,
+				Verse = bc.Header.Verse,
+				VerseOffset = bc.Header.VerseOffset,
+				KJV = bc.Header.KJV,
+				DescH = bc.Header.DescH,
+				DescD = bc.Header.DescD,
+				BookID = bookId,
+				Chapter = chapter
+			},
+			WordPartList = bc.WordPartList?
+						.Where(wp => wp.KjvWord != null && wp.KjvWord.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+						.Select(wp => new WordPartNT
+						{
+							Id = wp.Id,
+							BCV = wp.BCV,
+							BookID = wp.BookID,
+							Chapter = wp.Chapter,
+							Verse = wp.Verse,
+							ScriptureID = wp.ScriptureID,
+							WordCount = wp.WordCount,
+							Greek = wp.Greek,
+							KjvWord = wp.KjvWord,
+							Strongs = wp.Strongs,
+							Transliteration = wp.Transliteration,
+							LexicalGK = wp.LexicalGK
+						})
+						.ToList() ?? new()
+		};
+	}
+
+	public static VerseModel MapFromParasha(ParashaWithAT parasha)
+	{
+		return new VerseModel
+		{
+			Header = new VerseHeader
+			{
+				ID = parasha.ID,
+				BCV = parasha.BCV,
+				Verse = parasha.Verse,
+				VerseOffset = parasha.VerseOffset,
+				KJV = parasha.KJV,
+				DescH = parasha.DescH,
+				DescD = parasha.DescD,
+				BookID = parasha.BookID,
+				Chapter = parasha.Chapter
+			},
 			WordPartList = parasha.WordPartList?
 				.Select(wp => new WordPart
 				{
@@ -116,18 +198,32 @@ public static VerseModel MapFromBookChapterFilter(this BookChapterWithAT bc, int
 		};
 	}
 
-
 	public static IReadOnlyList<TableOfContentRecord> ToTableOfContentMapping(this IEnumerable<VerseModel> items)
 	{
 		return items
-			.Where(v => v.DescD != "NULL")
-			.OrderBy(v => v.ID)
-			.Select(v => new TableOfContentRecord(v.Verse, v.ID, v.DescD!, v.VerseOffset))
+			.Where(v => v.Header.DescD != "NULL")
+			.OrderBy(v => v.Header.ID)
+			.Select(v => new TableOfContentRecord(v.Header.Verse, v.Header.ID, v.Header.DescD!, v.Header.VerseOffset))
+			.ToList();
+	}
+
+	public static IReadOnlyList<TableOfContentRecord> ToTableOfContentMappingNT(this IEnumerable<VerseModelNT> items)
+	{
+		return items
+			.Where(v => v.Header.DescD != "NULL")
+			.OrderBy(v => v.Header.ID)
+			.Select(v => new TableOfContentRecord(v.Header.Verse, v.Header.ID, v.Header.DescD!, v.Header.VerseOffset))
 			.ToList();
 	}
 
 	public static string? GetTitle(this IEnumerable<VerseModel> items)
 	{
-		return items.FirstOrDefault()?.DescH;
+		return items.FirstOrDefault()?.Header.DescH;
 	}
+
+	public static string? GetTitleNT(this IEnumerable<VerseModelNT> items)
+	{
+		return items.FirstOrDefault()?.Header.DescH;
+	}
+
 }

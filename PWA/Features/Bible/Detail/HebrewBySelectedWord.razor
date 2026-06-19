@@ -25,7 +25,7 @@
 		ICollection<WordPartByScriptureIdAndStrongs>? hebrewWords;
 		try
 		{
-			hebrewWords = await db!.GetWordPartsByScriptureIdAndStrongs(ScriptureId, WordSelected!.Strongs);
+			hebrewWords = await db!.GetHebrewBySelectedWord(ScriptureId, WordSelected!.Strongs);
 
 			if (hebrewWords.Any())
 			{
@@ -42,7 +42,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartsByScriptureIdAndStrongs)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetHebrewBySelectedWord)}");
 		}
 		finally
 		{

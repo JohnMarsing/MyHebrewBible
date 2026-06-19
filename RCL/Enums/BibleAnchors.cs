@@ -14,6 +14,16 @@ public class BibleAnchors
 				.Select(s => LexiconAnchor("H", LongToInt(s), "", false)));
 	}
 
+	public static MarkupString StrongsG_p_Xs(int[] strongs)
+	{
+		if (strongs is null || strongs.Length == 0) { return (MarkupString)string.Empty; }
+
+		return (MarkupString)string.Join(", ",
+			strongs
+				.Distinct()
+				.Select(s => LexiconAnchor("G", LongToInt(s), "", false)));
+	}
+
 	public static MarkupString StrongsH_td_Xs(int strongs, int wordCount)
 	{
 		return (MarkupString)(LexiconAnchorXs("H", LongToInt(strongs), wordCount));
@@ -29,6 +39,11 @@ public class BibleAnchors
 	public static MarkupString StrongsH_td(int strongs)
 	{
 		return (MarkupString)(LexiconAnchor("H", LongToInt(strongs), "", false));
+	}
+
+	public static MarkupString StrongsG_td(int strongs)
+	{
+		return (MarkupString)(LexiconAnchor("G", LongToInt(strongs), "", false));
 	}
 
 	// ToDo: duplicate code

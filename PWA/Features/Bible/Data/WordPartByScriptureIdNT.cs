@@ -8,5 +8,5 @@ public class WordPartByScriptureIdNT
 	public string? KjvWord { get; set; }
 	public int Strongs { get; set; }
 	public string? Transliteration { get; set; }
-	public string? LexicalGK { get; set; } // GK number for lookup in GK-keyed dictionary
+	public string? LexicalGK { get; set; } 
 }

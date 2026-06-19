@@ -3,14 +3,15 @@
 
 @* @inject IToastService? Toast *@
 
-@if (Verse != null)
+@if (VerseHeader != null)
 {
-	<p id="@Verse.ID" class="fs-5 @textBG">
-		<sup class="text-primary" title="@Verse.ID"><b>@Verse.Verse</b></sup>
+	<p id="@VerseHeader.ID" class="fs-5 @textBG">
+		<sup class="text-primary" title="@VerseHeader.ID"><b>@VerseHeader.Verse</b></sup>
 
-		@if (Verse.VerseOffset != "NULL")
+		@* Only relevant for OT *@
+		@if (VerseHeader.VerseOffset != "NULL")
 		{
-			<sup class="text-black-50">&nbsp;@Verse.VerseOffset&nbsp;</sup>
+			<sup class="text-black-50">&nbsp;@VerseHeader.VerseOffset&nbsp;</sup>
 		}
 		else
 		{
@@ -23,24 +24,20 @@
 			<span><i class="fa fa-letter-aleph-tav text-danger ps-2"></i></span>
 		}
 
-		@if (BookAndChapter!.BibleBook!.IsHebrewBible && string.IsNullOrWhiteSpace(HighlightText))
-		{
-			<DrillDownButton ScriptureId="Verse!.ID"
-											 OnVerseSelected="ReturnedVersePassThrough" />
-		}
+		<DrillDownButton ScriptureId="VerseHeader!.ID"
+										 OnVerseSelected="ReturnedVersePassThrough" />
 		<sup>
 			<BibleAnchor BookAndChapter="BookAndChapter"
 									 IconOnly="true"
-									 ScriptureId="Verse!.ID"
-									 Verse="Verse.Verse" />
-
+									 ScriptureId="VerseHeader!.ID"
+									 Verse="VerseHeader.Verse" />
 		</sup>
 
 	</p>
 }
 
 @code {
-	[Parameter, EditorRequired] public VerseModel? Verse { get; set; }
+	[Parameter, EditorRequired] public VerseHeader? VerseHeader { get; set; }
 	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
 	[Parameter] public bool? ShowStandaloneAlephTavIcon { get; set; } = null;
 	[Parameter] public int ScrollToScriptureId { get; set; }
@@ -48,13 +45,13 @@
 	[Parameter] public string? HighlightText { get; set; }
 
 
-	string textBG => ScrollToScriptureId == Verse!.ID ? " p-1 bg-info-subtle" : "";
+	string textBG => ScrollToScriptureId == VerseHeader!.ID ? " p-1 bg-info-subtle" : "";
 
 	string HighlightedKjv
 	{
 		get
 		{
-			var kjv = Verse?.KJV;
+			var kjv = VerseHeader?.KJV;
 			if (string.IsNullOrWhiteSpace(kjv) || string.IsNullOrWhiteSpace(HighlightText))
 				return kjv ?? string.Empty;
 

@@ -3,65 +3,102 @@
 
 @* @inject ILogger<FilteredWrapper>? Logger *@
 
-<LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
+<div class="card-header mb-3">
+	<div class="card-body px-1">
 
-	<div class="card-header mb-3">
-		<div class="card-body px-1">
-
-			@foreach (var item in FilteredVerses!.OrderBy(o => o.ID))
+		@if (BookAndChapter.BibleBook!.IsHebrewBible)
+		{
+			@foreach (var item in FilteredVerses!.OrderBy(o => o.Header.ID))
 			{
-				<TitleSubtitle Title="@item.DescH" Subtitle="@item.DescD" />
+				<TitleSubtitle Title="@item.Header.DescH" Subtitle="@item.Header.DescD" />
 
 				@* <div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown"> *@
-				<div id="verse-@item.ID" tabindex="0">
-					<Paragraph BookAndChapter="@BookAndChapter"
-										 Verse="item"
+				<div id="verse-@item.Header.ID" tabindex="0">
+					<Paragraph VerseHeader="item.Header"
+										 BookAndChapter="BookAndChapter"
 										 ScrollToScriptureId="0"
-										 HighlightText="@TextFilter"/>
+										 HighlightText="@TextFilter" />
 				</div>
 
-				@* ToDo: don't know if these works, and probable don't want ShowStandaloneAlephTavIcon *@
-
 				<div class="@MediaQuery.Xs.DivClass">
-					<HebrewByBCF ScriptureId="@item.ID"
+					<HebrewByBCF ScriptureId="@item.Header.ID"
 											 BCF="new BookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter!)"
 											 IsXs=true />
 				</div>
 
 				<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-					<HebrewByBCF ScriptureId="@item.ID"
+					<HebrewByBCF ScriptureId="@item.Header.ID"
 											 BCF="new BookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter!)"
 											 IsXs=false />
+				</div>
+			}
+
+		}
+		else
+		{
+			@foreach (var item in FilteredVersesNT!.OrderBy(o => o.Header.ID))
+			{
+				<TitleSubtitle Title="@item.Header.DescH" Subtitle="@item.Header.DescD" />
+
+				<div id="verse-@item.Header.ID" tabindex="0">
+					<Paragraph VerseHeader="item.Header"
+										 BookAndChapter="BookAndChapter"
+										 ScrollToScriptureId="0"
+										 HighlightText="@TextFilter" />
+				</div>
+
+				<div class="@MediaQuery.Xs.DivClass">
+					<GreekByBCF ScriptureId="@item.Header.ID"
+											BCF="new BookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter!)"
+											IsXs=true />
+				</div>
+
+				<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+					<GreekByBCF ScriptureId="@item.Header.ID"
+											BCF="new BookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter!)"
+											IsXs=false />
 				</div>
 
 			}
 
-		</div>
+		}
 	</div>
-
-</LoadingComponent>
+</div>
 
 @code {
 	[Parameter, EditorRequired] public BookAndChapter ParamBookAndChapter { get; set; }
-	[Parameter, EditorRequired] public List<Data.BookChapterWithAT>? verses { get; set; }
+	[Parameter, EditorRequired] public List<Data.BookChapterWithOT>? verses { get; set; }
+	[Parameter, EditorRequired] public List<Data.BookChapterNT>? versesNT { get; set; }
 	[Parameter, EditorRequired] public string? TextFilter { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnFilteredClosed { get; set; }
 
-	protected bool TurnSpinnerOff = false;
 	BookAndChapter BookAndChapter => ParamBookAndChapter;
+
 	protected List<VerseModel>? FilteredVerses { get; set; }
+	protected List<VerseModelNT>? FilteredVersesNT { get; set; }
 
 	protected override void OnParametersSet()
 	{
 		if (string.IsNullOrEmpty(TextFilter)) throw new ArgumentException("Value cannot be null or empty.", nameof(TextFilter));
-		if (verses is null || verses.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(verses));
 
-		FilteredVerses = verses
-			.Where(v => v.KJV != null && v.KJV.Contains(TextFilter, StringComparison.OrdinalIgnoreCase))
-			.OrderBy(o => o.ID)
-			.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
-			.ToList();
-		TurnSpinnerOff = true;
+		if (BookAndChapter.BibleBook!.IsHebrewBible)
+		{
+			if (verses is null || verses.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(verses));
+			FilteredVerses = verses
+				.Where(v => v.Header.KJV != null && v.Header.KJV.Contains(TextFilter, StringComparison.OrdinalIgnoreCase))
+				.OrderBy(o => o.Header.ID)
+				.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
+				.ToList();
+		}
+		else
+		{
+			if (versesNT is null || versesNT.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(versesNT));
+			FilteredVersesNT = versesNT
+					.Where(v => v.Header.KJV != null && v.Header.KJV.Contains(TextFilter, StringComparison.OrdinalIgnoreCase))
+					.OrderBy(o => o.Header.ID)
+					.Select(bc => bc.MapFromBookChapterFilterNT(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
+					.ToList();
+		}
 	}
 
 	private void FilteredClosedPassThrough()
