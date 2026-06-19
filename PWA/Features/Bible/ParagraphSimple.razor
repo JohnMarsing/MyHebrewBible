@@ -1,0 +1,19 @@
+﻿@using PWA.Features.Bible.Data
+
+@if (VerseHeader != null)
+{
+	<p id="@VerseHeader.ID" class="fs-5 @textBG">
+		<sup class="text-primary" title="@VerseHeader.ID"><b>@VerseHeader.Verse</b></sup>
+
+		@VerseHeader.KJV
+
+	</p>
+}
+
+@code {
+	[Parameter, EditorRequired] public VerseHeader? VerseHeader { get; set; }
+	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
+
+	string textBG = " p-1 bg-info-subtle";
+
+}

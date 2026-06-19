@@ -19,6 +19,7 @@
 
 @inject PWA.Features.Bible.Data.IRepository? db;
 @inject ILogger<Index>? Logger
+@inject IToastService? Toast
 
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
@@ -52,69 +53,88 @@
 	</UserConfigurationModal>
 </ModalSkeleton>
 
-<LoadingComponent IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff">
+<section class="px-1">
 
-	<section class="px-1">
+	@if (currentAction == Footers.ButtonType.Parasha)
+	{
+		<ParashaWrapper OnParashaClosed="ReturnedParashaClosed" />
+	}
+	else
+	{
+		if (currentAction == Footers.ButtonType.Find && !String.IsNullOrEmpty(TextFilter))
+		{
+			<FilteredWrapper ParamBookAndChapter="new BookAndChapter(BCV.BibleBook, BCV.Chapter)"
+											 verses="verses"
+											 versesNT="versesNT"
+											 TextFilter="@TextFilter"
+											 OnFilteredClosed="ReturnedFilteredClosed" />
+		}
+		else
+		{
+			@if (BCV.BibleBook!.IsHebrewBible)
+			{
+				<LoadingBookChapter IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff" BookChapter="@($"{BCV.BibleBook.Title} {BCV.Chapter}")">
+					<Sections FilteredVerses="FilteredVerses"
+										ParmScrollToScriptureId="CurrentScrollToScriptureId" />
+				</LoadingBookChapter>
+			}
+			else
+			{
+				<LoadingBookChapter IsLoading="FilteredVersesNT == null" TurnSpinnerOff="TurnSpinnerOff" BookChapter="@($"{BCV.BibleBook.Title} {BCV.Chapter}")">
+					<SectionsNT FilteredVersesNT="FilteredVersesNT"
+											ParmScrollToScriptureId="CurrentScrollToScriptureId" />
+				</LoadingBookChapter>
+			}
 
+
+		}
+	}
+</section>
+
+<footer class="sticky-bottom">
+
+	@if (currentAction == Footers.ButtonType.Find)
+	{
+		if (String.IsNullOrEmpty(TextFilter))
+		{
+			<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
+		}
+		else
+		{
+			<FilterFooter TextFilter="@TextFilter" OnClearClicked="ReturnedClearAction" />
+		}
+	}
+	else
+	{
 		@if (currentAction == Footers.ButtonType.Parasha)
 		{
-			<ParashaWrapper OnParashaClosed="ReturnedParashaClosed" />
 		}
 		else
 		{
-			if (currentAction == Footers.ButtonType.Find && !String.IsNullOrEmpty(TextFilter))
-			{
-				<FilteredWrapper ParamBookAndChapter="new BookAndChapter(BCV.BibleBook, BCV.Chapter)"
-												 verses="verses"
-												 TextFilter="@TextFilter"
-												 OnFilteredClosed="ReturnedFilteredClosed" />
-			}
-			else
-			{
-				<Sections FilteredVerses="FilteredVerses"
-									ParmScrollToScriptureId="CurrentScrollToScriptureId" />
-			}
+			<MainFooter BCV="@BCV"
+									OnButtonSelected="ReturnedButtonType"
+									OnBCVSelected="ReturnedBCVSelected" />
 		}
-	</section>
 
-	<footer class="sticky-bottom">
+	}
+</footer>
 
-		@if (currentAction == Footers.ButtonType.Find)
-		{
-			if (String.IsNullOrEmpty(TextFilter))
-			{
-				<FindForm OnFilterSelected="ReturnedFilterSelected" OnCancel="CloseModal" />
-			}
-			else
-			{
-				<FilterFooter TextFilter="@TextFilter" OnClearClicked="ReturnedClearAction" />
-			}
-		}
-		else
-		{
-			@if (currentAction == Footers.ButtonType.Parasha)
-			{
-			}
-			else
-			{
-				<MainFooter BCV="@BCV"
-										OnButtonSelected="ReturnedButtonType"
-										OnBCVSelected="ReturnedBCVSelected" />
-			}
-
-		}
-	</footer>
-
-</LoadingComponent>
 
 @if (currentAction is not null)
 {
 	@if (currentAction == Footers.ButtonType.ToC)
 	{
-		<SubtitleModal Title="@FilteredVerses?.GetTitle()"
-									 Data="FilteredVerses?.ToTableOfContentMapping().ToList()"
-									 OnSelected="ReturnedTOC"
-									 OnCancel="CloseModal" />
+		@if (currentAction == Footers.ButtonType.ToC)
+		{
+			var (title, data) = BCV.BibleBook!.IsHebrewBible
+					? (FilteredVerses?.GetTitle(), FilteredVerses?.ToTableOfContentMapping().ToList())
+					: (FilteredVersesNT?.GetTitleNT(), FilteredVersesNT?.ToTableOfContentMappingNT().ToList());
+
+			<SubtitleModal Title="@title"
+										 Data="data"
+										 OnSelected="ReturnedTOC"
+										 OnCancel="CloseModal" />
+		}
 	}
 	else if (currentAction == Footers.ButtonType.BCV)
 	{
@@ -135,9 +155,15 @@
 
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
-	private List<Data.BookChapterWithAT>? verses = null;
+
+	protected const int delay = 600;
+	// OT
+	private List<Data.BookChapterWithOT>? verses = null;
 	protected List<VerseModel>? FilteredVerses { get; set; }
 
+	// NT
+	private List<Data.BookChapterNT>? versesNT = null;
+	protected List<VerseModelNT>? FilteredVersesNT { get; set; }
 
 	protected int CurrentScrollToScriptureId;
 	private BookChapterVerseRecord BCV { get; set; } = null!;
@@ -165,8 +191,19 @@
 						scrollTarget: CurrentAbrvChapterVerse.ScriptureId);
 			}
 
-			verses = await db!.GetBookChapterWithAT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
-			FilteredVerses = GetBookChapterVerses();
+			if (BCV.BibleBook!.IsHebrewBible)
+			{
+				await Task.Delay(delay);
+				verses = await db!.GetBookChapterOT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+				FilteredVerses = GetBookChapterVerses();
+			}
+			else
+			{
+				versesNT = await db!.GetBookChapterNT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+				FilteredVersesNT = GetBookChapterVersesNT();
+				//Logger!.LogWarning("{Method}, {errMsg}", nameof(OnParametersSetAsync), $"FilteredVersesNT.Count: {FilteredVersesNT.Count()}");
+			}
+
 		}
 		catch (Exception ex)
 		{
@@ -204,11 +241,18 @@
 	protected List<VerseModel> GetBookChapterVerses()
 	{
 		return verses!
-				.OrderBy(o => o.ID)
+				.OrderBy(o => o.Header.ID)
 				.Select(bc => bc.MapFromBookChapter(BCV!.BibleBook!.Value, BCV.Chapter))
 				.ToList();
 	}
 
+	protected List<VerseModelNT> GetBookChapterVersesNT()
+	{
+		return versesNT!
+				.OrderBy(o => o.Header.ID)
+				.Select(bc => bc.MapFromBookChapterNT(BCV!.BibleBook!.Value, BCV.Chapter))
+				.ToList();
+	}
 
 	#region EventCallback Return Logic
 
@@ -222,7 +266,15 @@
 	{
 		currentAction = null;
 		TextFilter = null;
-		FilteredVerses = GetBookChapterVerses();
+
+		if (BCV.BibleBook!.IsHebrewBible)
+		{
+			FilteredVerses = GetBookChapterVerses();
+		}
+		else
+		{
+			FilteredVersesNT = GetBookChapterVersesNT();
+		}
 	}
 
 
@@ -234,14 +286,29 @@
 	private void ReturnedParashaClosed()
 	{
 		currentAction = null;
-		FilteredVerses = GetBookChapterVerses();
+		if (BCV.BibleBook!.IsHebrewBible)
+		{
+			FilteredVerses = GetBookChapterVerses();
+		}
+		else
+		{
+			FilteredVersesNT = GetBookChapterVersesNT();
+		}
 	}
 
 	//ToDo: same code as above [ReturnedParashaClosed], consider unifying
 	private void ReturnedFilteredClosed()
 	{
 		currentAction = null;
-		FilteredVerses = GetBookChapterVerses();
+
+		if (BCV.BibleBook!.IsHebrewBible)
+		{
+			FilteredVerses = GetBookChapterVerses();
+		}
+		else
+		{
+			FilteredVersesNT = GetBookChapterVersesNT();
+		}
 	}
 
 	private async Task ReturnedTOC(ActionComponents.VerseAndID rec)
@@ -259,15 +326,34 @@
 		BCV = bcv;
 		try
 		{
-			verses = await db!.GetBookChapterWithAT(bcv.BibleBook!.Value, bcv.Chapter);
+			// ToDo: if verses is changed then figure out how to leverage LoadingBookChapter
+			if (BCV.BibleBook!.IsHebrewBible)
+			{
+				//verses = null; that didn't do anything
+				await Task.Delay(delay);
+				verses = await db!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);
+			}
+			else
+			{
+				await Task.Delay(delay);
+				versesNT = await db!.GetBookChapterNT(bcv.BibleBook!.Value, bcv.Chapter);
+			}
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(db.GetBookChapterWithAT)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(db.GetBookChapterOT)}");
 			return;
 		}
 
-		FilteredVerses = GetBookChapterVerses();
+		if (BCV.BibleBook!.IsHebrewBible)
+		{
+			FilteredVerses = GetBookChapterVerses();
+		}
+		else
+		{
+			FilteredVersesNT = GetBookChapterVersesNT();
+		}
+
 		CurrentScrollToScriptureId = bcv.ScriptureId;
 		CurrentVerse = bcv.Verse;
 		await SetFocusToElement();

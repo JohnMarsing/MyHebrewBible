@@ -1,0 +1,72 @@
+.torah-spinner {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+}
+
+.roller {
+	width: 13px;
+	height: 52px;
+	background: linear-gradient(to bottom, #8B5A2B, #5C3317);
+	border-radius: 4px;
+	box-shadow: 1px 2px 4px rgba(0,0,0,0.35), inset -2px 0 3px rgba(255,255,255,0.15), inset 2px 0 3px rgba(0,0,0,0.2);
+	position: relative;
+	flex-shrink: 0;
+}
+
+	/* Top and bottom caps for a more 3D wooden roller look */
+	.roller::before,
+	.roller::after {
+		content: '';
+		position: absolute;
+		left: -2px;
+		right: -2px;
+		height: 6px;
+		background: #4A2C0F;
+		border-radius: 3px;
+		box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+	}
+
+	.roller::before {
+		top: -2px;
+	}
+
+	.roller::after {
+		bottom: -2px;
+	}
+
+.parchment {
+	height: 38px;
+	min-width: 30px;
+	background: #f5e8c7;
+	border: 1px solid #c9a86c;
+	border-radius: 2px;
+	box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.15);
+	animation: torah-unroll 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	position: relative;
+}
+
+	/* Subtle ruled lines to evoke ancient parchment text */
+	.parchment::before {
+		content: '';
+		position: absolute;
+		inset: 5px 7px;
+		background-image: repeating-linear-gradient( transparent, transparent 5px, rgba(140, 110, 70, 0.28) 5px, rgba(140, 110, 70, 0.28) 6px );
+		pointer-events: none;
+	}
+
+@keyframes torah-unroll {
+	0%, 100% {
+		width: 38px;
+		box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.15);
+	}
+
+	50% {
+		width: 135px;
+		box-shadow: inset 0 2px 6px rgba(0,0,0,0.08), 0 2px 5px rgba(0,0,0,0.2);
+	}
+}

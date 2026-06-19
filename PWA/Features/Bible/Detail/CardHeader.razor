@@ -7,13 +7,21 @@
 	</button>
 	
 	<h5 class="card-title">
-		<BibleAnchor BLB="RCL.Enums.BLB.WLC" BookAndChapter="BookAndChapter" Verse="VerseNumber" />
+		@if (BookAndChapter.BibleBook!.IsHebrewBible)
+		{
+			<BibleAnchor BLB="RCL.Enums.BLB.WLC" BookAndChapter="BookAndChapter" Verse="VerseNumber" />
+		}
+		else
+		{
+			<BibleAnchor BLB="RCL.Enums.BLB.KJV" BookAndChapter="BookAndChapter" Verse="VerseNumber" />
+		}
+		
 	</h5>
 
 </div>
 
 @code {
-	[Parameter, EditorRequired] public BookAndChapter? BookAndChapter { get; set; }
+	[Parameter, EditorRequired] public BookAndChapter BookAndChapter { get; set; }
 	[Parameter, EditorRequired] public string? BCV { get; set; }
 	[Parameter, EditorRequired] public int VerseNumber { get; set; }
 	[Parameter] public EventCallback OnClose { get; set; }

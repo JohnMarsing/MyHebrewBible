@@ -6,7 +6,7 @@
 
 		@foreach (var item in hebrewWords!)
 		{
-			@if (HebrewWordNumbers)
+			@if (IsShowWordCountOn)
 			{
 				<sup><span class="px-1 text-muted fst-italic">@item.WordCount</span></sup>
 			}
@@ -23,7 +23,7 @@
 @code {
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
-	[Parameter, EditorRequired] public bool HebrewWordNumbers { get; set; }
+	[Parameter, EditorRequired] public bool IsShowWordCountOn { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 

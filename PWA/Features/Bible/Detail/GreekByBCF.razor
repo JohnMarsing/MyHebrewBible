@@ -1,0 +1,52 @@
+﻿@using PWA.Features.Bible.Data
+
+@inject ILogger<GreekByBCF>? Logger
+@inject PWA.Features.Bible.Data.IRepository? db;
+
+<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
+	<WordPartNTTable items="items"
+									 IsXs="IsXs"
+									 StrongsArray="StrongsArray" />
+</LoadingComponent>
+
+@code {
+	[Parameter, EditorRequired] public int ScriptureId { get; set; }
+	[Parameter, EditorRequired] public BookChapterFilter? BCF { get; set; }
+	[Parameter, EditorRequired] public bool IsXs { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	protected IQueryable<WordPartByScriptureIdAndStrongsNT>? items;
+	protected int[] StrongsArray = [];
+
+	protected override async Task OnParametersSetAsync()
+	{
+		ICollection<WordPartByScriptureIdAndStrongsNT>? greekWords;
+		try
+		{
+			if (BCF is not null)
+			{
+				greekWords = await db!.GetWordPartsByBCFNT(BCF.BookId, BCF.Chapter, BCF.Filter);
+				if (greekWords.Any())
+				{
+					items = greekWords.AsQueryable().Where(w => w.ScriptureID == ScriptureId).OrderBy(o => o.WordCount);
+					StrongsArray = items.Select(w => w.Strongs)
+													.Distinct()
+													.OrderBy(s => s)
+													.ToArray();
+
+					Logger!.LogWarning("{Method}; RowCnt: {RowCnt}", nameof(OnParametersSetAsync), items.Count());
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekByBCF), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartsByBCF)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+}
+

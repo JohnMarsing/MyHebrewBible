@@ -1,0 +1,53 @@
+﻿@using PWA.Features.Bible.Data
+
+@inject ILogger<GreekBySelectedWord>? Logger
+@inject PWA.Features.Bible.Data.IRepository? db;
+
+<p>GreekBySelectedWord is not done!</p>
+
+@if (WordSelected is not null)
+{
+	<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
+
+		<WordPartNTTable items="items"  IsXs="IsXs"  StrongsArray="new[] { WordSelected.Strongs }" />
+	</LoadingComponent>
+}
+
+@code {
+	[Parameter, EditorRequired] public int ScriptureId { get; set; }
+	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
+	[Parameter, EditorRequired] public bool IsXs { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	protected IQueryable<WordPartByScriptureIdAndStrongsNT>? items;
+	protected override async Task OnParametersSetAsync()
+	{
+		ICollection<WordPartByScriptureIdAndStrongsNT>? greekWords;
+		try
+		{
+			greekWords = await db!.GetGreekBySelectedWord(ScriptureId, WordSelected!.Strongs);
+
+			if (greekWords.Any())
+			{
+				items = greekWords.AsQueryable().Where(w => w.Strongs == WordSelected!.Strongs).OrderBy(o => o.WordCount);
+				//Logger!.LogInformation("{Method}; RowCnt: {RowCnt}", nameof(OnParametersSetAsync), items.Count());
+			}
+			else
+			{
+				// ToDo: Bug; This is occurring because the user selected another verse and that verse doesn't have the Strong's from the previous WordSelected
+				// e.g. you pick Gen 1:3 and select Light (H216), then go to Gen 1:4, the HebrewTableFiltered will show up because Light is in that verse as well
+				//Toast!.ShowWarning($"No records found for Id: {ScriptureId}; Strongs: {WordSelected!.Strongs}");
+				//Logger!.LogWarning("{Method}; WordSelected: {WordSelected}", nameof(OnParametersSetAsync), WordSelected);
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetGreekBySelectedWord)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+}

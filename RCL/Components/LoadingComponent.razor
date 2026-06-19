@@ -8,8 +8,10 @@
 	{
 		if (TurnSpinnerOff == false)
 		{
-			<div class="spinner-border"></div>
-			<span style="display: inline-block; vertical-align: super">@LoadingText!</span>
+			<div class="d-flex justify-content-center align-items-center gap-2">
+				<div class="spinner-border" role="status"></div>
+				<span>@LoadingText!</span>
+			</div>
 		}
 	}
 }

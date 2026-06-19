@@ -39,13 +39,13 @@ public class VerticalDirectionHelper
 		VerticalDirection dir, int currentScriptureId, List<Data.VerseModel> verses)
 	{
 
-		int i = verses.FindIndex(v => v.ID == currentScriptureId);
+		int i = verses.FindIndex(v => v.Header.ID == currentScriptureId);
 
 		if (dir == VerticalDirection.Down)
 		{
 			if (i < verses.Count - 1)
 			{
-				return ("", verses[i + 1].Verse, currentScriptureId + 1);
+				return ("", verses[i + 1].Header.Verse, currentScriptureId + 1);
 			}
 			else
 			{
@@ -56,7 +56,7 @@ public class VerticalDirectionHelper
 		{
 			if (i > 0)
 			{
-				return ("", verses[i - 1].Verse, currentScriptureId - 1);
+				return ("", verses[i - 1].Header.Verse, currentScriptureId - 1);
 			}
 			else
 			{
@@ -65,5 +65,38 @@ public class VerticalDirectionHelper
 
 		}
 	}
+
+	public static (string, int, int) GetVerseAndScriptureIdNT(
+	VerticalDirection dir, int currentScriptureId, List<Data.VerseModelNT> verses)
+	{
+
+		int i = verses.FindIndex(v => v.Header.ID == currentScriptureId);
+
+		if (dir == VerticalDirection.Down)
+		{
+			if (i < verses.Count - 1)
+			{
+				return ("", verses[i + 1].Header.Verse, currentScriptureId + 1);
+			}
+			else
+			{
+				return (dir.ChapterBoundryMessage, 0, 0);
+			}
+		}
+		else
+		{
+			if (i > 0)
+			{
+				return ("", verses[i - 1].Header.Verse, currentScriptureId - 1);
+			}
+			else
+			{
+				return (dir.ChapterBoundryMessage, 0, 0);
+			}
+
+		}
+	}
+
+
 
 }

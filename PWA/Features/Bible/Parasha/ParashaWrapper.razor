@@ -1,5 +1,4 @@
-﻿@using BibleEnums = PWA.Features.Bible.Enums
-@using ParashaEnums = RCL.Features.Parasha.Enums
+﻿@using ParashaEnums = RCL.Features.Parasha.Enums
 @using ParashaHelper = RCL.Features.Parasha.Helpers
 @using TriennialEnums = RCL.Features.Parasha.Enums.Triennial
 @using PWA.Features.Bible.Data
@@ -176,7 +175,7 @@
 			.Where(w => w.SectionId == showSection)
 			.Where(w => w.GroupCount == groupCount)
 			.Select(parasha => DataExtensions.MapFromParasha(parasha))
-			.OrderBy(o => o.ID).ToList();
+			.OrderBy(o => o.Header.ID).ToList();
 	}
 
 	private void ParashaClosedPassThrough()

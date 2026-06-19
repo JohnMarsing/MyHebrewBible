@@ -2,6 +2,6 @@
 
 public record UserSettingsDTO(bool IsStandaloneAlephTavDetailsOn, 
 															bool IsParashaDividerDetailsOn, 
-															bool IsHebrewWordNumbersOn,
+															bool IsHebrewWordNumbersOn, // ToDo: rename to more generic IsVerseNumbersOn or IsShowWordCountOn
 															bool IsVerseScrollButtonsOn);	
 

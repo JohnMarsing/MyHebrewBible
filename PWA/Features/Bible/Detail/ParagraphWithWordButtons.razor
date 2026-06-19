@@ -36,7 +36,7 @@
 @code {
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
-	[Parameter, EditorRequired] public bool ShowWordCount { get; set; }  // using UserSettings.IsHebrewWordNumbersOn
+	[Parameter, EditorRequired] public bool IsShowWordCountOn { get; set; }  
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
 
@@ -71,7 +71,7 @@
 
 	protected MarkupString GetSuper(int wordCount)
 	{
-		if (ShowWordCount)
+		if (IsShowWordCountOn)	
 		{
 			return (MarkupString)$"<sup class='px-1 text-muted fst-italic'>{wordCount}</sup>";
 		}

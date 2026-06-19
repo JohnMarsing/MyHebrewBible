@@ -1,0 +1,67 @@
+﻿@inject PWA.Features.Bible.Data.IRepository? db;
+@inject ILogger<GreekParagraph>? Logger
+
+<LoadingComponent IsLoading="greekWords == null" TurnSpinnerOff="TurnSpinnerOff">
+	<p class=" mb-1">
+
+		@foreach (var item in greekWords!)
+		{
+
+     @* @if (IsShowWordCountOn)	{	<sup><span class="px-1 text-muted fst-italic">@item.WordCount</span></sup> } *@	
+			<span class="@GetBgColor(item.Strongs)"
+						@onclick="@(e => ButtonWordClick(item.Strongs, item.WordCount))">
+						@item.KjvWord
+			</span>
+		}
+
+	</p>
+</LoadingComponent>
+
+@code {
+	[Parameter, EditorRequired] public int ScriptureId { get; set; }
+	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
+	//[Parameter, EditorRequired] public bool IsShowWordCountOn { get; set; } 
+	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	private List<Data.WordPartByScriptureIdNT>? greekWords = null;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			greekWords = await db!.GetWordPartByScriptureIdNT(ScriptureId);
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartByScriptureId)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+
+	protected string GetBgColor(int strongs)
+	{
+		if (WordSelected is null) return string.Empty;
+		if (strongs == 0) return string.Empty;
+
+		if (strongs == WordSelected.Strongs)
+		{
+			return " bg-warning-subtle";
+		}
+		else
+		{
+			return string.Empty;
+		}
+	}
+
+	protected int WordCount = 0;
+	private void ButtonWordClick(int strongs, int wordCount)
+	{
+		WordCount = wordCount;
+		OnWordSelected.InvokeAsync(new WordSelected(strongs, wordCount));
+	}
+}

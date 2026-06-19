@@ -1,0 +1,35 @@
+﻿@using PWA.Data.Constants
+@inject ILogger<SQLitePragmaCard> Logger
+@inject IToastService Toast
+@inject PWA.HealthChecks.Database.Data.IRepository? db
+
+<LoadingComponent IsLoading="ver == null" TurnSpinnerOff="TurnSpinnerOff">
+	<p class="fs-2 text-center text-success">SQLite PRAGMA version: <b>@ver</b></p>
+	<p class="fs-2 text-center text-primary">Current Schema Version: <b>@Database.CurrentSchemaVersion</b></p>
+
+</LoadingComponent>
+
+@code {
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+	
+	protected bool TurnSpinnerOff = false;
+	int? ver = 0;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			ver = await db!.GetSqlitePRAGMA();
+			if (ver is null) { Toast!.ShowWarning($"SQLite PRAGMA version not found (◡︵◡)");	}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(SQLitePragmaCard), nameof(OnInitializedAsync), Nav.HealthCheckDatabase, $"called: {nameof(db.GetSqlitePRAGMA)}");
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+
+}
