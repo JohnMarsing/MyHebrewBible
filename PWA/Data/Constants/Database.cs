@@ -12,7 +12,7 @@ public static class Database
 	*/
 	//public const int CurrentSchemaVersion = 2;  // 2026-06-17; 037-detect-db-changes; 
 	//public const int CurrentSchemaVersion = 3;  // 2026-06-22; 038-TSK-UI; added vwTSK1 and vwTSK2
-	public const int CurrentSchemaVersion = 4;  // 2026-06-23; 038-TSK-UI; dropped vwTSK, vwTSK_OLD, vwTSK_Combined, vwTSK_GroupByBCV
+	public const int CurrentSchemaVersion = 5;  // 2026-06-23; 038-TSK-UI; dropped vwTSK, vwTSK_OLD, vwTSK_Combined, vwTSK_GroupByBCV
 	/*
 	 ToDo: in the future add more databases
 	public static class Notes
