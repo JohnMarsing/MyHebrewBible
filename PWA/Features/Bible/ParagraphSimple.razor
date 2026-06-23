@@ -1,13 +1,15 @@
 ﻿@using PWA.Features.Bible.Data
+@using PWA.Features.Bible.TSK
 
 @if (VerseHeader != null)
 {
 	<p id="@VerseHeader.ID" class="fs-5 @textBG">
 		<sup class="text-primary" title="@VerseHeader.ID"><b>@VerseHeader.Verse</b></sup>
 
-		@VerseHeader.KJV
+		@((MarkupString)@VerseHeader.KJV!)
 
 	</p>
+	<Button BCV="@VerseHeader.BCV" Id="@VerseHeader.ID" TskRowCount="@VerseHeader.TskRowCount" />
 }
 
 @code {

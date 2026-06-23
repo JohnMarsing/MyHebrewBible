@@ -1,0 +1,69 @@
+﻿@using PWA.Features.Bible.TSK
+@using PWA.Features.Bible.TSK.Data
+@using RCL.Enums
+
+@inject PWA.Features.Bible.TSK.Data.IRepository? db;
+@inject ILogger<Table>? Logger
+@inject NavigationManager NavigationManager
+
+<LoadingComponent IsLoading="verses == null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<TableTemplate Items="verses!.OrderBy(o => o.RowNum).ToList()" HeaderCSS="table table-bordered border-warning table-sm table-hover table-small-font">
+		<TableHeader>
+			<th>#</th>
+			<th>BCV</th>
+			<th>👍</th>
+			<th>KJV</th>
+		</TableHeader>
+		<RowTemplate>
+			<td>@context.RowNum</td>
+			<td>
+				<a class=""
+								@onclick="@(e => ButtonClicked(context.BookID, context.Chapter, context.Verse))">
+					@context.BCV
+				</a>
+			</td>
+			<td>@context.Votes</td>
+			<td>@((MarkupString)@context.KJV!)</td>
+
+		</RowTemplate>
+	</TableTemplate>
+</LoadingComponent>
+
+@code {
+	[Parameter, EditorRequired] public int ScriptureID { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; } // Tell the modal to close
+	[CascadingParameter] private ProcessError? ProcessError { get; set; }
+
+	protected bool TurnSpinnerOff = false;
+	private List<Record>? verses = null;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			verses = await db!.GetTSK(ScriptureID);
+			if (verses is null)
+			{
+				ProcessError!.ShowToast($"Scripture {ScriptureID} not found  (◡︵◡)", ToastLevel.Warning);
+				await OnCancel.InvokeAsync();
+			}
+		}
+		catch (Exception ex)
+		{
+			ProcessError!.LogErrorWithMessage(ex, nameof(Table), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetTSK)}");
+			await OnCancel.InvokeAsync();
+		}
+		finally
+		{
+			TurnSpinnerOff = true;
+		}
+	}
+
+	private async Task ButtonClicked(int bookId, int chapter, int verse)
+	{
+		await OnCancel.InvokeAsync();
+		NavigationManager!.NavigateTo($"{Nav.Bible.Index}/{BibleBook.FromValue(bookId).Abrv}/{chapter}/{verse}");
+	}
+
+}

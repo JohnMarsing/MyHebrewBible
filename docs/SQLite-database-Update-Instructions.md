@@ -9,7 +9,8 @@ the following steps must be taken to ensure that existing databases are properly
 2. Adjust `vwTableRowCount` view in the SQLite database (if necessary)
 
 ```sql
-PRAGMA user_version = 2;   -- 2026-06-17; 037-detect-db-changes; 
+--PRAGMA user_version = 2;   -- 2026-06-17; 037-detect-db-changes; 
+PRAGMA user_version = 3;   -- 2026-06-22; 038-TSK-UI; added vwTSK1 and vwTSK2
 ```
 
 ###  `Database.cs` 
@@ -19,5 +20,6 @@ PRAGMA user_version = 2;   -- 2026-06-17; 037-detect-db-changes;
 namespace PWA.Data.Constants;
 //...
 	public const int CurrentSchemaVersion = 2;  // 2026-06-17; 037-detect-db-changes; 
+	public const int CurrentSchemaVersion = 3;  // 2026-06-22; 038-TSK-UI; added vwTSK1 and vwTSK2
 }
 ```

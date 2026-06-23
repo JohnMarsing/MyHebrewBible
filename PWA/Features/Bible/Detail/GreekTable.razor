@@ -30,6 +30,7 @@
 			<RowTemplate>
 				<td class=""></td>
 				<td>@context.KjvWord</td>
+				@* <td>@((MarkupString)@context.KjvWord!)</td> there is not `<i>` in here *@
 				<td><i>@context.Transliteration</i></td>
 				<td class="">@context.Greek</td>
 				@if (IsXs)

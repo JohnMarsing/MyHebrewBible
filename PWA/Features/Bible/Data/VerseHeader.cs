@@ -11,4 +11,5 @@ public record VerseHeader
 	public string? DescD { get; init; }
 	public int BookID { get; init; }
 	public int Chapter { get; init; }
+	public int TskRowCount { get; init; }
 }

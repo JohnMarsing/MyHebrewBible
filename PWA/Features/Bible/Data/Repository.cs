@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;using Dapper;
+﻿using System.Diagnostics;
+using Dapper;
 using PWA.Data;
 
 namespace PWA.Features.Bible.Data;
@@ -20,8 +21,6 @@ public interface IRepository
 	Task<List<WordPartByScriptureIdAndStrongsNT>> GetWordPartsByBCFNT(int bibleBookId, int chapter, string filter);
 	//Task<List<WordPartKjv>> GetWordPartKjvNT(int scriptureId); // Note, don't need a WordPartKjvNT, WordPartKjv works fine for both (ScriptureID, WordCount, Strongs, Word)
 }
-
-
 
 public class Repository : BaseRepositoryAsync, IRepository
 {
@@ -181,12 +180,17 @@ ORDER BY s.ID
 		Logger.LogDebug("Get B/C: {bookID}/{chapter}", bookID, chapter);
 
 		var parms = new DynamicParameters(new { BookId = bookID, Chapter = chapter });
-		
+
 		string sql = @"
-SELECT ID, BCV, Verse, VerseOffset, KJV, DescH, DescD  
-FROM Scripture
-WHERE BookID=@BookId and Chapter=@Chapter
-ORDER BY ID
+SELECT s.ID, s.BCV, s.Verse, s.VerseOffset, s.KJV, s.DescH, s.DescD
+,  COALESCE((
+        SELECT COUNT(*) 
+        FROM vwTSK2 t 
+        WHERE t.ScriptureID = s.ID
+    ), 0) AS TskRowCount
+FROM Scripture s
+WHERE s.BookID=@BookId and s.Chapter=@Chapter
+ORDER BY s.ID
 		";
 
 		string sqlDetail = @"
@@ -224,7 +228,8 @@ ORDER BY Id
 							VerseOffset = s.VerseOffset,
 							KJV = s.KJV,
 							DescH = s.DescH,
-							DescD = s.DescD
+							DescD = s.DescD,
+							TskRowCount = s.TskRowCount
 						},
 						WordPartList = wpGroup.ToList()
 					};
@@ -252,15 +257,20 @@ ORDER BY Id
 
 	#region NT
 
-		public async Task<List<BookChapterNT>> GetBookChapterNT(int bookID, int chapter)
+	public async Task<List<BookChapterNT>> GetBookChapterNT(int bookID, int chapter)
 	{
 		Logger.LogDebug("Get B/C: {bookID}/{chapter}", bookID, chapter);
 		var parms = new DynamicParameters(new { BookId = bookID, Chapter = chapter });
 		string sql = @"
-SELECT ID, BCV, Verse, VerseOffset, KJV, DescH, DescD  
-FROM Scripture
-WHERE BookID=@BookId and Chapter=@Chapter
-ORDER BY ID
+SELECT s.ID, s.BCV, s.Verse, s.VerseOffset, s.KJV, s.DescH, s.DescD
+,  COALESCE((
+        SELECT COUNT(*) 
+        FROM vwTSK2 t 
+        WHERE t.ScriptureID = s.ID
+    ), 0) AS TskRowCount
+FROM Scripture s
+WHERE s.BookID=@BookId and s.Chapter=@Chapter
+ORDER BY s.ID
 		";
 
 		string sqlDetail = @"
@@ -296,7 +306,8 @@ ORDER BY wp.ScriptureID;
 							VerseOffset = s.VerseOffset,
 							KJV = s.KJV,
 							DescH = s.DescH,
-							DescD = s.DescD
+							DescD = s.DescD,
+							TskRowCount = s.TskRowCount
 						},
 						WordPartList = wpGroup.ToList()
 					};
@@ -361,9 +372,12 @@ ORDER BY s.ID, wp.WordCount
 		}, sql);
 	}
 
-
 	#endregion
 }
+
+
+
+
 
 
 

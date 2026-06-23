@@ -1,0 +1,24 @@
+﻿@if (TskRowCount > 0)
+{
+	<sup class="">
+		<button type="button" class="btn btn-sm btn-link p-0 ms-1" @onclick="ButtonClick" title="Cross reference verses: @TskRowCount">
+			<i class="fa-solid fa-list-ol"></i>
+		</button>
+	</sup>
+}
+
+@if (showModal)
+{
+	<Modal BCV="@BCV" ScriptureID="@Id" OnCancel="CloseModal" />
+}
+
+@code {
+	[Parameter, EditorRequired] public string BCV { get; set; }
+	[Parameter, EditorRequired] public int Id { get; set; }
+	[Parameter, EditorRequired] public int TskRowCount { get; set; }
+
+	private bool showModal = false;
+
+	private void ButtonClick() => showModal = true;
+	private void CloseModal() => showModal = false;
+}

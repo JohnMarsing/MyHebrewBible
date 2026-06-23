@@ -11,6 +11,7 @@ using PWA.State;
 
 using Serilog;
 using PWA.Features.Bible.Data;
+using PWA.Features.Bible.TSK.Data;
 
 using SqliteWasmBlazor;  // Added in 026 branch
 using PWA.Data.Constants;
@@ -46,6 +47,7 @@ builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(build
 // HttpClient is already registered by default in Blazor WASM
 
 builder.Services.AddBibleData();
+builder.Services.AddTSKData();
 builder.Services.AddDatabaseHealthChecks();
 builder.Services.AddSqliteWasm();
 builder.Services.AddSingleton<SqliteWasmBlazorService>();

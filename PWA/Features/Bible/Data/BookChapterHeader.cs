@@ -9,4 +9,5 @@ public record BookChapterHeader
 	public string? KJV { get; init; }
 	public string? DescH { get; init; }
 	public string? DescD { get; init; }
+	public int TskRowCount { get; init; }
 }

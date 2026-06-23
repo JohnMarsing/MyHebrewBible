@@ -1,5 +1,3 @@
-using PWA.Features.Bible.Data;
-
 namespace PWA.Features.Bible.Data;
 
 public static class DataExtensions
@@ -18,7 +16,8 @@ public static class DataExtensions
 				DescH = bc.Header.DescH,
 				DescD = bc.Header.DescD,
 				BookID = bookId,
-				Chapter = chapter
+				Chapter = chapter,
+				TskRowCount = bc.Header.TskRowCount
 			},
 			WordPartList = bc.WordPartList?
 						.Select(wp => new WordPart
@@ -58,7 +57,8 @@ public static class DataExtensions
 				DescH = bc.Header.DescH,
 				DescD = bc.Header.DescD,
 				BookID = bookId,
-				Chapter = chapter
+				Chapter = chapter,
+				TskRowCount = bc.Header.TskRowCount	
 			},
 			WordPartList = bc.WordPartList?
 						.Select(wp => new WordPartNT

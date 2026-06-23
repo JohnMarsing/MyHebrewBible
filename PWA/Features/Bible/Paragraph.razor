@@ -1,5 +1,6 @@
 ﻿@using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Summary
+@using PWA.Features.Bible.TSK
 
 @* @inject IToastService? Toast *@
 
@@ -32,7 +33,7 @@
 									 ScriptureId="VerseHeader!.ID"
 									 Verse="VerseHeader.Verse" />
 		</sup>
-
+		<Button BCV="@VerseHeader.BCV" Id="@VerseHeader.ID" TskRowCount="@VerseHeader.TskRowCount" />
 	</p>
 }
 
