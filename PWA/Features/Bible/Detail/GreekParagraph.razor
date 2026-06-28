@@ -1,26 +1,27 @@
-﻿@inject PWA.Features.Bible.Data.IRepository? db;
+﻿@inject PWA.Features.Bible.Data.IRepositoryNT? dbNT;
 @inject ILogger<GreekParagraph>? Logger
 
-<LoadingComponent IsLoading="greekWords == null" TurnSpinnerOff="TurnSpinnerOff">
-	<p class=" mb-1">
 
+
+<LoadingComponent IsLoading="greekWords == null" TurnSpinnerOff="TurnSpinnerOff">
+
+	<div class="fs-5">
 		@foreach (var item in greekWords!)
 		{
-
-     @* @if (IsShowWordCountOn)	{	<sup><span class="px-1 text-muted fst-italic">@item.WordCount</span></sup> } *@	
-			<span class="@GetBgColor(item.Strongs)"
+			<span class="pe-1 @GetBgColor(item.Strongs, item.WordCount)"
 						@onclick="@(e => ButtonWordClick(item.Strongs, item.WordCount))">
-						@item.KjvWord
+				@item.Greek
 			</span>
+			@GetSuper(item.WordCount)
 		}
+	</div>
 
-	</p>
 </LoadingComponent>
 
 @code {
 	[Parameter, EditorRequired] public int ScriptureId { get; set; }
 	[Parameter, EditorRequired] public WordSelected? WordSelected { get; set; }
-	//[Parameter, EditorRequired] public bool IsShowWordCountOn { get; set; } 
+	[Parameter, EditorRequired] public bool IsShowWordCountOn { get; set; }
 	[Parameter] public EventCallback<WordSelected?> OnWordSelected { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
@@ -31,11 +32,11 @@
 	{
 		try
 		{
-			greekWords = await db!.GetWordPartByScriptureIdNT(ScriptureId);
+			greekWords = await dbNT!.GetWordPartByScriptureIdNT(ScriptureId);
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(GreekParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartByScriptureId)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(dbNT.GetWordPartByScriptureIdNT)}");
 		}
 		finally
 		{
@@ -43,18 +44,31 @@
 		}
 	}
 
-	protected string GetBgColor(int strongs)
+	protected string GetBgColor(int strongs, int wordCount)
 	{
 		if (WordSelected is null) return string.Empty;
 		if (strongs == 0) return string.Empty;
 
 		if (strongs == WordSelected.Strongs)
 		{
-			return " bg-warning-subtle";
+			return "bg-warning-subtle";
 		}
 		else
 		{
 			return string.Empty;
+		}
+	}
+
+
+	protected MarkupString GetSuper(int wordCount)
+	{
+		if (IsShowWordCountOn)
+		{
+			return (MarkupString)$"<sup class='sup-small-font ps-0 pe-1 text-muted fst-italic'>{wordCount}</sup>";
+		}
+		else
+		{
+			return (MarkupString)string.Empty;
 		}
 	}
 

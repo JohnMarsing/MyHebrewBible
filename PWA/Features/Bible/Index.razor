@@ -17,7 +17,8 @@
 
 @using RCL.Enums
 
-@inject PWA.Features.Bible.Data.IRepository? db;
+@inject PWA.Features.Bible.Data.IRepositoryOT? dbOT;
+@inject PWA.Features.Bible.Data.IRepositoryNT? dbNT;
 @inject ILogger<Index>? Logger
 @inject IToastService? Toast
 
@@ -73,8 +74,8 @@
 		{
 			@if (BCV.BibleBook!.IsHebrewBible)
 			{
-				<LoadingBookChapter IsLoading="FilteredVerses == null" TurnSpinnerOff="TurnSpinnerOff" BookChapter="@($"{BCV.BibleBook.Title} {BCV.Chapter}")">
-					<Sections FilteredVerses="FilteredVerses"
+				<LoadingBookChapter IsLoading="FilteredVersesOT == null" TurnSpinnerOff="TurnSpinnerOff" BookChapter="@($"{BCV.BibleBook.Title} {BCV.Chapter}")">
+					<SectionsOT FilteredVersesOT="FilteredVersesOT"
 										ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 				</LoadingBookChapter>
 			}
@@ -127,7 +128,7 @@
 		@if (currentAction == Footers.ButtonType.ToC)
 		{
 			var (title, data) = BCV.BibleBook!.IsHebrewBible
-					? (FilteredVerses?.GetTitle(), FilteredVerses?.ToTableOfContentMapping().ToList())
+					? (FilteredVersesOT?.GetTitleOT(), FilteredVersesOT?.ToTableOfContentMappingOT().ToList())
 					: (FilteredVersesNT?.GetTitleNT(), FilteredVersesNT?.ToTableOfContentMappingNT().ToList());
 
 			<SubtitleModal Title="@title"
@@ -159,7 +160,7 @@
 	protected const int delay = 600;
 	// OT
 	private List<Data.BookChapterWithOT>? verses = null;
-	protected List<VerseModel>? FilteredVerses { get; set; }
+	protected List<VerseModelOT>? FilteredVersesOT { get; set; }
 
 	// NT
 	private List<Data.BookChapterNT>? versesNT = null;
@@ -194,12 +195,12 @@
 			if (BCV.BibleBook!.IsHebrewBible)
 			{
 				await Task.Delay(delay);
-				verses = await db!.GetBookChapterOT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
-				FilteredVerses = GetBookChapterVerses();
+				verses = await dbOT!.GetBookChapterOT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+				FilteredVersesOT = GetBookChapterVersesOT();
 			}
 			else
 			{
-				versesNT = await db!.GetBookChapterNT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
+				versesNT = await dbNT!.GetBookChapterNT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 				FilteredVersesNT = GetBookChapterVersesNT();
 				//Logger!.LogWarning("{Method}, {errMsg}", nameof(OnParametersSetAsync), $"FilteredVersesNT.Count: {FilteredVersesNT.Count()}");
 			}
@@ -238,11 +239,11 @@
 		}
 	}
 
-	protected List<VerseModel> GetBookChapterVerses()
+	protected List<VerseModelOT> GetBookChapterVersesOT()
 	{
 		return verses!
 				.OrderBy(o => o.Header.ID)
-				.Select(bc => bc.MapFromBookChapter(BCV!.BibleBook!.Value, BCV.Chapter))
+				.Select(bc => bc.MapFromBookChapterOT(BCV!.BibleBook!.Value, BCV.Chapter))
 				.ToList();
 	}
 
@@ -269,7 +270,7 @@
 
 		if (BCV.BibleBook!.IsHebrewBible)
 		{
-			FilteredVerses = GetBookChapterVerses();
+			FilteredVersesOT = GetBookChapterVersesOT();
 		}
 		else
 		{
@@ -288,7 +289,7 @@
 		currentAction = null;
 		if (BCV.BibleBook!.IsHebrewBible)
 		{
-			FilteredVerses = GetBookChapterVerses();
+			FilteredVersesOT = GetBookChapterVersesOT();
 		}
 		else
 		{
@@ -303,7 +304,7 @@
 
 		if (BCV.BibleBook!.IsHebrewBible)
 		{
-			FilteredVerses = GetBookChapterVerses();
+			FilteredVersesOT = GetBookChapterVersesOT();
 		}
 		else
 		{
@@ -331,23 +332,23 @@
 			{
 				//verses = null; that didn't do anything
 				await Task.Delay(delay);
-				verses = await db!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);
+				verses = await dbOT!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);
 			}
 			else
 			{
 				await Task.Delay(delay);
-				versesNT = await db!.GetBookChapterNT(bcv.BibleBook!.Value, bcv.Chapter);
+				versesNT = await dbNT!.GetBookChapterNT(bcv.BibleBook!.Value, bcv.Chapter);
 			}
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(db.GetBookChapterOT)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(dbOT.GetBookChapterOT)}");
 			return;
 		}
 
 		if (BCV.BibleBook!.IsHebrewBible)
 		{
-			FilteredVerses = GetBookChapterVerses();
+			FilteredVersesOT = GetBookChapterVersesOT();
 		}
 		else
 		{
@@ -361,7 +362,7 @@
 
 
 	protected Footers.ButtonType? currentAction = null;
-	private List<VerseModel>? ParashaVerses { get; set; }
+	private List<VerseModelOT>? ParashaVerses { get; set; }
 
 	private async Task ReturnedButtonType(Footers.ButtonType action)
 	{

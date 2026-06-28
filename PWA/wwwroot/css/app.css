@@ -257,3 +257,7 @@ hr.warning {
   font-family: david;
   color: #ff0000
 }
+
+.sup-small-font {
+  font-size: 50%;
+}

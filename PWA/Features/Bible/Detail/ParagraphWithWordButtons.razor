@@ -1,4 +1,4 @@
-﻿@inject PWA.Features.Bible.Data.IRepository? db;
+﻿@inject PWA.Features.Bible.Data.IRepositoryOT? db;
 @inject ILogger<ParagraphWithWordButtons>? Logger
 
 <LoadingComponent IsLoading="kjvWords == null" TurnSpinnerOff="TurnSpinnerOff">
@@ -73,14 +73,13 @@
 	{
 		if (IsShowWordCountOn)	
 		{
-			return (MarkupString)$"<sup class='px-1 text-muted fst-italic'>{wordCount}</sup>";
+			return (MarkupString)$"<sup class='sup-small-font ps-0 pe-1 text-muted fst-italic'>{wordCount}</sup>";
 		}
 		else
 		{
 			return (MarkupString)string.Empty;
 		}
 	}
-
 
 	protected int WordCount = 0;
 	private void ButtonWordClick(int strongs, int wordCount)
@@ -91,4 +90,3 @@
 	}
 	
 }
-

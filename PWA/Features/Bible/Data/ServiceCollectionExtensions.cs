@@ -5,7 +5,8 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddBibleData(this IServiceCollection services)
 	{
 		services
-		.AddSingleton<IRepository, Repository>();
+		.AddSingleton<IRepositoryOT, RepositoryOT>()
+		.AddSingleton<IRepositoryNT, RepositoryNT>();
 		return services;
 	}
 }

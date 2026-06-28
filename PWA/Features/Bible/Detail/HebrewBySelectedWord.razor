@@ -1,12 +1,12 @@
 ﻿@using PWA.Features.Bible.Data
 
 @inject ILogger<HebrewBySelectedWord>? Logger
-@inject PWA.Features.Bible.Data.IRepository? db;
+@inject PWA.Features.Bible.Data.IRepositoryOT? db;
 
 @if (WordSelected is not null)
 {
 	<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
-		<WordPartTable items="items"
+		<WordPartTableOT items="items"
 									 IsXs="IsXs"
 									 StrongsArray="new[] { WordSelected.Strongs }" />
 	</LoadingComponent>
@@ -25,7 +25,7 @@
 		ICollection<WordPartByScriptureIdAndStrongs>? hebrewWords;
 		try
 		{
-			hebrewWords = await db!.GetHebrewBySelectedWord(ScriptureId, WordSelected!.Strongs);
+			hebrewWords = await db!.GetHebrewBySelectedWordOT		(ScriptureId, WordSelected!.Strongs);
 
 			if (hebrewWords.Any())
 			{
@@ -42,7 +42,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetHebrewBySelectedWord)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetHebrewBySelectedWordOT)}");
 		}
 		finally
 		{

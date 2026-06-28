@@ -1,0 +1,43 @@
+﻿@using RCL.Components
+@using RCL.Enums
+
+@inject IToastService? Toast
+
+<EditForm Model="@Model" OnValidSubmit="HandleValidSubmit">
+	<div class="d-flex align-items-center gap-2">
+		<InputText class="form-control form-control-sm" @bind-Value="Model.Abrv" placeholder="Abrv" autofocus />
+		<InputNumber int class="form-control form-control-sm" @bind-Value="Model.Chapter" />
+		<InputNumber int class="form-control form-control-sm" @bind-Value="Model.Verse" />
+		<button type="submit" class="btn btn-primary btn-sm">Go</button>
+	</div>
+</EditForm>
+
+@code {
+	private SearchModel Model { get; set; } = new();
+
+	[Parameter] public EventCallback<BookChapterVerseRecord> ButtonClicked { get; set; }
+
+	private async Task HandleValidSubmit()
+	{	
+		var (errMsg, id) = BibleBookDictionary.GetId(Model.Abrv.Trim() ?? string.Empty);
+		if (!string.IsNullOrEmpty(errMsg))
+		{
+			Toast!.ShowWarning($"Abbreviation is invalid: {errMsg}");
+			return;
+		}
+
+		if (BibleBook.TryFromValue(id, out BibleBook? bibleBook) && bibleBook is not null)
+		{
+			var record = new BookChapterVerseRecord(bibleBook, Model.Chapter, Model.Verse);
+			await ButtonClicked.InvokeAsync(record);
+		}
+		// else: invalid id -> no-op
+	}
+
+	private class SearchModel
+	{
+		public string Abrv { get; set; } = RCL.Enums.BibleBook.Genesis.Abrv;
+		public int Chapter { get; set; } = 1;
+		public int Verse { get; set; } = 1;
+	}
+}
