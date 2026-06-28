@@ -1,4 +1,4 @@
-﻿@inject PWA.Features.Bible.Data.IRepository? db;
+﻿@inject PWA.Features.Bible.Data.IRepositoryOT? db;
 @inject ILogger<HebrewParagraph>? Logger
 
 <LoadingComponent IsLoading="hebrewWords == null" TurnSpinnerOff="TurnSpinnerOff">
@@ -34,12 +34,12 @@
 	{
 		try
 		{
-			hebrewWords = await db!.GetWordPartByScriptureId(ScriptureId);
+			hebrewWords = await db!.GetWordPartByScriptureIdOT	(ScriptureId);
 			//if (!hebrewWords.Any()) { Toast!.ShowWarning($"No records found for ScriptureId: {ScriptureId}"); }
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartByScriptureId)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(HebrewParagraph), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartByScriptureIdOT)}");
 		}
 		finally
 		{

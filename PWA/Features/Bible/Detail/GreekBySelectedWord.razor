@@ -1,15 +1,12 @@
 ﻿@using PWA.Features.Bible.Data
 
 @inject ILogger<GreekBySelectedWord>? Logger
-@inject PWA.Features.Bible.Data.IRepository? db;
-
-<p>GreekBySelectedWord is not done!</p>
+@inject PWA.Features.Bible.Data.IRepositoryNT? dbNT;
 
 @if (WordSelected is not null)
 {
 	<LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
-
-		<WordPartNTTable items="items"  IsXs="IsXs"  StrongsArray="new[] { WordSelected.Strongs }" />
+		<WordPartTableNT items="items"  IsXs="IsXs"  StrongsArray="new[] { WordSelected.Strongs }" />
 	</LoadingComponent>
 }
 
@@ -26,7 +23,7 @@
 		ICollection<WordPartByScriptureIdAndStrongsNT>? greekWords;
 		try
 		{
-			greekWords = await db!.GetGreekBySelectedWord(ScriptureId, WordSelected!.Strongs);
+			greekWords = await dbNT!.GetGreekBySelectedWord(ScriptureId, WordSelected!.Strongs);
 
 			if (greekWords.Any())
 			{
@@ -43,7 +40,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(GreekBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetGreekBySelectedWord)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekBySelectedWord), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(dbNT.GetGreekBySelectedWord)}");
 		}
 		finally
 		{

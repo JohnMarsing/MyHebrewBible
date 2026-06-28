@@ -1,10 +1,10 @@
 ﻿@using PWA.Features.Bible.Data
 
 @inject ILogger<GreekByBCF>? Logger
-@inject PWA.Features.Bible.Data.IRepository? db;
+@inject PWA.Features.Bible.Data.IRepositoryNT? dbNT;
 
 <LoadingComponent IsLoading="items == null" TurnSpinnerOff="TurnSpinnerOff">
-	<WordPartNTTable items="items"
+	<WordPartTableNT items="items"
 									 IsXs="IsXs"
 									 StrongsArray="StrongsArray" />
 </LoadingComponent>
@@ -26,7 +26,7 @@
 		{
 			if (BCF is not null)
 			{
-				greekWords = await db!.GetWordPartsByBCFNT(BCF.BookId, BCF.Chapter, BCF.Filter);
+				greekWords = await dbNT!.GetWordPartsByBCFNT(BCF.BookId, BCF.Chapter, BCF.Filter);
 				if (greekWords.Any())
 				{
 					items = greekWords.AsQueryable().Where(w => w.ScriptureID == ScriptureId).OrderBy(o => o.WordCount);
@@ -41,7 +41,7 @@
 		}
 		catch (Exception ex)
 		{
-			ProcessError!.LogErrorWithMessage(ex, nameof(GreekByBCF), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(db.GetWordPartsByBCF)}");
+			ProcessError!.LogErrorWithMessage(ex, nameof(GreekByBCF), nameof(OnParametersSetAsync), Nav.Bible, $"called: {nameof(dbNT.GetWordPartsByBCFNT)}");
 		}
 		finally
 		{

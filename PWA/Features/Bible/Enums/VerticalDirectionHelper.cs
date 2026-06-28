@@ -4,7 +4,7 @@ namespace PWA.Features.Bible.Enums;
 public class VerticalDirectionHelper
 {
 	// Valid means 1) it's of interest and 2) if it is of interest, which one of the two directions is it.
-	// Called by Sections.razor e.g. `<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">`
+	// Called by SectionsOT.razor e.g. or SectionsNT `<div id="verse-@item.ID" tabindex="0" @onkeydown="HandleKeyDown">`
 	public static (bool, VerticalDirection?) IsKeyDownValid(string key) 
 	{
 		if (key != "ArrowDown" && key != "ArrowUp") { return (false, null); }
@@ -30,13 +30,13 @@ public class VerticalDirectionHelper
 	2. currentScriptureId: where the focus is currently
 	3. verses: the list of verses in the current chapter
 	
-	 Called by: Sections.razor two ways
+	 Called by: SectionsOT.razor or SectionsNT.razor two ways
 	1. HandleKeyDown() ...  @onkeydown="HandleKeyDown"
 	2. <VerseScrollButtons>
 	*/
 
 	public static (string, int, int) GetVerseAndScriptureId(
-		VerticalDirection dir, int currentScriptureId, List<Data.VerseModel> verses)
+		VerticalDirection dir, int currentScriptureId, List<Data.VerseModelOT> verses)
 	{
 
 		int i = verses.FindIndex(v => v.Header.ID == currentScriptureId);

@@ -2,7 +2,6 @@
 
 public class BibleBookDictionary
 {
-
 	public static (string, int) GetId(string abrv)
 	{
 		if (_dictionary.TryGetValue(abrv, out int id))
@@ -15,7 +14,11 @@ public class BibleBookDictionary
 		}
 	}
 
-	private static readonly Dictionary<string, int> _dictionary = new()
+
+	//private static readonly Dictionary<string, int> _dictionary =		new(StringComparer.OrdinalIgnoreCase);
+
+	//private static readonly Dictionary<string, int> _dictionary = new()
+	private static readonly Dictionary<string, int> _dictionary = new(StringComparer.OrdinalIgnoreCase)
 	{
 		[BibleBook.Genesis.Abrv] = 1,
 		[BibleBook.Exodus.Abrv] = 2,

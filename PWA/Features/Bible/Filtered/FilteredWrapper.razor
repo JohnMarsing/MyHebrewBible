@@ -8,7 +8,7 @@
 
 		@if (BookAndChapter.BibleBook!.IsHebrewBible)
 		{
-			@foreach (var item in FilteredVerses!.OrderBy(o => o.Header.ID))
+			@foreach (var item in FilteredVersesOT!.OrderBy(o => o.Header.ID))
 			{
 				<TitleSubtitle Title="@item.Header.DescH" Subtitle="@item.Header.DescD" />
 
@@ -74,7 +74,7 @@
 
 	BookAndChapter BookAndChapter => ParamBookAndChapter;
 
-	protected List<VerseModel>? FilteredVerses { get; set; }
+	protected List<VerseModelOT>? FilteredVersesOT { get; set; }
 	protected List<VerseModelNT>? FilteredVersesNT { get; set; }
 
 	protected override void OnParametersSet()
@@ -84,10 +84,10 @@
 		if (BookAndChapter.BibleBook!.IsHebrewBible)
 		{
 			if (verses is null || verses.Count == 0) throw new ArgumentException("Value cannot be null or empty.", nameof(verses));
-			FilteredVerses = verses
+			FilteredVersesOT = verses
 				.Where(v => v.Header.KJV != null && v.Header.KJV.Contains(TextFilter, StringComparison.OrdinalIgnoreCase))
 				.OrderBy(o => o.Header.ID)
-				.Select(bc => bc.MapFromBookChapterFilter(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
+				.Select(bc => bc.MapFromBookChapterFilterOT(BookAndChapter.BibleBook!.Value, BookAndChapter.Chapter, TextFilter))
 				.ToList();
 		}
 		else

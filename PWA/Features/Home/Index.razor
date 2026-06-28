@@ -4,6 +4,7 @@
 @using PWA.Features.Bible.Toolbar
 
 @inject NavigationManager NavigationManager
+@inject IToastService? Toast 
 
 <PageTitle>@Nav.Home.Title</PageTitle>
 
@@ -18,10 +19,17 @@
 				 class="img-fluid title-logo home-logo"
 				 alt="My Hebrew Bible" />
 	</div>
+	
+	<div class="card mt-2 mb-4 mx-auto" style="width: 18rem;">
+		<div class="card-header bg-info">
+			<SearchForm ButtonClicked="OnSearchFormGo" />
+			<div class="fs-4">Book/Chapter/Verse</div>
+		</div>
+		
+	</div>
+	
 
-	<p class="text-center text-muted">Book/Chapter/Verse</p>
-
-	<BcvCardTemplate Button="Enums.Button.LastBCV" MarginXClass="mx-auto">
+ 	<BcvCardTemplate Button="Enums.Button.LastBCV" MarginXClass="mx-auto">
 			<ListGroupRF>
 				<LastBCV OnItemClicked="NavigateToItem" />
 			</ListGroupRF>
@@ -55,9 +63,21 @@
 	{
 		if (!BibleBook.TryFromValue(item.BibleBookId, out BibleBook? bibleBook) || bibleBook is null)
 		{
+			Toast!.ShowWarning("Invalid input");
 			return;
 		}
 		NavigationManager.NavigateTo($"{Nav.Bible.Index}/{bibleBook.Abrv}/{item.Chapter}/{item.Verse}");
+	}
+
+
+	private void OnSearchFormGo(BookChapterVerseRecord record)
+	{
+		if (record.BibleBook is null)
+		{ 
+			Toast!.ShowWarning("Invalid input"); 
+		return;
+		}
+		NavigationManager.NavigateTo($"{Nav.Bible.Index}/{record.BibleBook.Abrv}/{record.Chapter}/{record.Verse}");
 	}
 }
 

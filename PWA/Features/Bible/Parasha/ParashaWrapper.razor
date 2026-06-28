@@ -3,7 +3,7 @@
 @using TriennialEnums = RCL.Features.Parasha.Enums.Triennial
 @using PWA.Features.Bible.Data
 
-@inject PWA.Features.Bible.Data.IRepository? db
+@inject PWA.Features.Bible.Data.IRepositoryOT? db
 @inject ILogger<ParashaWrapper>? Logger
 @inject IToastService? Toast
 @inject IJSRuntime JSRuntime
@@ -23,7 +23,7 @@
 			@if (showSection == ParashaEnums.ShowSection.Torah)
 			{
 				<div class="card-body px-1">
-					<Sections FilteredVerses="GetParashaTorahVerses(ParashaEnums.ShowSection.Torah.Value)"
+					<SectionsOT FilteredVersesOT="GetParashaTorahVerses(ParashaEnums.ShowSection.Torah.Value)"
 										ParmScrollToScriptureId="CurrentScrollToScriptureId"/>
 				</div>
 				<div class="text-center bg-success-subtle text-success-emphasis mb-4 py-2">End of Torah</div>
@@ -39,7 +39,7 @@
 					{
 						<div class="card-body px-1">
 							<h5 class="text-center">@haftorah.VerseRange</h5>
-							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
+							<SectionsOT FilteredVersesOT="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Haftorah.Value, haftorah.GroupCount)"
 												ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 						</div>
 					}
@@ -61,7 +61,7 @@
 					{
 						<div class="card-body px-1">
 							<h5 class="text-center">@brit.VerseRange</h5>
-							<Sections FilteredVerses="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
+							<SectionsOT FilteredVersesOT="GetParashaHaftorahOrBritVerses(ParashaEnums.ShowSection.Brit.Value, brit.GroupCount)"
 												ParmScrollToScriptureId="CurrentScrollToScriptureId"/>
 						</div>
 					}
@@ -161,20 +161,20 @@
 		}
 	}
 
-	protected List<VerseModel> GetParashaTorahVerses(int showSection)
+	protected List<VerseModelOT> GetParashaTorahVerses(int showSection)
 	{
 		return parashaVerses!
 		.Where(w => w.SectionId == showSection)
 		.OrderBy(o => o.ID)
-		.Select(parasha => DataExtensions.MapFromParasha(parasha))
+		.Select(parasha => DataExtensionsOT.MapFromParashaOT(parasha))
 		.ToList();
 	}
-	protected List<VerseModel> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
+	protected List<VerseModelOT> GetParashaHaftorahOrBritVerses(int showSection, int groupCount)
 	{
 		return parashaVerses!
 			.Where(w => w.SectionId == showSection)
 			.Where(w => w.GroupCount == groupCount)
-			.Select(parasha => DataExtensions.MapFromParasha(parasha))
+			.Select(parasha => DataExtensionsOT.MapFromParashaOT(parasha))
 			.OrderBy(o => o.Header.ID).ToList();
 	}
 

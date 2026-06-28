@@ -1,6 +1,7 @@
 ﻿@using RCL.Enums
 
 @using PWA.Features.Bible.Detail
+@using PWA.Features.Bible.Enums
 @using DirEnums = Enums.VerticalDirection
 @using DirHelper = Enums.VerticalDirectionHelper
 
@@ -40,49 +41,42 @@
 
 					<div class="card-body">
 
-						<ParagraphSimple BookAndChapter="GetBookAndChapter(item.Header.BookID, item.Header.Chapter)"
-														 VerseHeader="item.Header" />
-
 						<div class="@MediaQuery.Xs.DivClass">
-							<GreekTable WordPartList="@item.WordPartList" IsXs="true" />
-						</div>
-
-						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-							<GreekTable WordPartList="@item.WordPartList" IsXs="false" />
-						</div>
-
-						@*
-						<div class="@MediaQuery.Xs.DivClass">
-							<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
-																				WordSelected="CurrentWordSelected"
-																				IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
-																				OnWordSelected="ReturnedWord" />
+							<WordButtonsNT ScriptureId="DrilldownScriptureId"
+														 WordSelected="CurrentWordSelected"
+														 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+														 OnWordSelected="ReturnedWord" />
 							<hr />
 							<GreekParagraph ScriptureId="DrilldownScriptureId"
-															 WordSelected="CurrentWordSelected"
+															WordSelected="CurrentWordSelected"
 															IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
-															 OnWordSelected="ReturnedWord" />
+															OnWordSelected="ReturnedWord" />
 						</div>
 
+					
 						<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
-							<div class="d-flex justify-content-between">
-								<ParagraphWithWordButtons ScriptureId="DrilldownScriptureId"
-																					WordSelected="CurrentWordSelected"
-																					IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
-																					OnWordSelected="ReturnedWord" />
-
-								<HebrewParagraph ScriptureId="DrilldownScriptureId"
+							<div class="row">
+								<div class="col-6">
+									<WordButtonsNT ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected"
 																 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
 																 OnWordSelected="ReturnedWord" />
+								</div>
+
+								<div class="col-6">
+									<GreekParagraph ScriptureId="DrilldownScriptureId"
+																	WordSelected="CurrentWordSelected"
+																	IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																	OnWordSelected="ReturnedWord" />
+								</div>
 							</div>
 						</div>
- *@
+
 					</div>
 
 				</div>
 
-@* 	
+
 				@if (CurrentWordSelected is not null && CurrentWordSelected.WordCount != 0)
 				{
 					<div class="@MediaQuery.Xs.DivClass">
@@ -94,8 +88,8 @@
 																 WordSelected="CurrentWordSelected" IsXs=false />
 					</div>
 				}
- *@
 
+ 
 			}
 			else
 			{
@@ -112,7 +106,7 @@
 }
 else
 {
-	<p class="fs-3 text-danger text-center">FilteredVerses is null or empty  (◡︵◡)</p>
+	<p class="fs-3 text-danger text-center">FilteredVersesNT is null or empty  (◡︵◡)</p>
 }
 
 @code {
@@ -123,10 +117,17 @@ else
 
 	protected int CurrentScrollToScriptureId;
 
-	//private UserSettingsDTO UserSettings { get; set; } = new UserSettingsDTO(false, false, false, false);
+	private UserSettingsDTO UserSettings { get; set; } = new UserSettingsDTO(false, false, false, false); 
 
 	protected override async Task OnParametersSetAsync()
 	{
+		var _currentPermutations = (PWA.Features.Bible.Enums.Permutation)State!.AppState!.BookChapterState!.GetUserSetting();
+		UserSettings = new UserSettingsDTO(
+								IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
+								IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
+								IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
+								IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
+
 		CurrentScrollToScriptureId = ParmScrollToScriptureId;
 	}
 
@@ -233,11 +234,11 @@ else
 
 	#endregion
 
-	// WordSelected? CurrentWordSelected = new WordSelected(0, 0);
-	// private void ReturnedWord(WordSelected? wordSelected)
-	// {
-	// 	CurrentWordSelected = wordSelected;
-	// }
+	WordSelected? CurrentWordSelected = new WordSelected(0, 0);
+	private void ReturnedWord(WordSelected? wordSelected)
+	{
+		CurrentWordSelected = wordSelected;
+	}
 
 
 }
