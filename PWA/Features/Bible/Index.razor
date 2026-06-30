@@ -43,7 +43,7 @@
 
 		@if (ShowLastBCV)
 		{
-			<LastBCVButton />	
+			<LastBCVButton />
 		}
 	}
 
@@ -90,7 +90,6 @@
 											ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 				</LoadingBookChapter>
 			}
-
 
 		}
 	}
@@ -162,7 +161,9 @@
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
 
-	protected const int delay = 600;
+	protected const int delayOnParameterSet = 600;
+	protected const int delayBCVSelected = 600;
+
 	// OT
 	private List<Data.BookChapterWithOT>? verses = null;
 	protected List<VerseModelOT>? FilteredVersesOT { get; set; }
@@ -174,7 +175,6 @@
 	protected int CurrentScrollToScriptureId;
 	private BookChapterVerseRecord BCV { get; set; } = null!;
 
-	//protected Bible.AbrvChapterVerse? LastACV;
 	protected override async Task OnParametersSetAsync()
 	{
 		try
@@ -182,13 +182,7 @@
 			if (!string.IsNullOrEmpty(BookAbrv))
 			{
 
-				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: Verse);
-
-				//if (ShowLastBCV) 
-				//{ 
-				//	LastACV = State!.AppState!.BookChapterState!.GetACV();	
-				//}
-
+				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: 0);
 
 				// Test:
 				//ResolveBCV("Foo", Chapter, Verse, scrollTarget: Verse); // Test: invalid book
@@ -207,17 +201,19 @@
 
 			if (BCV.BibleBook!.IsHebrewBible)
 			{
-				await Task.Delay(delay);
+				await Task.Delay(delayOnParameterSet);
 				verses = await dbOT!.GetBookChapterOT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 				FilteredVersesOT = GetBookChapterVersesOT();
 			}
 			else
 			{
+				await Task.Delay(delayOnParameterSet);
 				versesNT = await dbNT!.GetBookChapterNT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 				FilteredVersesNT = GetBookChapterVersesNT();
 				//Logger!.LogWarning("{Method}, {errMsg}", nameof(OnParametersSetAsync), $"FilteredVersesNT.Count: {FilteredVersesNT.Count()}");
 			}
-
+			
+			await SetFocusToElement();
 		}
 		catch (Exception ex)
 		{
@@ -227,6 +223,7 @@
 		{
 			TurnSpinnerOff = true;
 		}
+
 	}
 
 	private void ResolveBCV(string abrv, int chapter, int verse, int scrollTarget)
@@ -242,7 +239,14 @@
 		if (BibleBook.TryFromValue(_value, out BibleBook? bibleBook))
 		{
 			BCV = new BookChapterVerseRecord(bibleBook, chapter, verse);
-			CurrentScrollToScriptureId = scrollTarget;
+			if (scrollTarget != 0)
+			{
+				CurrentScrollToScriptureId = scrollTarget;
+			}
+			else
+			{
+				CurrentScrollToScriptureId = BCV.ScriptureId;
+			}
 		}
 		else
 		{
@@ -338,19 +342,31 @@
 	{
 		currentAction = null;
 		BCV = bcv;
+
 		try
 		{
-			// ToDo: if verses is changed then figure out how to leverage LoadingBookChapter
+			// show spinner: clear filtered list so IsLoading expression becomes true
+			TurnSpinnerOff = false;
 			if (BCV.BibleBook!.IsHebrewBible)
 			{
-				//verses = null; that didn't do anything
-				await Task.Delay(delay);
-				verses = await dbOT!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);
+				FilteredVersesOT = null;
 			}
 			else
 			{
-				await Task.Delay(delay);
+				FilteredVersesNT = null;
+			}
+			StateHasChanged(); // force render so `RCL.Components.LoadingBookChapter` is reloaded and `torah-spinner` is displayed
+
+			await Task.Delay(delayBCVSelected);
+			if (BCV.BibleBook!.IsHebrewBible)
+			{
+				verses = await dbOT!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);
+				FilteredVersesOT = GetBookChapterVersesOT();
+			}
+			else
+			{
 				versesNT = await dbNT!.GetBookChapterNT(bcv.BibleBook!.Value, bcv.Chapter);
+				FilteredVersesNT = GetBookChapterVersesNT();
 			}
 		}
 		catch (Exception ex)
@@ -358,21 +374,15 @@
 			ProcessError!.LogErrorWithMessage(ex, nameof(Index), nameof(ReturnedBCVSelected), Nav.Bible, $"called: {nameof(dbOT.GetBookChapterOT)}");
 			return;
 		}
-
-		if (BCV.BibleBook!.IsHebrewBible)
+		finally
 		{
-			FilteredVersesOT = GetBookChapterVersesOT();
-		}
-		else
-		{
-			FilteredVersesNT = GetBookChapterVersesNT();
+			TurnSpinnerOff = true;
 		}
 
 		CurrentScrollToScriptureId = bcv.ScriptureId;
 		CurrentVerse = bcv.Verse;
 		await SetFocusToElement();
 	}
-
 
 	protected Footers.ButtonType? currentAction = null;
 	private List<VerseModelOT>? ParashaVerses { get; set; }

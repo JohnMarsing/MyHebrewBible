@@ -1,6 +1,7 @@
 ﻿@using PWA.Features.Bible.TSK
 @using PWA.Features.Bible.TSK.Data
 @using RCL.Enums
+@using RCL.Constants
 
 @inject PWA.Features.Bible.TSK.Data.IRepository? db;
 @inject ILogger<Table>? Logger
@@ -8,23 +9,23 @@
 
 <LoadingComponent IsLoading="verses == null" TurnSpinnerOff="TurnSpinnerOff">
 
-	<TableTemplate Items="verses!.OrderBy(o => o.RowNum).ToList()" HeaderCSS="table table-bordered border-warning table-sm table-hover table-small-font">
+	<TableTemplate Items="verses!.OrderBy(o => o.RowNum).ToList()" HeaderCSS="@($"table table-bordered border-info table-hover {HeaderSize}")">
 		<TableHeader>
 			<th>#</th>
 			<th>BCV</th>
-			<th>👍</th>
+			@* <th>👍</th> *@
 			<th>KJV</th>
 		</TableHeader>
 		<RowTemplate>
 			<td>@context.RowNum</td>
-			<td>
+			<td class="fw-bold @GetBG(context)">
 				<a class=""
 					 @onclick="@(e => ButtonClicked(context.BookID, context.Chapter, context.Verse))">
 					@context.BCV
 				</a>
 			</td>
-			<td>@context.Votes</td>
-			<td>@((MarkupString)@context.KJV!)</td>
+			@* <td>@context.Votes</td> *@
+			<td class="@GetBG(context)">@((MarkupString)@context.KJV!)</td>
 
 		</RowTemplate>
 	</TableTemplate>
@@ -32,7 +33,9 @@
 
 @code {
 	[Parameter, EditorRequired] public BibleBookChapterVerseId BBCVID { get; set; }
+	[Parameter, EditorRequired] public string HeaderSize { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+	
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
@@ -59,6 +62,11 @@
 		{
 			TurnSpinnerOff = true;
 		}
+	}
+
+	protected string GetBG(Record record)
+	{
+		return record.BookID <= BookChapterFacts.LastBookInOT ? "bg-warning-subtle" : "bg-primary-subtle";
 	}
 
 	private async Task ButtonClicked(int bookId, int chapter, int verse)

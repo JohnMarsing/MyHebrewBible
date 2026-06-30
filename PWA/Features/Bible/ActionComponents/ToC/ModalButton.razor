@@ -1,0 +1,18 @@
+﻿@using PWA.Features.Bible.Footers;
+
+<button class="btn btn-info @ButtonSize rounded rounded-4 me-1"
+				@onclick="ButtonClicked"
+				title="Table of Content">
+	<i class="fa-solid fa-t"></i>
+</button>
+
+
+@code {
+	[Parameter, EditorRequired] public string ButtonSize { get; set; }
+	[Parameter, EditorRequired] public EventCallback<ButtonType> OnButtonSelected { get; set; }
+
+	private void ButtonClicked()
+	{
+		OnButtonSelected.InvokeAsync(ButtonType.ToC);
+	}
+}
