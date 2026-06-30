@@ -1,6 +1,7 @@
 ﻿@using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Summary
 @using PWA.Features.Bible.TSK
+@using RCL.Enums
 
 @* @inject IToastService? Toast *@
 
@@ -33,7 +34,9 @@
 									 ScriptureId="VerseHeader!.ID"
 									 Verse="VerseHeader.Verse" />
 		</sup>
-		<Button BCV="@VerseHeader.BCV" Id="@VerseHeader.ID" TskRowCount="@VerseHeader.TskRowCount" />
+		<Button BBCVID="new BibleBookChapterVerseId(BookAndChapter!.BibleBook, BookAndChapter.Chapter, VerseHeader.Verse, VerseHeader.ID)"
+						TskRowCount="@VerseHeader.TskRowCount" />
+
 	</p>
 }
 

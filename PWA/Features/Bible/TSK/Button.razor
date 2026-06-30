@@ -9,12 +9,12 @@
 
 @if (showModal)
 {
-	<Modal BCV="@BCV" ScriptureID="@Id" OnCancel="CloseModal" />
+	<Modal BBCVID="@BBCVID" OnCancel="CloseModal" />
 }
 
 @code {
-	[Parameter, EditorRequired] public string BCV { get; set; }
-	[Parameter, EditorRequired] public int Id { get; set; }
+	[Parameter, EditorRequired] public RCL.Enums.BibleBookChapterVerseId BBCVID { get; set; }
+
 	[Parameter, EditorRequired] public int TskRowCount { get; set; }
 
 	private bool showModal = false;

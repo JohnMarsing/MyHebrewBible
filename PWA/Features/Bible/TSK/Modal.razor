@@ -4,12 +4,12 @@
 		<div class="modal-content">
 
 			<div class="modal-header">
-				<h5 class="modal-title text-center" id="tskModalLabel">Verses related to: @BCV</h5>
+				<h5 class="modal-title text-center" id="tskModalLabel">Verses related to: @BBCVID.BibleBook!.Abrv @BBCVID.Chapter:@BBCVID.Verse</h5>
 				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
 			</div>
 
 			<div class="modal-body">
-				<Table ScriptureID="@ScriptureID" OnCancel="HandleCancel" />
+				<Table BBCVID="@BBCVID" OnCancel="HandleCancel" />
 			</div>
 
 		</div>
@@ -18,8 +18,7 @@
 <div class="modal-backdrop fade show"></div>
 
 @code {
-	[Parameter, EditorRequired] public string BCV { get; set; } 
-	[Parameter, EditorRequired] public int ScriptureID { get; set; }
+	[Parameter, EditorRequired] public RCL.Enums.BibleBookChapterVerseId BBCVID { get; set; }
 	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
 	private async Task HandleCancel()
