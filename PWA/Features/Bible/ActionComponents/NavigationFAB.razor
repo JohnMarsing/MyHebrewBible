@@ -11,7 +11,7 @@
 
 			@* Scroll to first verse of current chapter *@
 			<button type="button"
-							class="btn btn-info btn-sm rounded-circle"
+							class="btn btn-info @ButtonSize rounded-circle"
 							title="@($"Go to Top")"
 							@onclick="ScrollToTopClicked">
 				<i class="fa-solid fa-t"></i>
@@ -25,7 +25,7 @@
 			else
 			{
 				<button type="button"
-								class="btn btn-primary btn-sm rounded-circle"
+								class="btn btn-primary @ButtonSize rounded-circle"
 								title="@_prevLabel"
 								@onclick="PrevClicked">
 					<i class="fas fa-arrow-up"></i>
@@ -56,7 +56,7 @@
 			else
 			{
 				<button type="button"
-								class="btn btn-primary btn-sm rounded-circle"
+								class="btn btn-primary @ButtonSize rounded-circle"
 								title="@_nextLabel"
 								@onclick="NextClicked">
 					<i class="fas fa-arrow-down"></i>
@@ -65,7 +65,7 @@
 
 			@* Scroll to last verse of current chapter *@
 			<button type="button"
-							class="btn btn-info btn-sm rounded-circle"
+							class="btn btn-info @ButtonSize rounded-circle"
 							title="@($"Go to Bottom")"
 							@onclick="ScrollToBottomClicked">
 				<i class="fa-solid fa-b"></i>
@@ -76,7 +76,7 @@
 
 	@* Toggle button *@
 	<button type="button"
-					class="btn btn-primary btn-sm rounded rounded-4 me-1"
+					class="btn btn-primary @ButtonSize rounded rounded-4 me-1"
 					title="@(_isOpen ? "Close navigation" : "Open navigation")"
 					@onclick="ToggleFab">
 		<i class="fas fa-chevron-up fab-toggle-icon @(_isOpen ? "is-open" : "")"></i>
@@ -86,6 +86,7 @@
 
 @code {
 	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = default!;
+	[Parameter, EditorRequired] public string ButtonSize { get; set; }
 	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
 
 	private bool _isOpen;

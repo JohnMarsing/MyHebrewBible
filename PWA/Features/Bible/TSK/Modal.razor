@@ -1,20 +1,38 @@
 ﻿
-<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="tskModalLabel">
-	<div class="modal-dialog modal-lg" role="document">
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="tskModalLabel" @onclick="HandleCancel">
+
+	<div class="modal-dialog modal-lg" role="document" @onclick:stopPropagation="true">
 		<div class="modal-content">
 
 			<div class="modal-header">
-				<h5 class="modal-title text-center" id="tskModalLabel">Verses related to: @BBCVID.BibleBook!.Abrv @BBCVID.Chapter:@BBCVID.Verse</h5>
+				<h6 class="modal-title" id="tskModalLabel">Verses related to: <span class="fw-bold">@BBCVID.BibleBook!.Abrv @BBCVID.Chapter:@BBCVID.Verse</span></h6>
 				<button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel"></button>
 			</div>
 
 			<div class="modal-body">
-				<Table BBCVID="@BBCVID" OnCancel="HandleCancel" />
+
+				<div class="@MediaQuery.Xs.DivClass">
+					<Table BBCVID="@BBCVID" HeaderSize="table-sm table-tiny-font" OnCancel="HandleCancel" />
+				</div>
+
+				<div class="@MediaQuery.Sm.DivClass">
+					<Table BBCVID="@BBCVID" HeaderSize="table-sm table-small-font" OnCancel="HandleCancel" />
+				</div>
+
+				<div class="@MediaQuery.Md.DivClass">
+					<Table BBCVID="@BBCVID" HeaderSize="table-sm" OnCancel="HandleCancel" />
+				</div>
+
+				<div class="@MediaQuery.LgOrXl.DivClass">
+					<Table BBCVID="@BBCVID" HeaderSize="" OnCancel="HandleCancel" />
+				</div>
+
 			</div>
 
 		</div>
 	</div>
 </div>
+
 <div class="modal-backdrop fade show"></div>
 
 @code {
