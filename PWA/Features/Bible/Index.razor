@@ -1,6 +1,5 @@
 ﻿@page "/bible"
-@page "/bible/{BookAbrv}/{Chapter:int}/{Verse:int}/"
-
+@page "/bible/{BookAbrv}/{Chapter:int}/{Verse:int}/{ShowLastBCV:bool?}"
 
 @using PWA.Features.Bible.Data
 @using PWA.Features.Bible.Enums
@@ -41,6 +40,11 @@
 		<MainButtons BCV="@BCV"
 								 OnMenuItemSelectedPassThrough="ReturnedMenuItemId"
 								 OnBCVSelected="ReturnedBCVSelected" />
+
+		@if (ShowLastBCV)
+		{
+			<LastBCVButton />	
+		}
 	}
 
 </header>
@@ -76,7 +80,7 @@
 			{
 				<LoadingBookChapter IsLoading="FilteredVersesOT == null" TurnSpinnerOff="TurnSpinnerOff" BookChapter="@($"{BCV.BibleBook.Title} {BCV.Chapter}")">
 					<SectionsOT FilteredVersesOT="FilteredVersesOT"
-										ParmScrollToScriptureId="CurrentScrollToScriptureId" />
+											ParmScrollToScriptureId="CurrentScrollToScriptureId" />
 				</LoadingBookChapter>
 			}
 			else
@@ -150,6 +154,7 @@
 	[Parameter] public string? BookAbrv { get; set; }
 	[Parameter] public int Chapter { get; set; }
 	[Parameter] public int Verse { get; set; }
+	[Parameter] public bool ShowLastBCV { get; set; } = false;
 
 	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
@@ -169,13 +174,21 @@
 	protected int CurrentScrollToScriptureId;
 	private BookChapterVerseRecord BCV { get; set; } = null!;
 
+	//protected Bible.AbrvChapterVerse? LastACV;
 	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
 			if (!string.IsNullOrEmpty(BookAbrv))
 			{
+
 				ResolveBCV(BookAbrv, Chapter, Verse, scrollTarget: Verse);
+
+				//if (ShowLastBCV) 
+				//{ 
+				//	LastACV = State!.AppState!.BookChapterState!.GetACV();	
+				//}
+
 
 				// Test:
 				//ResolveBCV("Foo", Chapter, Verse, scrollTarget: Verse); // Test: invalid book

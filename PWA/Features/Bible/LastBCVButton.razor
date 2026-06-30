@@ -1,0 +1,35 @@
+﻿@using RCL.Enums
+
+@inject NavigationManager NavigationManager
+
+	@if (ACV is not null)
+{
+	<button type="button" class="btn btn-primary"
+					@onclick="ButtonClicked">
+		<i class="fas fa-arrow-left"></i>
+		@Format(ACV)
+	</button>
+}
+
+
+@code {
+	[CascadingParameter] public CascadingAppState? State { get; set; }
+
+	protected Bible.AbrvChapterVerse? ACV;
+	protected override void OnParametersSet()
+	{
+		ACV = State!.AppState!.BookChapterState!.GetACV();
+	}
+
+	private static string Format(AbrvChapterVerse item)
+	{
+		string title = BibleBook.List.FirstOrDefault(book => book.Abrv == item.Abrv)?.Title ?? item.Abrv;
+		return $"Return to {title} {item.Chapter}:{item.Verse}";
+	}
+
+	private void ButtonClicked()
+	{
+
+		NavigationManager.NavigateTo($"{Nav.Bible.Index}/{ACV!.Abrv}/{ACV.Chapter}/{ACV.Verse}");
+	}
+}

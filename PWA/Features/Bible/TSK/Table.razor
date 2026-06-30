@@ -19,7 +19,7 @@
 			<td>@context.RowNum</td>
 			<td>
 				<a class=""
-								@onclick="@(e => ButtonClicked(context.BookID, context.Chapter, context.Verse))">
+					 @onclick="@(e => ButtonClicked(context.BookID, context.Chapter, context.Verse))">
 					@context.BCV
 				</a>
 			</td>
@@ -31,8 +31,9 @@
 </LoadingComponent>
 
 @code {
-	[Parameter, EditorRequired] public int ScriptureID { get; set; }
-	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; } // Tell the modal to close
+	[Parameter, EditorRequired] public BibleBookChapterVerseId BBCVID { get; set; }
+	[Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+	[CascadingParameter] public CascadingAppState? State { get; set; }
 	[CascadingParameter] private ProcessError? ProcessError { get; set; }
 
 	protected bool TurnSpinnerOff = false;
@@ -42,10 +43,10 @@
 	{
 		try
 		{
-			verses = await db!.GetTSK(ScriptureID);
+			verses = await db!.GetTSK(BBCVID.ScriptureId);
 			if (verses is null)
 			{
-				ProcessError!.ShowToast($"Scripture {ScriptureID} not found  (◡︵◡)", ToastLevel.Warning);
+				ProcessError!.ShowToast($"Scripture {BBCVID.ScriptureId} not found  (◡︵◡)", ToastLevel.Warning);
 				await OnCancel.InvokeAsync();
 			}
 		}
@@ -63,7 +64,12 @@
 	private async Task ButtonClicked(int bookId, int chapter, int verse)
 	{
 		await OnCancel.InvokeAsync();
-		NavigationManager!.NavigateTo($"{Nav.Bible.Index}/{BibleBook.FromValue(bookId).Abrv}/{chapter}/{verse}");
+
+		await State!.AppState!.BookChapterState!.UpdateACV(Bible.AbrvChapterVerse.FromBookBBCVID(BBCVID));
+		await State!.AppState!.BookChapterState!.AddStoredAcvToBcvList();
+
+		NavigationManager!.NavigateTo($"{Nav.Bible.Index}/{BibleBook.FromValue(bookId).Abrv}/{chapter}/{verse}/{true}"); // {ShowLastBCV:bool?}
+
 	}
 
 }
