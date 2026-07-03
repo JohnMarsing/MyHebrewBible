@@ -21,8 +21,14 @@
 
 		@if (CurrentBookAndChapter is not null)
 		{
-			<ChapterNavFAB BookAndChapter="CurrentBookAndChapter"
-										 OnBookAndChapterSelected="ReturnedBookAndChapter" />
+			@if (CurrentBookAndChapter.BibleBook!.Title.Length > 11)
+			{
+				<span class="fw-bold text-primary fs-6">@CurrentBookAndChapter.BibleBook!.Title	@CurrentBookAndChapter.Chapter </span>
+			}
+			else
+			{
+				<span class="fw-bold text-primary fs-4">@CurrentBookAndChapter.BibleBook!.Title	@CurrentBookAndChapter.Chapter </span>
+			}
 		}
 	</div>
 

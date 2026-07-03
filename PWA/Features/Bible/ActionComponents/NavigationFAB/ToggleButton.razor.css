@@ -1,0 +1,10 @@
+
+/* Toggle arrow icon — smooth 180° rotation */
+.fab-toggle-icon {
+	display: inline-block;
+	transition: transform 0.3s ease;
+}
+
+.fab-toggle-icon.is-open {
+	transform: rotate(180deg);
+}

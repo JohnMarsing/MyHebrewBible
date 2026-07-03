@@ -161,8 +161,7 @@
 	protected Bible.AbrvChapterVerse? CurrentAbrvChapterVerse;
 	protected bool TurnSpinnerOff = false;
 
-	protected const int delayOnParameterSet = 600;
-	protected const int delayBCVSelected = 600;
+	protected const int delayChangedBCV = 400;
 
 	// OT
 	private List<Data.BookChapterWithOT>? verses = null;
@@ -201,18 +200,18 @@
 
 			if (BCV.BibleBook!.IsHebrewBible)
 			{
-				await Task.Delay(delayOnParameterSet);
+				await Task.Delay(delayChangedBCV);
 				verses = await dbOT!.GetBookChapterOT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 				FilteredVersesOT = GetBookChapterVersesOT();
 			}
 			else
 			{
-				await Task.Delay(delayOnParameterSet);
+				await Task.Delay(delayChangedBCV);
 				versesNT = await dbNT!.GetBookChapterNT(bookID: BCV.BibleBook!.Value, chapter: BCV.Chapter);
 				FilteredVersesNT = GetBookChapterVersesNT();
 				//Logger!.LogWarning("{Method}, {errMsg}", nameof(OnParametersSetAsync), $"FilteredVersesNT.Count: {FilteredVersesNT.Count()}");
 			}
-			
+
 			await SetFocusToElement();
 		}
 		catch (Exception ex)
@@ -341,6 +340,16 @@
 	private async Task ReturnedBCVSelected(BookChapterVerseRecord bcv)
 	{
 		currentAction = null;
+
+		if (BCV.Chapter == bcv.Chapter && BCV.BibleBook == bcv.BibleBook && BCV.Verse != bcv.Verse)
+		{
+			CurrentScrollToScriptureId = bcv.ScriptureId;
+			CurrentVerse = bcv.Verse;
+			BCV = BCV with { Verse = CurrentVerse };
+			await SetFocusToElement();
+			return;
+		}
+
 		BCV = bcv;
 
 		try
@@ -357,7 +366,7 @@
 			}
 			StateHasChanged(); // force render so `RCL.Components.LoadingBookChapter` is reloaded and `torah-spinner` is displayed
 
-			await Task.Delay(delayBCVSelected);
+			await Task.Delay(delayChangedBCV);
 			if (BCV.BibleBook!.IsHebrewBible)
 			{
 				verses = await dbOT!.GetBookChapterOT(bcv.BibleBook!.Value, bcv.Chapter);

@@ -10,7 +10,8 @@ public static class BookChapterFacts
   */
 
 	public const int LastBookInOT = 39; // used by LivingMessiah\Enums\BibleBook.cs
-  public const int FirstBook = 1;
+	public const int LastBookInNtT= 66; 
+	public const int FirstBook = 1;
   public const int LastBook = 66;
 
 }

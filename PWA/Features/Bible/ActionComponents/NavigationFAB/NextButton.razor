@@ -1,0 +1,66 @@
+﻿@using PWA.Features.Bible.ActionComponents.NavigationFAB.Enums
+@using RCL.Enums
+
+@if (BCV?.Verse == BCV?.LastVerse)
+{
+
+	@if (BCV!.BibleBook == BibleBook.Revelation.Value && BCV!.Chapter == BibleBook.Revelation.LastChapter)
+	{
+		<OnEdgeButton />
+	}
+	else
+	{
+		<button type="button"
+						class="@Button.ChapterNext.CssClass @ButtonSize"
+						title="@bibleBookNext.ButtonText"
+						@onclick="ButtonClickedNextChapter">
+			<i class="@Button.ChapterNext.IconClass"></i>
+		</button>
+	}
+}
+else
+{
+	<button type="button"
+					class="@Button.Next.CssClass @ButtonSize"
+					title="@BCV.NextLabel"
+					@onclick="ButtonClicked">
+		<i class="@Button.Next.IconClass"></i>
+	</button>
+	<button type="button"
+					class="@Button.Bottom.CssClass @ButtonSize"
+					title="@Button.Bottom.Title"
+					@onclick="ButtonClickedBottom">
+		<i class="@Button.Bottom.IconClass"></i>
+	</button>
+}
+
+@code {
+	[Parameter, EditorRequired] public string ButtonSize { get; set; } = string.Empty;
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = default!;
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+
+	BibleBookPrevNext bibleBookNext =default;
+	protected override void OnParametersSet()
+	{
+		bibleBookNext = BCV.BibleBook!.NavigationNext(BCV.Chapter); 
+	}
+
+	private async Task ButtonClicked()
+	{
+		await OnBCVSelected.InvokeAsync(BCV.NextBCV);
+	}
+	
+	private async Task ButtonClickedBottom()
+	{
+		if (BCV?.BibleBook is null) return;
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, BCV.LastVerse));
+	}
+
+	private async Task ButtonClickedNextChapter()
+	{
+		if (BCV?.BibleBook is null) return;
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(bibleBookNext!.BibleBook, bibleBookNext.Chapter, 1));
+		//await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook.BibleBookPrevNext.Chapter, BCV.Chapter + 1, 1));
+	}
+
+}

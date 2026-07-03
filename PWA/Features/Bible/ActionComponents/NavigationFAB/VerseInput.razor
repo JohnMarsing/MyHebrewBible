@@ -1,0 +1,58 @@
+﻿@using RCL.Enums
+@using PWA.Features.Bible.ActionComponents.NavigationFAB.Enums
+
+
+<div class="d-flex flex-column align-items-center gap-1">
+	<input type="number"
+				 class="form-control @FormControlSize bg-secondary-subtle my-1 text-center p-0 no-spinner"
+				 min="1"
+				 max="@_lastVerseOfChapter"
+				 @bind="_verseInput"
+				 @bind:event="oninput"
+				 title="@($"Verse 1–{_lastVerseOfChapter}")"
+				 @onkeydown="HandleVerseKeyDown" />
+	@if (_verseInputError)
+	{
+		<span class="badge bg-danger" style="font-size:0.6rem;">1–@_lastVerseOfChapter</span>
+	}
+</div>
+
+@code {
+	[Parameter, EditorRequired] public string FormControlSize { get; set; } 
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = default!;
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+
+	private int _lastVerseOfChapter;
+	private int _verseInput;
+	private bool _verseInputError;
+
+	protected override void OnParametersSet()
+	{
+		if (BCV?.BibleBook is null) return;
+		_lastVerseOfChapter = BCV.BibleBook.LastVerses[BCV.Chapter - 1];
+		_verseInput = BCV.Verse;
+		_verseInputError = false;
+	}
+
+	private async Task HandleVerseKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key != "Enter") return;
+		await GoToVerse();
+	}
+
+	private async Task GoToVerse()
+	{
+		if (BCV?.BibleBook is null) return;
+
+		if (_verseInput < 1 || _verseInput > _lastVerseOfChapter)
+		{
+			_verseInputError = true;
+			return;
+		}
+
+		_verseInputError = false;
+		var scriptureId = BibleBookHelper.GetScriptureId(BCV.BibleBook, BCV.Chapter, _verseInput);
+		await OnBCVSelected.InvokeAsync(new BookChapterVerseRecord(BCV.BibleBook, BCV.Chapter, _verseInput));
+	}
+
+}
