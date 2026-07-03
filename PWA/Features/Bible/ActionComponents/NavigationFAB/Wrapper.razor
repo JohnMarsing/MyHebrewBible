@@ -1,0 +1,40 @@
+
+<div class="position-relative">
+	@* FAB panel — slides above the toggle when open (FAB: Floating Action Button) *@
+
+	@if (_isOpen)
+	
+	{
+		<div class="fab-panel position-absolute bottom-100 end-0 mb-1 d-flex flex-column align-items-center gap-1"
+				 style="z-index: 1050; min-width: 3rem; right:0">
+			<PrevButton BCV="BCV" ButtonSize="@ButtonSize" OnBCVSelected="ReturnedBCV" />
+			<VerseInput BCV="BCV" FormControlSize="@FormControlSize" OnBCVSelected="ReturnedBCV" />
+			<NextButton BCV="BCV" ButtonSize="@ButtonSize" OnBCVSelected="ReturnedBCV" />
+		</div>
+	}
+
+	<ToggleButton IsOpen="@_isOpen" OnToggleSelected="ReturnedToggle" />
+
+</div>
+
+@code {
+	[Parameter, EditorRequired] public BookChapterVerseRecord BCV { get; set; } = default!;
+	[Parameter, EditorRequired] public EventCallback<BookChapterVerseRecord> OnBCVSelected { get; set; }
+		
+	const string ButtonSize = "btn-sm";	
+	const string FormControlSize = "form-control-sm";
+
+	// A Passthrough from FAB buttons and VerseInput to the parent component (MainFooter)
+	private async Task ReturnedBCV(BookChapterVerseRecord bcv)
+	{
+		await OnBCVSelected.InvokeAsync(bcv);
+	}
+
+	private bool _isOpen;
+	private void ReturnedToggle()
+	{
+		_isOpen = !_isOpen;
+	}
+
+
+}

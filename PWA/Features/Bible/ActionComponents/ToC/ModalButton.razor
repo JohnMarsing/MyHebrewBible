@@ -1,14 +1,24 @@
 ﻿@using PWA.Features.Bible.Footers;
 
-<button class="btn btn-info @ButtonSize rounded rounded-4 me-1"
-				@onclick="ButtonClicked"
-				title="Table of Content">
-	<i class="fa-solid fa-t"></i>
-</button>
+<div class="@MediaQuery.Xs.DivClass">
+	<button class="btn btn-info btn-sm rounded rounded-4 me-1"
+					@onclick="ButtonClicked"
+					title="Table of Content">
+		<i class="fa-solid fa-t"></i>
+	</button>
+
+</div>
+
+<div class="@MediaQuery.SmOrMdOrLgOrXl.DivClass">
+	<button class="btn btn-info rounded rounded-4 me-1"
+					@onclick="ButtonClicked"
+					title="Table of Content">
+		<i class="fa-solid fa-t"></i>
+	</button>
+</div>
 
 
 @code {
-	[Parameter, EditorRequired] public string ButtonSize { get; set; }
 	[Parameter, EditorRequired] public EventCallback<ButtonType> OnButtonSelected { get; set; }
 
 	private void ButtonClicked()

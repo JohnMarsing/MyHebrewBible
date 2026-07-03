@@ -44,12 +44,12 @@
 						<div class="@MediaQuery.Xs.DivClass">
 							<WordButtonsNT ScriptureId="DrilldownScriptureId"
 														 WordSelected="CurrentWordSelected"
-														 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+														 IsShowWordCountOn="UserSettings.IsShowWordCountOn"
 														 OnWordSelected="ReturnedWord" />
 							<hr />
 							<GreekParagraph ScriptureId="DrilldownScriptureId"
 															WordSelected="CurrentWordSelected"
-															IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+															IsShowWordCountOn="UserSettings.IsShowWordCountOn"
 															OnWordSelected="ReturnedWord" />
 						</div>
 
@@ -59,14 +59,14 @@
 								<div class="col-6">
 									<WordButtonsNT ScriptureId="DrilldownScriptureId"
 																 WordSelected="CurrentWordSelected"
-																 IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																 IsShowWordCountOn="UserSettings.IsShowWordCountOn"
 																 OnWordSelected="ReturnedWord" />
 								</div>
 
 								<div class="col-6">
 									<GreekParagraph ScriptureId="DrilldownScriptureId"
 																	WordSelected="CurrentWordSelected"
-																	IsShowWordCountOn="UserSettings.IsHebrewWordNumbersOn"
+																	IsShowWordCountOn="UserSettings.IsShowWordCountOn"
 																	OnWordSelected="ReturnedWord" />
 								</div>
 							</div>
@@ -125,7 +125,7 @@ else
 		UserSettings = new UserSettingsDTO(
 								IsStandaloneAlephTavDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.StandaloneAlephTavDetailOn),
 								IsParashaDividerDetailsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ParashaDividerDetailOn),
-								IsHebrewWordNumbersOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.HebrewWordNumbersOn),
+								IsShowWordCountOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.ShowWordCountOn),
 								IsVerseScrollButtonsOn: _currentPermutations.HasFlag(PWA.Features.Bible.Enums.Permutation.VerseScrollButtonsOn));
 
 		CurrentScrollToScriptureId = ParmScrollToScriptureId;

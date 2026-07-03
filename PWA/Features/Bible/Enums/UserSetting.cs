@@ -7,7 +7,7 @@ public enum Permutation : int
 {
 	StandaloneAlephTavDetailOn = 1,
 	ParashaDividerDetailOn = 2,
-	HebrewWordNumbersOn = 4,
+	ShowWordCountOn = 4,
 	VerseScrollButtonsOn = 8,
 }
 
@@ -51,7 +51,7 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	public static Permutation Default =>
 		Permutation.StandaloneAlephTavDetailOn
 	| Permutation.ParashaDividerDetailOn
-	| Permutation.HebrewWordNumbersOn;
+	| Permutation.ShowWordCountOn;
 
 
 	#endregion
@@ -79,7 +79,7 @@ public abstract class UserSetting : SmartEnum<UserSetting>
 	private sealed class HebrewWordNumbersSE : UserSetting
 	{
 		public HebrewWordNumbersSE() : base($"{nameof(Id.HebrewWordNumbers)}", Id.HebrewWordNumbers) { }
-		public override Permutation OnState => Permutation.HebrewWordNumbersOn;
+		public override Permutation OnState => Permutation.ShowWordCountOn;
 		public override string Title => "Hebrew Word Numbers";
 		public override string DetailWhenOn => "sequential cardinal numbers shown";
 		public override string DetailWhenOff => "sequential cardinal numbers NOT shown";
